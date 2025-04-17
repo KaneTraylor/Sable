@@ -21,12 +21,12 @@ export default function HomePage() {
       bg="gray.50"
       textAlign="center"
     >
-      <Heading mb={4}>Welcome to Rising Tides</Heading>
+      <Heading mb={4}>Welcome to Sable Credit</Heading>
       <Text mb={8} color="gray.600">
         Rebuild your credit. Reclaim your future.
       </Text>
       <Button colorScheme="blue" onClick={() => router.push("auth/signin")}>
-        Sign In to Get Started
+        Sign in
       </Button>
     </Box>
   );

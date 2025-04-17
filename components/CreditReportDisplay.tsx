@@ -1,5 +1,14 @@
+// components/CreditReportDisplay.tsx
 import React from "react";
-import { Box, Heading, VStack, HStack, Text, Divider } from "@chakra-ui/react";
+import {
+  Box,
+  Heading,
+  VStack,
+  HStack,
+  Text,
+  Divider,
+  Button,
+} from "@chakra-ui/react";
 
 type Tradeline = {
   creditor: string;
@@ -30,6 +39,24 @@ const mockNegativeItems: Tradeline[] = [
 ];
 
 export default function CreditReportDisplay() {
+  const handleDownloadPDF = async () => {
+    const res = await fetch("/api/generatePdf", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ tradelines: mockNegativeItems }),
+    });
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "dispute-letter.pdf";
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <Box p={6} bg="white" boxShadow="sm" borderRadius="xl">
       <Heading size="md" mb={4}>
@@ -53,6 +80,9 @@ export default function CreditReportDisplay() {
           </Box>
         ))}
       </VStack>
+      <Button colorScheme="blue" mt={6} onClick={handleDownloadPDF}>
+        Download Dispute Letter
+      </Button>
     </Box>
   );
 }
