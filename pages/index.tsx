@@ -25,7 +25,7 @@ export default function HomePage() {
       <Text mb={8} color="gray.600">
         Rebuild your credit. Reclaim your future.
       </Text>
-      <Button colorScheme="blue" onClick={() => router.push("/auth/signin")}>
+      <Button colorScheme="blue" onClick={() => router.push("auth/signin")}>
         Sign In to Get Started
       </Button>
     </Box>

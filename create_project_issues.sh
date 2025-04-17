@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Set your GitHub project number and repo
+
 PROJECT_NUMBER=1
 REPO="KaneTraylor/Dispute-app"
 
-# Declare an array of issues with titles and bodies
+
 declare -A ISSUES
 ISSUES["Build parser to extract negative items"]="Write parser logic that filters tradelines and returns only negative items (collections, charge-offs, etc)."
 ISSUES["Create dispute letter PDF generator"]="Implement PDFKit or Puppeteer logic to generate Metro 2–style dispute letters based on selected negative items."
@@ -15,7 +15,7 @@ ISSUES["Store dispute records in database"]="Create a Dispute model in Prisma to
 ISSUES["Integrate AI assistant for letter suggestions"]="Use OpenAI API to assist with generating personalized dispute letter language."
 ISSUES["Allow upload of PDF credit reports"]="Build functionality to extract and parse uploaded PDF credit reports as a fallback."
 
-# Loop through and create issues, then add to project
+
 for TITLE in "${!ISSUES[@]}"; do
   BODY="${ISSUES[$TITLE]}"
   echo "Creating issue: $TITLE"
