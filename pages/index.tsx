@@ -16,8 +16,8 @@ export default function HomePage() {
       minH="100vh"
       display="flex"
       flexDir="column"
-      justify="center"
-      align="center"
+      justifyContent="center"
+      alignItems="center"
       bg="gray.50"
       textAlign="center"
     >
