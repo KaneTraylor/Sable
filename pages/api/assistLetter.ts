@@ -1,0 +1,1 @@
+// API to assist letter generation with AI

@@ -1,0 +1,36 @@
+{
+  "name": "credit-dispute-saas",
+  "version": "1.0.0",
+  "description": "A self-service SaaS for disputing negative credit report items",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "prisma": "prisma"
+  },
+  "author": "Kane-Dylan",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.0.0",
+    "axios": "^1.6.0",
+    "next": "^14.0.0",
+    "next-auth": "^4.22.1",
+    "openai": "^4.16.1",
+    "pdfkit": "^0.13.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.24.0",
+    "@types/react": "^19.1.2",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.0.0",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.0.0",
+    "prisma": "^5.0.0",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.30.1"
+  }
+}
