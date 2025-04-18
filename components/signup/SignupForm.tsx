@@ -1,13 +1,10 @@
 import { useState } from "react";
 import { Box, useToast } from "@chakra-ui/react";
+
 import SignupStep1 from "./SignupStep1";
+import SignupStep2 from "./SignupStep2";
 import SignupStep3 from "./SignupStep3";
 import SignupStep4 from "./SignupStep4";
-
-// Placeholder for Step 2
-const SignupStep2 = () => (
-  <Box p={6}>Step 2: Consent & Credit Pull (coming soon)</Box>
-);
 
 export default function SignupForm() {
   const [step, setStep] = useState(1);
@@ -32,15 +29,16 @@ export default function SignupForm() {
   const prevStep = () => setStep((s) => Math.max(1, s - 1));
 
   const handleSubmit = () => {
-    console.log("🚀 Final Signup Payload:", formData);
+    console.log("📝 Submitting form data:", formData);
     toast({
-      title: "Signup complete!",
-      description: "Your account has been created.",
+      title: "Account created!",
+      description: "Welcome to Sable Credit!",
       status: "success",
       duration: 4000,
       isClosable: true,
     });
-    // Future: POST to your backend or redirect
+
+    // Reset form or redirect here
   };
 
   const renderStep = () => {
@@ -54,24 +52,20 @@ export default function SignupForm() {
           />
         );
       case 2:
-        return <SignupStep2 />;
+        return <SignupStep2 onNext={nextStep} onBack={prevStep} />;
       case 3:
         return (
           <SignupStep3
             selectedPlan={formData.plan}
-            onPlanSelect={(plan) => {
-              handleFieldChange("plan", plan);
-              nextStep();
-            }}
+            onPlanSelect={(plan) => handleFieldChange("plan", plan)}
+            onNext={nextStep}
+            onBack={prevStep}
           />
         );
       case 4:
         return (
           <SignupStep4
-            formData={{
-              email: formData.email,
-              password: formData.password,
-            }}
+            formData={formData}
             onChange={handleFieldChange}
             onSubmit={handleSubmit}
             onBack={prevStep}
@@ -82,5 +76,5 @@ export default function SignupForm() {
     }
   };
 
-  return <Box>{renderStep()}</Box>;
+  return <Box p={6}>{renderStep()}</Box>;
 }

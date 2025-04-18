@@ -4,58 +4,61 @@ import {
   Text,
   Checkbox,
   Button,
-  Spinner,
+  VStack,
+  useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
 
 interface SignupStep2Props {
   onNext: () => void;
+  onBack: () => void;
 }
 
-export default function SignupStep2({ onNext }: SignupStep2Props) {
-  const [consent, setConsent] = useState(false);
-  const [loading, setLoading] = useState(false);
+export default function SignupStep2({ onNext, onBack }: SignupStep2Props) {
+  const [consentGiven, setConsentGiven] = useState(false);
+  const toast = useToast();
 
-  const handlePullReport = async () => {
-    if (!consent) return;
-
-    setLoading(true);
-
-    // Simulate credit pull
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      // Later, integrate actual API call to SmartCredit, Experian, etc.
-      onNext();
-    } catch (err) {
-      alert("Failed to pull credit report");
-    } finally {
-      setLoading(false);
+  const handleNext = () => {
+    if (!consentGiven) {
+      toast({
+        title: "Consent required",
+        description: "You must agree to the credit pull before continuing.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
     }
+
+    onNext();
   };
 
   return (
-    <Box>
+    <Box p={6}>
       <Heading size="md" mb={4}>
-        Step 2: Credit Report Consent
+        Step 2: Consent & Credit Pull
       </Heading>
       <Text mb={4}>
-        We need your permission to pull your credit report to begin the dispute
-        process.
+        In order to begin the dispute process, we need to pull your credit
+        report. This will not affect your score.
       </Text>
-      <Checkbox
-        isChecked={consent}
-        onChange={(e) => setConsent(e.target.checked)}
-        mb={6}
-      >
-        I give consent to pull my credit report.
-      </Checkbox>
-      <Button
-        colorScheme="blue"
-        onClick={handlePullReport}
-        isDisabled={!consent || loading}
-      >
-        {loading ? <Spinner size="sm" /> : "Pull My Credit"}
-      </Button>
+      <VStack align="start" spacing={4}>
+        <Checkbox
+          isChecked={consentGiven}
+          onChange={(e) => setConsentGiven(e.target.checked)}
+        >
+          I authorize Rising Tides to access my credit report.
+        </Checkbox>
+
+        <Box display="flex" gap={4}>
+          <Button variant="outline" onClick={onBack}>
+            Back
+          </Button>
+          <Button colorScheme="blue" onClick={handleNext}>
+            Continue
+          </Button>
+        </Box>
+      </VStack>
     </Box>
   );
 }

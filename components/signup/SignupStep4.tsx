@@ -5,9 +5,7 @@ import {
   Input,
   FormLabel,
   Button,
-  Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
 
 interface SignupStep4Props {
   formData: {
@@ -25,64 +23,36 @@ export default function SignupStep4({
   onSubmit,
   onBack,
 }: SignupStep4Props) {
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const isValid =
-    formData.email.includes("@") &&
-    formData.password.length >= 6 &&
-    formData.password === confirmPassword;
-
   return (
-    <Box>
+    <Box p={6} bg="white" borderRadius="md" boxShadow="md">
       <Heading size="md" mb={4}>
         Step 4: Create Your Account
       </Heading>
-
-      <VStack spacing={4} align="stretch">
-        <Box>
+      <VStack spacing={4} align="start">
+        <Box w="100%">
           <FormLabel>Email</FormLabel>
           <Input
             type="email"
             value={formData.email}
             onChange={(e) => onChange("email", e.target.value)}
-            placeholder="you@example.com"
           />
         </Box>
-
-        <Box>
+        <Box w="100%">
           <FormLabel>Password</FormLabel>
           <Input
             type="password"
             value={formData.password}
             onChange={(e) => onChange("password", e.target.value)}
-            placeholder="••••••••"
           />
         </Box>
-
-        <Box>
-          <FormLabel>Confirm Password</FormLabel>
-          <Input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="••••••••"
-          />
-        </Box>
-
-        <VStack spacing={4} pt={2}>
-          <Button variant="outline" onClick={onBack}>
+        <Box pt={4} display="flex" justifyContent="space-between" w="100%">
+          <Button variant="ghost" onClick={onBack}>
             Back
           </Button>
-          <Button colorScheme="blue" onClick={onSubmit} isDisabled={!isValid}>
-            Submit
+          <Button colorScheme="green" onClick={onSubmit}>
+            Create Account
           </Button>
-        </VStack>
-
-        {!isValid && (
-          <Text fontSize="sm" color="red.500" pt={2}>
-            Please fill out all fields correctly.
-          </Text>
-        )}
+        </Box>
       </VStack>
     </Box>
   );
