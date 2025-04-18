@@ -9,21 +9,23 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== "POST") {
+  if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });
-  }
 
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password are required" });
-  }
+  if (!email || !password)
+    return res.status(400).json({ error: "Missing email or password" });
 
   try {
-    // Check if user already exists
     const existing = await prisma.user.findUnique({ where: { email } });
+
     if (existing) {
-      return res.status(409).json({ error: "Email is already in use" });
+      return res.status(200).json({
+        userId: existing.id,
+        currentStep: existing.currentStep,
+        formData: existing,
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -32,12 +34,16 @@ export default async function handler(
       data: {
         email,
         password: hashedPassword,
+        currentStep: 2,
       },
     });
 
-    return res.status(201).json({ userId: newUser.id });
+    return res.status(200).json({
+      userId: newUser.id,
+      currentStep: 2,
+      formData: newUser,
+    });
   } catch (err) {
-    console.error("Partial signup error:", err);
-    return res.status(500).json({ error: "Failed to create user" });
+    return res.status(500).json({ error: "Failed to create or fetch user" });
   }
 }

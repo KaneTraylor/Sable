@@ -21,4 +21,5 @@ model User {
   createdAt         DateTime  @default(now())
   emailVerified     DateTime?
   verificationToken String?
+  currentStep       Int      @default(1) 
 }
