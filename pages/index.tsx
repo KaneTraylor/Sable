@@ -1,6 +1,9 @@
-import { signIn, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { Button, Box, Heading, Text, VStack } from "@chakra-ui/react";
+import { Button, Box, Text, VStack, Container } from "@chakra-ui/react";
+import HeroSection from "@/components/home/HeroSection";
+import Navbar from "@/components/common/Navbar";
+import WhyItWorksSection from "@/components/home/WhyItWorksSection";
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -12,28 +15,32 @@ export default function HomePage() {
   }
 
   return (
-    <Box
-      minH="100vh"
-      display="flex"
-      flexDir="column"
-      justifyContent="center"
-      alignItems="center"
-      bg="gray.50"
-      textAlign="center"
-      px={6}
-    >
-      <Heading mb={4}>Welcome to Sable Credit</Heading>
-      <Text mb={8} color="gray.600">
-        Safe, Stable, Sable.
-      </Text>
-      <VStack spacing={4}>
-        <Button colorScheme="blue" onClick={() => router.push("/auth/signin")}>
-          Sign In
-        </Button>
-        <Button variant="outline" onClick={() => router.push("/auth/signup")}>
-          Sign Up
-        </Button>
-      </VStack>
+    <Box bg="gray.50" minH="100vh">
+      <Navbar />
+      <HeroSection />
+      <WhyItWorksSection />
+
+      <Container maxW="lg" mt={16} mb={20}>
+        <VStack spacing={4} textAlign="center">
+          <Text fontSize="lg" color="gray.600">
+            Already have an account?
+          </Text>
+          <Button
+            colorScheme="blue"
+            w="full"
+            onClick={() => router.push("/auth/signin")}
+          >
+            Sign In
+          </Button>
+          <Button
+            variant="outline"
+            w="full"
+            onClick={() => router.push("/auth/signup")}
+          >
+            Sign Up
+          </Button>
+        </VStack>
+      </Container>
     </Box>
   );
 }
