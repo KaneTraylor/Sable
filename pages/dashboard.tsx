@@ -12,13 +12,24 @@ import {
   Input,
   FormLabel,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
 import CreditReportDisplay from "../components/CreditReportDisplay";
+
+// Optional: define the Tradeline type if it's not already imported
+type Tradeline = {
+  creditor: string;
+  issue: string;
+  bureau: string;
+  accountNumber: string;
+};
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
+
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [tradelines, setTradelines] = useState<Tradeline[]>([]); // ✅ fixed position
   const toast = useToast();
 
   useEffect(() => {
@@ -33,14 +44,19 @@ export default function Dashboard() {
     const formData = new FormData();
     formData.append("file", pdfFile);
 
-    const res = await fetch("/api/upload-report", {
-      method: "POST",
-      body: formData,
-    });
+    try {
+      const res = await fetch("/api/uploadReport", {
+        method: "POST",
+        body: formData,
+      });
 
-    if (res.ok) {
+      if (!res.ok) throw new Error("Upload failed");
+
+      const data = await res.json();
+      setTradelines(data.tradelines || []);
       toast({ title: "PDF uploaded & parsed!", status: "success" });
-    } else {
+    } catch (err) {
+      console.error("❌ Upload error:", err);
       toast({ title: "Failed to upload PDF", status: "error" });
     }
   };
@@ -72,55 +88,28 @@ export default function Dashboard() {
       </Flex>
 
       <Text mb={6}>Here's a summary of your credit report:</Text>
-      <CreditReportDisplay />
-
-      <Box mt={8}>
-        <Heading size="md" mb={4}>
-          Upload Your Credit Report
-        </Heading>
-        <input
-          type="file"
-          accept=".pdf"
-          onChange={async (e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-
-            const formData = new FormData();
-            formData.append("file", file);
-
-            try {
-              const res = await fetch("/api/uploadReport", {
-                method: "POST",
-                body: formData,
-              });
-
-              if (!res.ok) throw new Error("Upload failed");
-
-              const data = await res.json();
-              console.log("✅ Upload success:", data);
-              alert("Upload successful!");
-            } catch (err) {
-              console.error("❌ Upload error:", err);
-              alert("Upload failed. Please try again.");
-            }
-          }}
-        />
-      </Box>
+      <CreditReportDisplay tradelines={tradelines} />
 
       <Box mt={10}>
-        <FormLabel htmlFor="credit-report">
+        <Heading size="md" mb={2}>
           Upload Credit Report (PDF)
-        </FormLabel>
-        <Input
-          type="file"
-          id="credit-report"
-          accept="application/pdf"
-          onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
-          mb={4}
-        />
-        <Button onClick={handleUpload} colorScheme="blue" isDisabled={!pdfFile}>
-          Upload & Parse
-        </Button>
+        </Heading>
+        <VStack align="start" spacing={4}>
+          <FormLabel htmlFor="credit-report">Choose a PDF file:</FormLabel>
+          <Input
+            type="file"
+            id="credit-report"
+            accept="application/pdf"
+            onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+          />
+          <Button
+            onClick={handleUpload}
+            colorScheme="blue"
+            isDisabled={!pdfFile}
+          >
+            Upload
+          </Button>
+        </VStack>
       </Box>
     </Box>
   );

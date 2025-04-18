@@ -23,7 +23,7 @@ export default function HomePage() {
     >
       <Heading mb={4}>Welcome to Sable Credit</Heading>
       <Text mb={8} color="gray.600">
-        Rebuild your credit. Reclaim your future.
+        Safe, Stable, Sable.
       </Text>
       <Button colorScheme="blue" onClick={() => router.push("auth/signin")}>
         Sign in

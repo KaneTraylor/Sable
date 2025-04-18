@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import IncomingForm from "formidable";
-
 import fs from "fs";
 import pdfParse from "pdf-parse";
 
@@ -33,7 +32,33 @@ export default async function handler(
 
     const dataBuffer = fs.readFileSync(file.filepath);
     const pdfData = await pdfParse(dataBuffer);
+    const text = pdfData.text;
 
-    res.status(200).json({ text: pdfData.text });
+    // Optional: preview in terminal
+    console.log("Parsed PDF text preview:", text.slice(0, 500));
+
+    // Simulated extracted tradelines
+    const mockTradelines = [
+      {
+        creditor: "Capital One",
+        issue: "Charge-off",
+        bureau: "Experian",
+        accountNumber: "****1234",
+      },
+      {
+        creditor: "Midland Funding",
+        issue: "Collections",
+        bureau: "TransUnion",
+        accountNumber: "****5678",
+      },
+      {
+        creditor: "Synchrony Bank",
+        issue: "Late Payment",
+        bureau: "Equifax",
+        accountNumber: "****9101",
+      },
+    ];
+
+    res.status(200).json({ tradelines: mockTradelines });
   });
 }

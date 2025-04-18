@@ -17,6 +17,10 @@ type Tradeline = {
   accountNumber: string;
 };
 
+interface Props {
+  tradelines: Tradeline[];
+}
+
 const mockNegativeItems: Tradeline[] = [
   {
     creditor: "Capital One",
@@ -38,14 +42,16 @@ const mockNegativeItems: Tradeline[] = [
   },
 ];
 
-export default function CreditReportDisplay() {
+export default function CreditReportDisplay({ tradelines }: Props) {
+  const dataToRender = tradelines.length ? tradelines : mockNegativeItems;
+
   const handleDownloadPDF = async () => {
     const res = await fetch("/api/generatePdf", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ tradelines: mockNegativeItems }),
+      body: JSON.stringify({ tradelines: dataToRender }),
     });
 
     const blob = await res.blob();
@@ -63,7 +69,7 @@ export default function CreditReportDisplay() {
         Negative Tradelines
       </Heading>
       <VStack spacing={4} align="stretch">
-        {mockNegativeItems.map((item, idx) => (
+        {dataToRender.map((item, idx) => (
           <Box key={idx}>
             <HStack justify="space-between">
               <Box>
@@ -76,7 +82,7 @@ export default function CreditReportDisplay() {
                 {item.accountNumber}
               </Text>
             </HStack>
-            {idx < mockNegativeItems.length - 1 && <Divider mt={3} />}
+            {idx < dataToRender.length - 1 && <Divider mt={3} />}
           </Box>
         ))}
       </VStack>
