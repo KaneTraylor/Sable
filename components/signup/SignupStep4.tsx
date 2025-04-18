@@ -6,6 +6,7 @@ import {
   FormLabel,
   Button,
 } from "@chakra-ui/react";
+import { useEffect, useRef } from "react";
 
 interface SignupStep4Props {
   formData: {
@@ -23,6 +24,12 @@ export default function SignupStep4({
   onSubmit,
   onBack,
 }: SignupStep4Props) {
+  const emailRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    emailRef.current?.focus();
+  }, []);
+
   return (
     <Box p={6} bg="white" borderRadius="md" boxShadow="md">
       <Heading size="md" mb={4}>
@@ -32,6 +39,7 @@ export default function SignupStep4({
         <Box w="100%">
           <FormLabel>Email</FormLabel>
           <Input
+            ref={emailRef}
             type="email"
             value={formData.email}
             onChange={(e) => onChange("email", e.target.value)}
