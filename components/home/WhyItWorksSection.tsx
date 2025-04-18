@@ -1,90 +1,76 @@
+// components/home/WhyItWorksSection.tsx
 import {
   Box,
+  Container,
   Heading,
   Text,
-  VStack,
-  Icon,
   SimpleGrid,
-  useColorModeValue,
+  VStack,
 } from "@chakra-ui/react";
-import { FaRocket, FaShieldAlt, FaChartLine } from "react-icons/fa";
-import { keyframes } from "@emotion/react";
+import { FaBolt, FaLock, FaCheckCircle } from "react-icons/fa";
+import { motion } from "framer-motion";
+import { useInView } from "react-intersection-observer";
 
-const fadeInUp = keyframes`
-    from {
-      opacity: 0;
-      transform: translateY(40px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  `;
-
-const features = [
-  {
-    icon: FaRocket,
-    title: "Fast Credit Building",
-    description: "See improvements in weeks, not years.",
-    delay: "0s",
-  },
-  {
-    icon: FaShieldAlt,
-    title: "No Hidden Fees",
-    description: "Transparent pricing, always.",
-    delay: "0.1s",
-  },
-  {
-    icon: FaChartLine,
-    title: "Track Your Progress",
-    description: "Stay on top of your credit journey.",
-    delay: "0.2s",
-  },
-];
+const MotionVStack = motion(VStack);
 
 export default function WhyItWorksSection() {
-  const bg = useColorModeValue("white", "gray.800");
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
-    <Box as="section" py={16} px={6} bg={bg} textAlign="center">
-      <VStack spacing={4} mb={10}>
-        <Text
-          fontSize="sm"
-          color="blue.500"
-          fontWeight="bold"
-          textTransform="uppercase"
-        >
-          Why It Works
-        </Text>
-        <Heading size="xl" fontWeight="extrabold">
-          Simple, Transparent, Effective
+    <Box bg="#1a1a1a" py={[12, 16]} ref={ref}>
+      <Container maxW="6xl" textAlign="center">
+        <Heading as="h2" size="xl" mb={4} color="white">
+          Why it works
         </Heading>
-        <Text fontSize="md" color="gray.600" maxW="2xl">
-          We focus on what matters: rebuilding your credit with the tools that
-          actually work.
+        <Text fontSize="lg" color="gray.300" maxW="2xl" mx="auto" mb={10}>
+          Sable Credit is designed to help you build real, lasting credit —
+          fast, secure, and transparent.
         </Text>
-      </VStack>
 
-      <SimpleGrid columns={[1, null, 3]} spacing={10} maxW="6xl" mx="auto">
-        {features.map((feature, index) => (
-          <VStack
-            key={feature.title}
-            spacing={3}
-            px={6}
-            py={8}
-            borderRadius="md"
-            boxShadow="md"
-            bg={useColorModeValue("gray.50", "gray.700")}
-            animation={`${fadeInUp} 0.6s ease ${feature.delay} both`}
-          >
-            <Icon as={feature.icon} w={8} h={8} color="blue.500" />
-            <Heading size="md">{feature.title}</Heading>
-            <Text fontSize="sm" color="gray.600">
-              {feature.description}
-            </Text>
-          </VStack>
-        ))}
-      </SimpleGrid>
+        <SimpleGrid columns={[1, 1, 3]} spacing={8}>
+          {[
+            {
+              icon: <FaBolt size={28} color="white" />,
+              title: "Fast credit building",
+              description:
+                "Your credit starts improving in just a few weeks with regular updates.",
+            },
+            {
+              icon: <FaLock size={28} color="white" />,
+              title: "Safe & secure",
+              description:
+                "We encrypt and protect your info. No data selling, ever.",
+            },
+            {
+              icon: <FaCheckCircle size={28} color="white" />,
+              title: "Simple & transparent",
+              description:
+                "No hidden fees, no interest. Just easy steps to build credit.",
+            },
+          ].map((item, index) => (
+            <MotionVStack
+              key={index}
+              bg="#2a2a2a"
+              p={6}
+              borderRadius="lg"
+              boxShadow="lg"
+              align="start"
+              spacing={4}
+              initial={{ opacity: 0, y: 40 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: index * 0.2, duration: 0.6 }}
+            >
+              {item.icon}
+              <Heading as="h3" size="md" color="white">
+                {item.title}
+              </Heading>
+              <Text fontSize="sm" color="gray.300">
+                {item.description}
+              </Text>
+            </MotionVStack>
+          ))}
+        </SimpleGrid>
+      </Container>
     </Box>
   );
 }
