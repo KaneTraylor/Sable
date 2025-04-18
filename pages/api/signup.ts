@@ -1,8 +1,11 @@
+// pages/api/signup.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import type { SignupFormData } from "@/types/signup";
+import crypto from "crypto";
+import nodemailer from "nodemailer";
 
 const prisma = new PrismaClient();
 
@@ -25,12 +28,13 @@ export default async function handler(
     plan,
   }: SignupFormData = req.body;
 
-  if (!firstName || !lastName || !email || !password) {
+  if (!email || !password) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomBytes(32).toString("hex");
 
     const user = await prisma.user.create({
       data: {
@@ -42,7 +46,34 @@ export default async function handler(
         dob,
         address,
         plan,
+        verificationToken,
+        emailVerified: null,
       },
+    });
+
+    // Send verification email
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER!,
+        pass: process.env.EMAIL_PASS!,
+      },
+    });
+
+    const verifyUrl = `${process.env.NEXTAUTH_URL}/onboarding/verify?token=${verificationToken}`;
+
+    await transporter.sendMail({
+      from: `"Sable Credit" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Verify your email address",
+      html: `
+        <h2>Hi ${firstName || "there"},</h2>
+        <p>Thanks for signing up! Please verify your email by clicking the link below:</p>
+        <p><a href="${verifyUrl}">Verify your email</a></p>
+        <p>If you didn’t create this account, you can ignore this email.</p>
+      `,
     });
 
     return res.status(200).json({ message: "User created", userId: user.id });

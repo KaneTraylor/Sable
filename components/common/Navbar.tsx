@@ -43,7 +43,7 @@ export default function Navbar() {
           </Button>
           <Button
             colorScheme="blue"
-            onClick={() => router.push("/auth/signup")}
+            onClick={() => router.push("/onboarding/signup")}
           >
             Get Started
           </Button>

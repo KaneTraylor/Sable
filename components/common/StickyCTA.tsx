@@ -15,14 +15,14 @@ export default function StickyCTA() {
     >
       <Button
         size="lg"
-        px={10}
+        bgGradient="linear(to-r, green.400, green.500)"
+        color="white"
+        px={8}
         py={6}
         borderRadius="full"
-        bgGradient="linear(to-r, green.400, green.600)"
-        color="white"
-        boxShadow="lg"
-        _hover={{ bgGradient: "linear(to-r, green.500, green.700)" }}
-        onClick={() => router.push("/auth/signup")}
+        shadow="lg"
+        _hover={{ bgGradient: "linear(to-r, green.500, green.600)" }}
+        onClick={() => router.push("/onboarding/signup")} // ✅ updated route
       >
         Start Building Credit
       </Button>

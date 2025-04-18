@@ -19,15 +19,9 @@ export default function HomePage() {
   return (
     <Box bg="gray.50" minH="100vh">
       <Navbar />
-
-      {/* ❌ DO NOT wrap HeroSection in a Container */}
       <HeroSection />
-
-      {/* ✅ Other sections can stay constrained */}
       <WhyItWorksSection />
       <FeaturesSection />
-
-      {/* CTA */}
       <StickyCTA />
     </Box>
   );

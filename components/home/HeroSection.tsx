@@ -57,7 +57,7 @@ export default function HeroSection() {
               bgGradient="linear(to-r, green.400, green.500)"
               color="white"
               _hover={{ bgGradient: "linear(to-r, green.500, green.600)" }}
-              onClick={() => router.push("/auth/signup")}
+              onClick={() => router.push("/onboarding/signup")} // ✅ updated route
             >
               Get Started
             </Button>
