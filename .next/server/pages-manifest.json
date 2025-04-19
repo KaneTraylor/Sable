@@ -3,11 +3,5 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/": "pages/index.js",
-  "/api/signup/partial": "pages/api/signup/partial.js",
-  "/onboarding/signup": "pages/onboarding/signup.js",
-  "/api/sendWelcomeEmail": "pages/api/sendWelcomeEmail.js",
-  "/dashboard": "pages/dashboard.js",
-  "/api/signup/complete": "pages/api/signup/complete.js",
-  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
-  "/auth/signin": "pages/auth/signin.js"
+  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js"
 }
