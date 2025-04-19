@@ -1,4 +1,3 @@
-// components/signup/SignupStep1.tsx
 import {
   Box,
   Heading,
@@ -76,7 +75,7 @@ export default function SignupStep1({
       onNext(data.currentStep, {
         ...formData,
         userId: data.formData.userId,
-        password: formData.password, // retain original password
+        password: formData.password,
       });
     } catch (err: any) {
       toast({
@@ -89,15 +88,6 @@ export default function SignupStep1({
     } finally {
       setLoading(false);
     }
-  };
-
-  const generateDummyData = () => {
-    const suffix = Math.floor(Math.random() * 100000);
-    onChange("firstName", "Dev");
-    onChange("lastName", "User");
-    onChange("email", `test${suffix}@example.com`);
-    onChange("password", "TestPass123!");
-    setTimeout(() => handleContinue(), 300);
   };
 
   return (
@@ -125,7 +115,7 @@ export default function SignupStep1({
             <Box>
               <FormLabel>First Name</FormLabel>
               <Input
-                value={formData.firstName}
+                value={formData.firstName || ""}
                 onChange={(e) => onChange("firstName", e.target.value)}
                 placeholder="First Name"
                 size="lg"
@@ -135,7 +125,7 @@ export default function SignupStep1({
             <Box>
               <FormLabel>Last Name</FormLabel>
               <Input
-                value={formData.lastName}
+                value={formData.lastName || ""}
                 onChange={(e) => onChange("lastName", e.target.value)}
                 placeholder="Last Name"
                 size="lg"
@@ -145,7 +135,7 @@ export default function SignupStep1({
             <Box>
               <FormLabel>Email</FormLabel>
               <Input
-                value={formData.email}
+                value={formData.email || ""}
                 onChange={(e) => onChange("email", e.target.value)}
                 placeholder="you@example.com"
                 size="lg"
@@ -156,7 +146,7 @@ export default function SignupStep1({
             <Box>
               <FormLabel>Password</FormLabel>
               <Input
-                value={formData.password}
+                value={formData.password || ""}
                 onChange={(e) => onChange("password", e.target.value)}
                 placeholder="Password"
                 size="lg"
@@ -173,14 +163,6 @@ export default function SignupStep1({
                 w={isMobile ? "100%" : "auto"}
               >
                 Continue
-              </Button>
-              <Button
-                onClick={generateDummyData}
-                variant="link"
-                fontSize="sm"
-                colorScheme="blue"
-              >
-                Fill with Dummy Data
               </Button>
             </Flex>
           </VStack>

@@ -8,25 +8,33 @@ import SignupStep2 from "./SignupStep2";
 import SignupStep3 from "./SignupStep3";
 import SignupStep4 from "./SignupStep4";
 
+const emptyFormData = {
+  email: "",
+  password: "",
+  firstName: "",
+  lastName: "",
+  ssn: "",
+  dob: "",
+  address: "",
+  city: "",
+  state: "",
+  zip: "",
+  phone: "",
+  plan: "",
+  userId: "",
+};
+
 export default function SignupForm() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const toast = useToast();
   const router = useRouter();
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    firstName: "",
-    lastName: "",
-    ssn: "",
-    dob: "",
-    address: "",
-    plan: "",
-    userId: "", // ✅ Added this
-  });
+  const [formData, setFormData] = useState(emptyFormData);
 
   useEffect(() => {
+    setIsClient(true);
     const savedData = localStorage.getItem("signupFormData");
     if (savedData) {
       setFormData(JSON.parse(savedData));
@@ -64,7 +72,6 @@ export default function SignupForm() {
     );
 
     if (!formData.userId) {
-      console.error("❌ Missing userId in formData. Aborting.");
       toast({
         title: "Error",
         description: "User ID missing. Please restart signup.",
@@ -136,13 +143,17 @@ export default function SignupForm() {
   const fillDummyData = async () => {
     const dummy = {
       email: `user${Date.now()}@devmail.com`,
-      password: "devpass123",
+      password: "TestPass123!",
       firstName: "Dev",
       lastName: "User",
       ssn: "123-45-6789",
       dob: "01/01/1990",
-      address: "123 Dev Lane",
-      plan: "standard",
+      address: "123 Dev Street",
+      city: "San Devcisco",
+      state: "CA",
+      zip: "94105",
+      phone: "5551234567",
+      plan: "build",
     };
 
     try {
@@ -159,13 +170,17 @@ export default function SignupForm() {
       }
 
       const merged = { ...dummy, userId: result.formData.userId };
-      setFormData(merged);
-      localStorage.setItem("signupFormData", JSON.stringify(merged));
-      localStorage.setItem("usedDummyLogin", "true");
 
-      setTimeout(() => setStep(2), 200);
-      setTimeout(() => setStep(3), 600);
-      setTimeout(() => setStep(4), 1000);
+      // 🧠 Critical order: reset to step 1, then set data
+      setStep(1);
+      setTimeout(() => {
+        setFormData(merged);
+        localStorage.setItem("signupFormData", JSON.stringify(merged));
+        localStorage.setItem("usedDummyLogin", "true");
+        setTimeout(() => setStep(2), 300);
+        setTimeout(() => setStep(3), 700);
+        setTimeout(() => setStep(4), 1100);
+      }, 50);
     } catch (error) {
       console.error("Dummy data error:", error);
       toast({
@@ -184,24 +199,25 @@ export default function SignupForm() {
         return (
           <>
             <SignupStep1
+              key={formData.email || "step1"} // 🔁 force rerender on dummy update
               formData={formData}
               onChange={handleFieldChange}
               onNext={jumpToStep}
             />
-            {typeof window !== "undefined" &&
-              window.location.hostname === "localhost" && (
-                <Center mt={6}>
-                  <Button
-                    onClick={fillDummyData}
-                    colorScheme="blue"
-                    variant="outline"
-                  >
-                    Fill with Dummy Data
-                  </Button>
-                </Center>
-              )}
+            {isClient && window.location.hostname === "localhost" && (
+              <Center mt={6}>
+                <Button
+                  onClick={fillDummyData}
+                  colorScheme="blue"
+                  variant="outline"
+                >
+                  Fill with Dummy Data
+                </Button>
+              </Center>
+            )}
           </>
         );
+
       case 2:
         return (
           <SignupStep2
