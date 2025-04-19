@@ -1,4 +1,3 @@
-// components/common/Navbar.tsx
 import {
   Box,
   Flex,

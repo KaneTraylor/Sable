@@ -1,3 +1,4 @@
+// components/signup/SignupStep1.tsx
 import {
   Box,
   Heading,
@@ -10,8 +11,10 @@ import {
   Flex,
   Icon,
   useBreakpointValue,
+  useToast,
 } from "@chakra-ui/react";
 import { FaBolt, FaDollarSign, FaShieldAlt } from "react-icons/fa";
+import { useState } from "react";
 
 interface SignupStep1Props {
   formData: {
@@ -19,7 +22,7 @@ interface SignupStep1Props {
     password: string;
   };
   onChange: (field: string, value: string) => void;
-  onNext: () => void;
+  onNext: (initialStep: number, initialData?: any) => void;
 }
 
 const benefits = [
@@ -45,21 +48,43 @@ export default function SignupStep1({
   onChange,
   onNext,
 }: SignupStep1Props) {
+  const [loading, setLoading] = useState(false);
   const isMobile = useBreakpointValue({ base: true, md: false });
+  const toast = useToast();
+
+  const handleContinue = async () => {
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/signup/partial", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Signup failed");
+
+      onNext(data.currentStep, data.formData); // updated key to match API response
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message,
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <Container
-      maxW="7xl"
-      minH="100vh"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-      pt={8}
-    >
-      <Heading size="xl" textAlign="center" mb={10}>
-        Create your account
-      </Heading>
-
+    <Container maxW="7xl" minH="100vh" display="flex" alignItems="center">
       <Flex
         direction={{ base: "column", md: "row" }}
         justify="center"
@@ -67,7 +92,7 @@ export default function SignupStep1({
         gap={12}
         w="full"
       >
-        {/* Signup Form */}
+        {/* Form */}
         <Box
           bg="white"
           p={[6, 10]}
@@ -77,6 +102,10 @@ export default function SignupStep1({
           w="100%"
         >
           <VStack spacing={6} align="stretch">
+            <Heading size="lg" textAlign="left">
+              Create your account
+            </Heading>
+
             <Box>
               <FormLabel>Email</FormLabel>
               <Input
@@ -93,39 +122,23 @@ export default function SignupStep1({
               <Input
                 value={formData.password}
                 onChange={(e) => onChange("password", e.target.value)}
-                placeholder="Create a password"
+                placeholder="Password"
                 size="lg"
                 type="password"
               />
             </Box>
 
-            <Box>
-              <Flex align="start" mb={4}>
-                <input
-                  type="checkbox"
-                  id="consent"
-                  required
-                  style={{ marginTop: "6px", marginRight: "8px" }}
-                />
-                <label
-                  htmlFor="consent"
-                  style={{ fontSize: "0.875rem", color: "#4A5568" }}
-                >
-                  I agree to the Terms of Service and Privacy Policy.
-                </label>
-              </Flex>
-
-              <Flex justify="center">
-                <Button
-                  colorScheme="green"
-                  size="lg"
-                  onClick={onNext}
-                  w={isMobile ? "100%" : "auto"}
-                >
-                  Continue
-                </Button>
-              </Flex>
-            </Box>
+            <Flex justify="center">
+              <Button
+                colorScheme="green"
+                size="lg"
+                onClick={handleContinue}
+                isLoading={loading}
+                w={isMobile ? "100%" : "auto"}
+              >
+                Continue
+              </Button>
+            </Flex>
           </VStack>
         </Box>
 

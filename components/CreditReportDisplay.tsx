@@ -1,94 +1,117 @@
-// components/CreditReportDisplay.tsx
-import React from "react";
+// components/signup/SignupStep4.tsx
 import {
   Box,
   Heading,
   VStack,
-  HStack,
-  Text,
-  Divider,
+  Input,
+  FormLabel,
   Button,
+  Text,
+  Center,
 } from "@chakra-ui/react";
+import { useEffect, useRef, useState } from "react";
+import Confetti from "react-confetti";
+import { motion } from "framer-motion";
+import { useWindowSize } from "@react-hook/window-size";
 
-type Tradeline = {
-  creditor: string;
-  issue: string;
-  bureau: string;
-  accountNumber: string;
-};
-
-interface Props {
-  tradelines: Tradeline[];
+interface SignupStep4Props {
+  formData: {
+    email: string;
+    password: string;
+  };
+  onChange: (field: string, value: string) => void;
+  onSubmit: () => Promise<void>;
+  onBack: () => void;
 }
 
-const mockNegativeItems: Tradeline[] = [
-  {
-    creditor: "Capital One",
-    issue: "Charge-off",
-    bureau: "Experian",
-    accountNumber: "****1234",
-  },
-  {
-    creditor: "Midland Funding",
-    issue: "Collections",
-    bureau: "TransUnion",
-    accountNumber: "****5678",
-  },
-  {
-    creditor: "Synchrony Bank",
-    issue: "Late Payment",
-    bureau: "Equifax",
-    accountNumber: "****9101",
-  },
-];
+export default function SignupStep4({
+  formData,
+  onChange,
+  onSubmit,
+  onBack,
+}: SignupStep4Props) {
+  const emailRef = useRef<HTMLInputElement>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [width, height] = useWindowSize();
 
-export default function CreditReportDisplay({ tradelines }: Props) {
-  const dataToRender = tradelines.length ? tradelines : mockNegativeItems;
+  useEffect(() => {
+    emailRef.current?.focus();
+  }, []);
 
-  const handleDownloadPDF = async () => {
-    const res = await fetch("/api/generatePdf", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ tradelines: dataToRender }),
-    });
+  const handleFinalSubmit = async () => {
+    await onSubmit();
+    setSubmitted(true);
 
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "dispute-letter.pdf";
-    a.click();
-    window.URL.revokeObjectURL(url);
+    setTimeout(() => {
+      // Optional: navigate or trigger other behavior
+    }, 5000);
   };
 
+  if (submitted) {
+    return (
+      <Box textAlign="center" mt={10}>
+        <Confetti width={width} height={height} numberOfPieces={300} />
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          <Center>
+            <Box
+              boxSize="120px"
+              bg="green.400"
+              borderRadius="full"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              color="white"
+              fontSize="4xl"
+              fontWeight="bold"
+            >
+              ✓
+            </Box>
+          </Center>
+        </motion.div>
+        <Heading mt={6}>You're all set!</Heading>
+        <Text fontSize="md" mt={2}>
+          Redirecting you shortly...
+        </Text>
+      </Box>
+    );
+  }
+
   return (
-    <Box p={6} bg="white" boxShadow="sm" borderRadius="xl">
+    <Box p={6} bg="white" borderRadius="md" boxShadow="md">
       <Heading size="md" mb={4}>
-        Negative Tradelines
+        Final Step
       </Heading>
-      <VStack spacing={4} align="stretch">
-        {dataToRender.map((item, idx) => (
-          <Box key={idx}>
-            <HStack justify="space-between">
-              <Box>
-                <Text fontWeight="bold">{item.creditor}</Text>
-                <Text fontSize="sm" color="gray.600">
-                  {item.issue} • {item.bureau}
-                </Text>
-              </Box>
-              <Text fontSize="sm" color="gray.500">
-                {item.accountNumber}
-              </Text>
-            </HStack>
-            {idx < dataToRender.length - 1 && <Divider mt={3} />}
-          </Box>
-        ))}
+      <VStack spacing={4} align="start">
+        <Box w="100%">
+          <FormLabel>Email</FormLabel>
+          <Input
+            ref={emailRef}
+            type="email"
+            value={formData.email}
+            onChange={(e) => onChange("email", e.target.value)}
+          />
+        </Box>
+        <Box w="100%">
+          <FormLabel>Password</FormLabel>
+          <Input
+            type="password"
+            value={formData.password}
+            onChange={(e) => onChange("password", e.target.value)}
+          />
+        </Box>
+        <Box pt={4} display="flex" justifyContent="space-between" w="100%">
+          <Button variant="ghost" onClick={onBack}>
+            Back
+          </Button>
+          <Button colorScheme="green" onClick={handleFinalSubmit}>
+            Create Account
+          </Button>
+        </Box>
       </VStack>
-      <Button colorScheme="blue" mt={6} onClick={handleDownloadPDF}>
-        Download Dispute Letter
-      </Button>
     </Box>
   );
 }

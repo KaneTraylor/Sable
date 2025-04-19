@@ -16,8 +16,11 @@ import {
   Th,
   Td,
   useColorModeValue,
+  useToast,
+  Spinner, // ✅ add this
 } from "@chakra-ui/react";
 import { InfoIcon, StarIcon, CheckCircleIcon } from "@chakra-ui/icons";
+import { useState } from "react";
 
 interface SignupStep3Props {
   selectedPlan: string;
@@ -33,6 +36,42 @@ export default function SignupStep3({
   onBack,
 }: SignupStep3Props) {
   const bg = useColorModeValue("gray.50", "gray.700");
+  const toast = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleContinue = async () => {
+    if (!selectedPlan) return;
+
+    setIsSaving(true);
+    try {
+      const res = await fetch("/api/signup/updateStep", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          step: 4,
+          formData: { plan: selectedPlan },
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to save plan.");
+      }
+
+      onNext();
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message,
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <Box p={8} bg={bg} borderRadius="md" boxShadow="md">
@@ -135,8 +174,12 @@ export default function SignupStep3({
         <Button onClick={onBack} variant="ghost">
           Back
         </Button>
-        <Button colorScheme="blue" onClick={onNext} isDisabled={!selectedPlan}>
-          Continue
+        <Button
+          colorScheme="blue"
+          onClick={handleContinue}
+          isDisabled={!selectedPlan || isSaving}
+        >
+          {isSaving ? <Spinner size="sm" /> : "Continue"}
         </Button>
       </Flex>
     </Box>

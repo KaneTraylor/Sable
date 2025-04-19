@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, useToast, Spinner, Center } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
@@ -14,36 +14,60 @@ export default function SignupForm() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
+    email: "",
+    password: "",
     firstName: "",
     lastName: "",
-    email: "",
     ssn: "",
     dob: "",
     address: "",
     plan: "",
-    password: "",
   });
 
+  // Load formData from localStorage on mount
+  useEffect(() => {
+    const savedData = localStorage.getItem("signupFormData");
+    if (savedData) {
+      setFormData(JSON.parse(savedData));
+    }
+  }, []);
+
+  // Save formData to localStorage on change
   const handleFieldChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    const updatedData = { ...formData, [field]: value };
+    setFormData(updatedData);
+    localStorage.setItem("signupFormData", JSON.stringify(updatedData));
   };
 
   const nextStep = () => setStep((s) => s + 1);
   const prevStep = () => setStep((s) => Math.max(1, s - 1));
 
+  const jumpToStep = (newStep: number, userData?: any) => {
+    if (userData) {
+      const mergedData = {
+        ...formData,
+        ...userData,
+        email: userData.email ?? formData.email,
+        password: "", // Do not reuse password from storage
+      };
+      setFormData(mergedData);
+      localStorage.setItem("signupFormData", JSON.stringify(mergedData));
+    }
+    setStep(newStep);
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/signup", {
+      const res = await fetch("/api/signup/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(data.error || "Signup failed");
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Signup failed");
       }
 
       await fetch("/api/sendWelcomeEmail", {
@@ -63,16 +87,15 @@ export default function SignupForm() {
         isClosable: true,
       });
 
-      router.push("/dashboard");
+      localStorage.removeItem("signupFormData");
+      router.push("/verify-gate");
     } catch (err: any) {
       console.error("Signup error:", err);
       toast({
         title: "Error",
-        description: err.message.includes("Email is already in use")
-          ? "That email is already registered. Try logging in instead."
-          : "Failed to create account.",
+        description: err.message || "Failed to create account.",
         status: "error",
-        duration: 5000,
+        duration: 4000,
         isClosable: true,
       });
     } finally {
@@ -87,11 +110,18 @@ export default function SignupForm() {
           <SignupStep1
             formData={formData}
             onChange={handleFieldChange}
-            onNext={nextStep}
+            onNext={jumpToStep}
           />
         );
       case 2:
-        return <SignupStep2 onNext={nextStep} onBack={prevStep} />;
+        return (
+          <SignupStep2
+            formData={formData}
+            onChange={handleFieldChange}
+            onNext={nextStep}
+            onBack={prevStep}
+          />
+        );
       case 3:
         return (
           <SignupStep3

@@ -60,8 +60,6 @@ export default function SignupForm({
 
       if (!res.ok) throw new Error("Signup failed");
 
-      const data = await res.json();
-
       await fetch("/api/sendWelcomeEmail", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -105,7 +103,14 @@ export default function SignupForm({
           />
         );
       case 2:
-        return <SignupStep2 onNext={nextStep} onBack={prevStep} />;
+        return (
+          <SignupStep2
+            formData={formData}
+            onChange={handleFieldChange}
+            onNext={nextStep}
+            onBack={prevStep}
+          />
+        );
       case 3:
         return (
           <SignupStep3

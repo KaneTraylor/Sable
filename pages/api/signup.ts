@@ -2,8 +2,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient, Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import type { SignupFormData } from "@/types/signup";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 
@@ -17,22 +15,22 @@ export default async function handler(
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const {
-    firstName,
-    lastName,
-    email,
-    password,
-    ssn,
-    dob,
-    address,
-    plan,
-  }: SignupFormData = req.body;
+  const { firstName, lastName, email, password, ssn, dob, address, plan } =
+    req.body;
 
   if (!email || !password) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+
+    if (existingUser) {
+      return res
+        .status(409)
+        .json({ error: "An account with this email already exists." });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const verificationToken = crypto.randomBytes(32).toString("hex");
 
@@ -51,7 +49,6 @@ export default async function handler(
       },
     });
 
-    // Send verification email
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
@@ -77,11 +74,11 @@ export default async function handler(
     });
 
     return res.status(200).json({ message: "User created", userId: user.id });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Signup error:", error);
 
     if (
-      error instanceof PrismaClientKnownRequestError &&
+      error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
       return res.status(409).json({ error: "Email is already in use." });

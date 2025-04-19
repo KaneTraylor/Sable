@@ -2,5 +2,10 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js"
+  "/": "pages/index.js",
+  "/onboarding/signup": "pages/onboarding/signup.js",
+  "/api/signup/partial": "pages/api/signup/partial.js",
+  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
+  "/api/signup": "pages/api/signup.js",
+  "/api/signup/updateStep": "pages/api/signup/updateStep.js"
 }
