@@ -1,39 +1,27 @@
 import {
   Box,
+  Flex,
   Heading,
-  VStack,
-  HStack,
+  SimpleGrid,
   Text,
+  VStack,
+  useColorModeValue,
+  Collapse,
   Button,
+  HStack,
+  Badge,
   Tag,
   TagLabel,
   TagLeftIcon,
-  Badge,
-  useColorModeValue,
-  SimpleGrid,
-  Collapse,
-  Divider,
-  Flex,
   Image,
-  useBreakpointValue,
 } from "@chakra-ui/react";
+import GaugeChart from "react-gauge-chart";
 import { InfoIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
-import CreditGauge from "@/components/dashboard/CreditGauge";
+import CreditScoreChart from "@/components/dashboard/CreditScoreChart";
 
-export type Tradeline = {
-  creditor: string;
-  issue: string;
-  bureau: string;
-  accountNumber: string;
-};
-
-interface CreditReportDisplayProps {
-  tradelines?: Tradeline[];
-}
-
-const mockNegativeItems: Tradeline[] = [
+const mockNegativeItems = [
   {
     creditor: "Capital One",
     issue: "Charge-off",
@@ -60,60 +48,61 @@ const mockNegativeItems: Tradeline[] = [
   },
 ];
 
-const mockScores = {
-  Experian: {
+const bureaus = [
+  {
+    name: "Experian",
     score: 640,
-    breakdown: {
-      collections: 5,
-      latePayments: 1,
-      chargeOffs: 3,
-      inquiries: 2,
-      publicRecords: 0,
-    },
+    logo: "/mockups/experian-logo.svg",
+    issues: [
+      "5 collections",
+      "1 late payment",
+      "3 Charge Off's",
+      "2 inquiries",
+      "0 public records",
+    ],
   },
-  TransUnion: {
-    score: 688,
-    breakdown: {
-      collections: 3,
-      latePayments: 0,
-      chargeOffs: 2,
-      inquiries: 1,
-      publicRecords: 0,
-    },
+  {
+    name: "TransUnion",
+    score: 655,
+    logo: "/mockups/transunion-logo.svg",
+    issues: [
+      "3 collections",
+      "0 late payments",
+      "1 Charge Off",
+      "4 inquiries",
+      "0 public records",
+    ],
   },
-  Equifax: {
-    score: 702,
-    breakdown: {
-      collections: 2,
-      latePayments: 2,
-      chargeOffs: 1,
-      inquiries: 3,
-      publicRecords: 0,
-    },
+  {
+    name: "Equifax",
+    score: 667,
+    logo: "/mockups/equifax-logo.svg",
+    issues: [
+      "2 collections",
+      "2 late payments",
+      "2 Charge Off's",
+      "3 inquiries",
+      "0 public records",
+    ],
   },
-};
+];
 
-export default function CreditReportDisplay({
-  tradelines,
-}: CreditReportDisplayProps) {
-  const [showAll, setShowAll] = useState(false);
-  const dataToRender =
-    Array.isArray(tradelines) && tradelines.length > 0
-      ? tradelines
-      : mockNegativeItems;
-
+export default function ScoreOverview() {
   const cardBg = useColorModeValue("gray.50", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.600");
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const border = useColorModeValue("gray.200", "gray.700");
+  const greenGradient = "linear(to-r, green.400, green.600)";
+  const [showAll, setShowAll] = useState(false);
+  const firstThree = mockNegativeItems.slice(0, 3);
+  const remaining = mockNegativeItems.slice(3);
 
-  const renderCard = (item: Tradeline, idx: number) => (
+  const renderCard = (item: any, idx: number) => (
     <Box
       key={`${item.creditor}-${idx}`}
       p={4}
       borderWidth="1px"
       borderRadius="lg"
       bg={cardBg}
-      borderColor={borderColor}
+      borderColor={border}
       boxShadow="sm"
     >
       <HStack justify="space-between" mb={2}>
@@ -136,81 +125,85 @@ export default function CreditReportDisplay({
     </Box>
   );
 
-  const renderScoreBox = (bureau: keyof typeof mockScores) => {
-    const info = mockScores[bureau];
-    const logoSrc = `/mockups/${bureau.toLowerCase()}-logo.svg`;
-
-    return (
-      <Box
-        key={bureau}
-        borderWidth="1px"
-        borderRadius="xl"
-        p={6}
-        bg={cardBg}
-        borderColor={borderColor}
-        boxShadow="md"
-        textAlign="center"
-      >
-        <Image src={logoSrc} alt={`${bureau} logo`} h={8} mb={2} mx="auto" />
-        <Text fontSize="4xl" fontWeight="bold" color="green.500">
-          {info.score}
-        </Text>
-        <VStack align="start" spacing={1} fontSize="sm" mt={2}>
-          <Text>{info.breakdown.collections} collections</Text>
-          <Text>{info.breakdown.latePayments} late payment(s)</Text>
-          <Text>{info.breakdown.chargeOffs} charge-off(s)</Text>
-          <Text>{info.breakdown.inquiries} inquiries</Text>
-          <Text>{info.breakdown.publicRecords} public records</Text>
-        </VStack>
-      </Box>
-    );
-  };
-
   return (
     <Box>
       <DashboardNavbar />
-      <Box px={6} pt={4}>
-        <Heading size="lg" mb={4}>
-          Welcome back!
+
+      <Box p={[4, 8]}>
+        <Heading size="md" mb={4}>
+          Welcome back, Dev User
         </Heading>
-        <CreditGauge score={685} />
-        <Box mt={10} p={6} bg="white" boxShadow="md" borderRadius="xl">
-          <Heading size="md" mb={6}>
-            Credit Bureaus Summary
-          </Heading>
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mb={10}>
-            {Object.keys(mockScores).map((bureau) =>
-              renderScoreBox(bureau as keyof typeof mockScores)
-            )}
-          </SimpleGrid>
 
-          <Divider mb={6} />
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mb={12}>
+          {bureaus.map((bureau) => (
+            <Box
+              key={bureau.name}
+              p={4}
+              borderWidth="1px"
+              borderColor={border}
+              borderRadius="md"
+              bg={cardBg}
+              boxShadow="sm"
+            >
+              <Flex direction="column" align="center">
+                <Image src={bureau.logo} alt={bureau.name} h={8} mb={3} />
+                <Box maxW="90px" w="100%">
+                  <GaugeChart
+                    id={`gauge-${bureau.name}`}
+                    nrOfLevels={30}
+                    colors={["#F56565", "#ECC94B", "#48BB78"]}
+                    arcWidth={0.3}
+                    percent={bureau.score / 850}
+                    needleColor="#2D3748"
+                    textColor="transparent"
+                  />
+                </Box>
+                <Text
+                  mt={2}
+                  fontSize="2xl"
+                  fontWeight="bold"
+                  bgGradient={greenGradient}
+                  bgClip="text"
+                >
+                  {bureau.score}
+                </Text>
+                <VStack mt={3} spacing={1} align="start">
+                  {bureau.issues.map((issue, i) => (
+                    <Text key={i} fontSize="sm" color="gray.600">
+                      • {issue}
+                    </Text>
+                  ))}
+                </VStack>
+              </Flex>
+            </Box>
+          ))}
+        </SimpleGrid>
 
+        {/* ✅ Credit Score Growth Chart */}
+        <Box mb={12}>
+          <CreditScoreChart />
+        </Box>
+
+        <Box p={6} bg="white" boxShadow="md" borderRadius="xl">
           <Heading size="md" mb={6}>
             Negative Tradelines
           </Heading>
 
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-            {dataToRender.slice(0, 3).map(renderCard)}
+            {firstThree.map(renderCard)}
             <Collapse
               in={showAll}
               animateOpacity
               style={{ gridColumn: "1 / -1" }}
             >
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mt={4}>
-                {dataToRender.slice(3).map(renderCard)}
+                {remaining.map(renderCard)}
               </SimpleGrid>
             </Collapse>
           </SimpleGrid>
 
-          <Flex
-            justify="space-between"
-            align="center"
-            mt={8}
-            direction={{ base: "column", md: "row" }}
-            gap={4}
-          >
-            {dataToRender.length > 3 && (
+          {mockNegativeItems.length > 3 && (
+            <Flex justify="space-between" align="center" mt={6}>
               <Button
                 onClick={() => setShowAll((prev) => !prev)}
                 variant="link"
@@ -218,14 +211,9 @@ export default function CreditReportDisplay({
               >
                 {showAll ? "Show Less" : "Show More"}
               </Button>
-            )}
-            <Button
-              colorScheme="blue"
-              onClick={() => alert("Generate dispute PDF")}
-            >
-              Create Dispute
-            </Button>
-          </Flex>
+              <Button colorScheme="blue">Create Dispute</Button>
+            </Flex>
+          )}
         </Box>
       </Box>
     </Box>

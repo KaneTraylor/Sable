@@ -19,6 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { InfoIcon } from "@chakra-ui/icons";
 import { useState } from "react";
+import CreditScoreChart from "@/components/dashboard/CreditScoreChart";
 
 // Define the type for each tradeline
 export type Tradeline = {
