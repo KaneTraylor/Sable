@@ -1,25 +1,16 @@
+// components/signup/SignupStep3.tsx
 import {
   Box,
+  Button,
   Heading,
+  Text,
   VStack,
   Radio,
   RadioGroup,
-  Button,
-  Text,
-  Flex,
-  Tooltip,
-  HStack,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  useColorModeValue,
+  Stack,
   useToast,
-  Spinner, // ✅ add this
+  Spinner,
 } from "@chakra-ui/react";
-import { InfoIcon, StarIcon, CheckCircleIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 
 interface SignupStep3Props {
@@ -35,153 +26,78 @@ export default function SignupStep3({
   onNext,
   onBack,
 }: SignupStep3Props) {
-  const bg = useColorModeValue("gray.50", "gray.700");
+  const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
-  const [isSaving, setIsSaving] = useState(false);
 
-  const handleContinue = async () => {
-    if (!selectedPlan) return;
-
-    setIsSaving(true);
-    try {
-      const res = await fetch("/api/signup/updateStep", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          step: 4,
-          formData: { plan: selectedPlan },
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to save plan.");
-      }
-
-      onNext();
-    } catch (err: any) {
+  const handleContinue = () => {
+    if (!selectedPlan) {
       toast({
-        title: "Error",
-        description: err.message,
-        status: "error",
-        duration: 4000,
+        title: "Plan Required",
+        description: "Please select a plan before continuing.",
+        status: "warning",
+        duration: 3000,
         isClosable: true,
       });
-    } finally {
-      setIsSaving(false);
+      return;
     }
+
+    onNext();
   };
 
   return (
-    <Box p={8} bg={bg} borderRadius="md" boxShadow="md">
+    <Box maxW="600px" mx="auto" p={6}>
       <Heading size="lg" mb={4}>
-        Choose Your Plan
+        Connect Your Credit Report
       </Heading>
-      <Text fontSize="md" mb={6}>
-        Select a plan that best fits your needs:
+      <Text fontSize="sm" color="gray.600" mb={6}>
+        Select a SmartCredit option to connect your 3 bureau credit report to
+        your Sable Credit account.
       </Text>
 
       <RadioGroup onChange={onPlanSelect} value={selectedPlan}>
-        <VStack align="start" spacing={6}>
-          <Radio value="basic">
-            <HStack>
-              <CheckCircleIcon color="blue.400" />
-              <Box>
-                <Text fontWeight="bold">Basic – $49/mo</Text>
-                <Text fontSize="sm" color="gray.600">
-                  Includes 1 bureau dispute
+        <VStack spacing={5} align="stretch">
+          <Box border="1px solid #CBD5E0" p={4} borderRadius="md">
+            <Radio value="protect">
+              <Stack align="start" spacing={1}>
+                <Text fontWeight="bold">SmartCredit Protect - $24.95/mo</Text>
+                <Text fontSize="sm">
+                  Monthly 3 Bureau Reports & Scores, $1M Identity Theft
+                  Insurance, Credit Monitoring & Alerts, 2 Single Bureau Report
+                  Updates/mo.
                 </Text>
-              </Box>
-            </HStack>
-          </Radio>
-
-          <Radio value="standard">
-            <HStack>
-              <StarIcon color="orange.300" />
-              <Box>
-                <Text fontWeight="bold">Standard – $89/mo</Text>
-                <Text fontSize="sm" color="gray.600">
-                  3 bureau disputes & real-time updates
+              </Stack>
+            </Radio>
+          </Box>
+          <Box border="1px solid #CBD5E0" p={4} borderRadius="md">
+            <Radio value="build">
+              <Stack align="start" spacing={1}>
+                <Text fontWeight="bold">SmartCredit Build - $29.95/mo</Text>
+                <Text fontSize="sm">
+                  Same benefits as Protect, plus unlimited Single Bureau Report
+                  Updates.
                 </Text>
-              </Box>
-            </HStack>
-          </Radio>
-
-          <Radio value="premium">
-            <HStack align="start">
-              <Tooltip
-                label="AI scans for errors and generates dispute logic"
-                hasArrow
-              >
-                <InfoIcon color="purple.400" />
-              </Tooltip>
-              <Box>
-                <Text fontWeight="bold">Premium – $129/mo</Text>
-                <Text fontSize="sm" color="gray.600">
-                  3 bureau disputes + AI Review
-                </Text>
-              </Box>
-            </HStack>
-          </Radio>
+              </Stack>
+            </Radio>
+          </Box>
         </VStack>
       </RadioGroup>
 
-      <Heading size="md" mt={10} mb={4}>
-        Plan Comparison
-      </Heading>
+      <Text mt={4} fontSize="xs" color="gray.500">
+        This will not create an inquiry or lower your credit score.
+      </Text>
 
-      <Box overflowX="auto">
-        <Table variant="simple" size="sm">
-          <Thead>
-            <Tr>
-              <Th>Feature</Th>
-              <Th>Basic</Th>
-              <Th>Standard</Th>
-              <Th>Premium</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            <Tr>
-              <Td>Monthly Disputes</Td>
-              <Td>1 Bureau</Td>
-              <Td>3 Bureaus</Td>
-              <Td>3 Bureaus</Td>
-            </Tr>
-            <Tr>
-              <Td>Dispute Updates</Td>
-              <Td>Manual</Td>
-              <Td>Automated</Td>
-              <Td>Automated</Td>
-            </Tr>
-            <Tr>
-              <Td>AI Report Review</Td>
-              <Td>—</Td>
-              <Td>—</Td>
-              <Td>✓</Td>
-            </Tr>
-            <Tr>
-              <Td>Customer Support</Td>
-              <Td>Email Only</Td>
-              <Td>Email + Chat</Td>
-              <Td>Priority Support</Td>
-            </Tr>
-          </Tbody>
-        </Table>
-      </Box>
-
-      <Flex justify="space-between" mt={8}>
-        <Button onClick={onBack} variant="ghost">
+      <Box display="flex" justifyContent="space-between" mt={8}>
+        <Button variant="ghost" onClick={onBack}>
           Back
         </Button>
         <Button
-          colorScheme="blue"
+          colorScheme="green"
           onClick={handleContinue}
-          isDisabled={!selectedPlan || isSaving}
+          isDisabled={isLoading}
         >
-          {isSaving ? <Spinner size="sm" /> : "Continue"}
+          {isLoading ? <Spinner size="sm" /> : "Continue"}
         </Button>
-      </Flex>
+      </Box>
     </Box>
   );
 }

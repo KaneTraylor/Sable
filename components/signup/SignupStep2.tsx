@@ -1,4 +1,3 @@
-// components/signup/SignupStep2.tsx
 import {
   Box,
   Heading,
@@ -19,9 +18,12 @@ interface SignupStep2Props {
   onNext: () => void;
   onBack: () => void;
   formData: {
-    email?: string; // ✅ optional now
-    ssn?: string;
-    dob?: string;
+    email?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+    phone?: string;
   };
   onChange: (field: string, value: string) => void;
 }
@@ -35,14 +37,15 @@ export default function SignupStep2({
   const toast = useToast();
   const [consentGiven, setConsentGiven] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ ssn?: string; dob?: string }>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const saved = localStorage.getItem("signup-step2");
-    if (saved && typeof onChange === "function") {
+    if (saved) {
       const parsed = JSON.parse(saved);
-      if (parsed.ssn) onChange("ssn", parsed.ssn);
-      if (parsed.dob) onChange("dob", parsed.dob);
+      for (const key in parsed) {
+        if (parsed[key]) onChange(key, parsed[key]);
+      }
       setConsentGiven(parsed.consentGiven || false);
     }
   }, []);
@@ -50,47 +53,25 @@ export default function SignupStep2({
   useEffect(() => {
     localStorage.setItem(
       "signup-step2",
-      JSON.stringify({
-        ssn: formData?.ssn || "",
-        dob: formData?.dob || "",
-        consentGiven,
-      })
+      JSON.stringify({ ...formData, consentGiven })
     );
-  }, [formData?.ssn, formData?.dob, consentGiven]);
-
-  const formatSSN = (value: string) => {
-    const digits = value.replace(/\D/g, "").slice(0, 9);
-    const parts = [
-      digits.slice(0, 3),
-      digits.slice(3, 5),
-      digits.slice(5, 9),
-    ].filter(Boolean);
-    return parts.join("-");
-  };
-
-  const formatDOB = (value: string) => {
-    const digits = value.replace(/\D/g, "").slice(0, 8);
-    const parts = [
-      digits.slice(0, 2),
-      digits.slice(2, 4),
-      digits.slice(4, 8),
-    ].filter(Boolean);
-    return parts.join("/");
-  };
+  }, [formData, consentGiven]);
 
   const validateFields = () => {
-    const newErrors: typeof errors = {};
-    if (!formData?.ssn || formData.ssn.replace(/\D/g, "").length !== 9) {
-      newErrors.ssn = "SSN must be 9 digits.";
-    }
-    if (!formData?.dob || formData.dob.replace(/\D/g, "").length !== 8) {
-      newErrors.dob = "Date of birth must be 8 digits (MM/DD/YYYY).";
-    }
+    const newErrors: Record<string, string> = {};
+    if (!formData?.address) newErrors.address = "Address is required.";
+    if (!formData?.city) newErrors.city = "City is required.";
+    if (!formData?.state) newErrors.state = "State is required.";
+    if (!formData?.zip || formData.zip.length < 5)
+      newErrors.zip = "Zip code is invalid.";
+    if (!formData?.phone || formData.phone.replace(/\D/g, "").length !== 10)
+      newErrors.phone = "Phone number must be 10 digits.";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleContinue = async () => {
+  const handleContinue = () => {
     if (!consentGiven || !validateFields()) {
       toast({
         title: "Missing or invalid fields",
@@ -102,85 +83,76 @@ export default function SignupStep2({
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/signup/updateStep", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          step: 3,
-          formData: {
-            ssn: formData.ssn,
-            dob: formData.dob,
-          },
-          email: formData.email, // ✅ Add this line
-        }),
-      });
-
-      const result = await res.json();
-      console.log("updateStep response:", result);
-
-      if (!res.ok) {
-        throw new Error(result.error || "Unknown error");
-      }
-
-      onNext();
-    } catch (err: any) {
-      toast({
-        title: "Error",
-        description: err.message || "Something went wrong saving your data.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    onNext();
   };
 
   return (
     <Box maxW="500px" mx="auto" p={[4, 8]}>
-      <Heading size="lg" mb={4} textAlign="left">
-        Verify Your Identity
+      <Heading size="lg" mb={4}>
+        Your Contact Details
       </Heading>
       <Text fontSize="sm" mb={6} color="gray.600">
-        To pull your credit report, we need to verify a few more details. This
-        won’t impact your score.
+        We use this to verify and secure your profile.
       </Text>
-      <VStack spacing={6} align="stretch">
-        <FormControl isInvalid={!!errors.ssn}>
-          <FormLabel>Social Security Number</FormLabel>
+      <VStack spacing={5} align="stretch">
+        <FormControl isInvalid={!!errors.address}>
+          <FormLabel>Address</FormLabel>
           <Input
-            type="text"
-            placeholder="123-45-6789"
-            value={formData?.ssn || ""}
-            onChange={(e) =>
-              typeof onChange === "function" &&
-              onChange("ssn", formatSSN(e.target.value))
-            }
+            placeholder="123 Main St"
+            value={formData.address || ""}
+            onChange={(e) => onChange("address", e.target.value)}
           />
-          {errors.ssn && <FormErrorMessage>{errors.ssn}</FormErrorMessage>}
+          {errors.address && (
+            <FormErrorMessage>{errors.address}</FormErrorMessage>
+          )}
         </FormControl>
 
-        <FormControl isInvalid={!!errors.dob}>
-          <FormLabel>Date of Birth</FormLabel>
+        <FormControl isInvalid={!!errors.city}>
+          <FormLabel>City</FormLabel>
           <Input
-            type="text"
-            placeholder="MM/DD/YYYY"
-            value={formData?.dob || ""}
-            onChange={(e) =>
-              typeof onChange === "function" &&
-              onChange("dob", formatDOB(e.target.value))
-            }
+            placeholder="City"
+            value={formData.city || ""}
+            onChange={(e) => onChange("city", e.target.value)}
           />
-          {errors.dob && <FormErrorMessage>{errors.dob}</FormErrorMessage>}
+          {errors.city && <FormErrorMessage>{errors.city}</FormErrorMessage>}
+        </FormControl>
+
+        <FormControl isInvalid={!!errors.state}>
+          <FormLabel>State</FormLabel>
+          <Input
+            placeholder="State"
+            value={formData.state || ""}
+            onChange={(e) => onChange("state", e.target.value)}
+          />
+          {errors.state && <FormErrorMessage>{errors.state}</FormErrorMessage>}
+        </FormControl>
+
+        <FormControl isInvalid={!!errors.zip}>
+          <FormLabel>ZIP Code</FormLabel>
+          <Input
+            placeholder="ZIP"
+            value={formData.zip || ""}
+            onChange={(e) => onChange("zip", e.target.value)}
+          />
+          {errors.zip && <FormErrorMessage>{errors.zip}</FormErrorMessage>}
+        </FormControl>
+
+        <FormControl isInvalid={!!errors.phone}>
+          <FormLabel>Phone Number</FormLabel>
+          <Input
+            placeholder="(123) 456-7890"
+            value={formData.phone || ""}
+            onChange={(e) => onChange("phone", e.target.value)}
+          />
+          {errors.phone && <FormErrorMessage>{errors.phone}</FormErrorMessage>}
         </FormControl>
 
         <Checkbox
           isChecked={consentGiven}
           onChange={(e) => setConsentGiven(e.target.checked)}
         >
-          I authorize Sable Credit to access my credit report.
+          By clicking “Continue,” I consent to be contacted about this service
+          by autodialer or prerecorded voice. Consent not required to enroll.
         </Checkbox>
 
         <Box display="flex" justifyContent="space-between">

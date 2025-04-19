@@ -18,8 +18,13 @@ model User {
   dob               String?
   address           String?
   plan              String?
+  city              String?
+  state             String?
+  zip               String?
+  phone             String?
+  consentGiven      Boolean?
   createdAt         DateTime  @default(now())
   emailVerified     DateTime?
   verificationToken String?
-  currentStep       Int      @default(1) 
+  currentStep       Int       @default(1)
 }

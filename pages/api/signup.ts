@@ -15,8 +15,20 @@ export default async function handler(
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { firstName, lastName, email, password, ssn, dob, address, plan } =
-    req.body;
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    ssn,
+    dob,
+    address,
+    city,
+    state,
+    zip,
+    phone,
+    plan,
+  } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -43,6 +55,10 @@ export default async function handler(
         ssn,
         dob,
         address,
+        city,
+        state,
+        zip,
+        phone,
         plan,
         verificationToken,
         emailVerified: null,
@@ -75,7 +91,7 @@ export default async function handler(
 
     return res.status(200).json({ message: "User created", userId: user.id });
   } catch (error: any) {
-    console.error("Signup error:", error);
+    console.error("❌ Signup error:", error);
 
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&

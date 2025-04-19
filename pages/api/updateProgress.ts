@@ -1,3 +1,4 @@
+// DEV ONLY: Directly updates user step & formData without JWT
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
 
@@ -26,9 +27,13 @@ export default async function handler(
       },
     });
 
-    return res.status(200).json({ success: true, user: updatedUser });
+    return res.status(200).json({
+      success: true,
+      message: "Progress updated (dev route)",
+      user: updatedUser,
+    });
   } catch (error) {
-    console.error("Update progress error:", error);
+    console.error("❌ Update progress error:", error);
     return res.status(500).json({ error: "Failed to update progress" });
   }
 }

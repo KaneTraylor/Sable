@@ -18,6 +18,8 @@ import { useState } from "react";
 
 interface SignupStep1Props {
   formData: {
+    firstName: string;
+    lastName: string;
     email: string;
     password: string;
   };
@@ -54,7 +56,6 @@ export default function SignupStep1({
 
   const handleContinue = async () => {
     setLoading(true);
-
     try {
       const res = await fetch("/api/signup/partial", {
         method: "POST",
@@ -66,14 +67,21 @@ export default function SignupStep1({
       });
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error || "Signup failed");
 
-      onNext(data.currentStep, data.formData); // updated key to match API response
+      if (!data.formData?.userId) {
+        throw new Error("Missing userId from response");
+      }
+
+      onNext(data.currentStep, {
+        ...formData,
+        userId: data.formData.userId,
+        password: formData.password, // retain original password
+      });
     } catch (err: any) {
       toast({
         title: "Error",
-        description: err.message,
+        description: err.message || "Signup failed",
         status: "error",
         duration: 4000,
         isClosable: true,
@@ -81,6 +89,15 @@ export default function SignupStep1({
     } finally {
       setLoading(false);
     }
+  };
+
+  const generateDummyData = () => {
+    const suffix = Math.floor(Math.random() * 100000);
+    onChange("firstName", "Dev");
+    onChange("lastName", "User");
+    onChange("email", `test${suffix}@example.com`);
+    onChange("password", "TestPass123!");
+    setTimeout(() => handleContinue(), 300);
   };
 
   return (
@@ -92,7 +109,6 @@ export default function SignupStep1({
         gap={12}
         w="full"
       >
-        {/* Form */}
         <Box
           bg="white"
           p={[6, 10]}
@@ -105,6 +121,26 @@ export default function SignupStep1({
             <Heading size="lg" textAlign="left">
               Create your account
             </Heading>
+
+            <Box>
+              <FormLabel>First Name</FormLabel>
+              <Input
+                value={formData.firstName}
+                onChange={(e) => onChange("firstName", e.target.value)}
+                placeholder="First Name"
+                size="lg"
+              />
+            </Box>
+
+            <Box>
+              <FormLabel>Last Name</FormLabel>
+              <Input
+                value={formData.lastName}
+                onChange={(e) => onChange("lastName", e.target.value)}
+                placeholder="Last Name"
+                size="lg"
+              />
+            </Box>
 
             <Box>
               <FormLabel>Email</FormLabel>
@@ -128,7 +164,7 @@ export default function SignupStep1({
               />
             </Box>
 
-            <Flex justify="center">
+            <Flex justify="center" flexDirection="column" gap={3}>
               <Button
                 colorScheme="green"
                 size="lg"
@@ -138,11 +174,18 @@ export default function SignupStep1({
               >
                 Continue
               </Button>
+              <Button
+                onClick={generateDummyData}
+                variant="link"
+                fontSize="sm"
+                colorScheme="blue"
+              >
+                Fill with Dummy Data
+              </Button>
             </Flex>
           </VStack>
         </Box>
 
-        {/* Benefits Sidebar */}
         <VStack
           spacing={6}
           align="start"

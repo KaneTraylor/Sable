@@ -19,8 +19,8 @@ import CreditReportDisplay from "../components/CreditReportDisplay";
 // Optional: define the Tradeline type if it's not already imported
 type Tradeline = {
   creditor: string;
-  issue: string;
   bureau: string;
+  issue: string;
   accountNumber: string;
 };
 
@@ -29,14 +29,24 @@ export default function Dashboard() {
   const router = useRouter();
 
   const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [tradelines, setTradelines] = useState<Tradeline[]>([]); // ✅ fixed position
+  const [tradelines, setTradelines] = useState<Tradeline[]>([]);
   const toast = useToast();
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/signin");
-    }
-  }, [status, router]);
+  // 🚫 Temporarily disable auth protection for development
+  // useEffect(() => {
+  //   if (status === "unauthenticated") {
+  //     router.push("/auth/signin");
+  //   }
+  // }, [status, router]);
+
+  // Optional: skip loading guard as well
+  // if (status === "loading") {
+  //   return (
+  //     <Center minH="100vh">
+  //       <Spinner size="xl" />
+  //     </Center>
+  //   );
+  // }
 
   const handleUpload = async () => {
     if (!pdfFile) return;
@@ -60,14 +70,6 @@ export default function Dashboard() {
       toast({ title: "Failed to upload PDF", status: "error" });
     }
   };
-
-  if (status === "loading") {
-    return (
-      <Center minH="100vh">
-        <Spinner size="xl" />
-      </Center>
-    );
-  }
 
   return (
     <Box p={6}>
