@@ -1,270 +1,272 @@
 // components/dashboard/ScoreOverview.tsx
 import {
   Box,
+  Button,
+  Divider,
   Flex,
+  Grid,
   Heading,
+  HStack,
+  IconButton,
+  Image,
   SimpleGrid,
   Text,
-  useColorModeValue,
   useBreakpointValue,
+  useColorModeValue,
   VStack,
-  HStack,
-  Image,
-  Button,
-  Collapse,
   Badge,
 } from "@chakra-ui/react";
-import { InfoIcon } from "@chakra-ui/icons";
+import { TimeIcon } from "@chakra-ui/icons";
+import { FiFilter } from "react-icons/fi";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import DashboardNavbar from "./DashboardNavbar";
 import CustomCreditMeter from "./CustomCreditMeter";
 import CreditScoreChart from "./CreditScoreChart";
 
-// SeedFi‑style purple gradient
-const accentGradient = "linear(to-r, purple.400, purple.600)";
-
-// Mock metric cards
-const mockMetrics = [
-  { title: "Payment History", value: "98%", subtitle: "On‑time payments" },
-  { title: "Credit Age", value: "7 years", subtitle: "Avg. account age" },
-  { title: "Utilization", value: "22%", subtitle: "Of available credit" },
-];
-
-// Three‑bureau data
-const bureaus = [
+// mock dispute items
+const DISPUTES = [
   {
-    name: "Experian",
-    score: 650,
-    logo: "/mockups/experian-logo.svg",
-    issues: ["5 collections", "1 late payment", "3 charge‑offs", "2 inquiries"],
+    title: "A payment is incorrectly marked delayed.",
+    type: "Payment Delay",
+    date: "2024‑08‑04",
+    status: "New",
   },
   {
-    name: "TransUnion",
-    score: 675,
-    logo: "/mockups/transunion-logo.svg",
-    issues: ["3 collections", "0 late payments", "1 charge‑off", "4 inquiries"],
+    title: "Credit limit is displayed incorrectly.",
+    type: "Credit Limit",
+    date: "2024‑08‑03",
+    status: "In Review",
   },
   {
-    name: "Equifax",
-    score: 700,
-    logo: "/mockups/equifax-logo.svg",
-    issues: [
-      "2 collections",
-      "2 late payments",
-      "2 charge‑offs",
-      "3 inquiries",
-    ],
+    title: "Closed account still appears active.",
+    type: "Account Info",
+    date: "2024‑08‑03",
+    status: "Resolved",
   },
 ];
 
-// Negative tradelines
-const mockNegative = [
-  {
-    creditor: "Capital One",
-    issue: "Charge‑off",
-    bureau: "Experian",
-    accountNumber: "****1234",
-  },
-  {
-    creditor: "Midland Funding",
-    issue: "Collections",
-    bureau: "TransUnion",
-    accountNumber: "****5678",
-  },
-  {
-    creditor: "Synchrony Bank",
-    issue: "Late Payment",
-    bureau: "Equifax",
-    accountNumber: "****9101",
-  },
-  {
-    creditor: "Amex",
-    issue: "Charge‑off",
-    bureau: "Experian",
-    accountNumber: "****4444",
-  },
+// mock financial overview metrics
+const METRICS = [
+  { label: "Current Balance", value: "$5,000" },
+  { label: "Open Accounts", value: "4" },
+  { label: "Inquiries", value: "2" },
+  { label: "Depth of Credit", value: "5 yrs" },
+  { label: "Late Payments", value: "2" },
+  { label: "Late Payments Amount", value: "$1,250" },
+  { label: "Utilization", value: "30%" },
 ];
 
 export default function ScoreOverview() {
-  const [showAll, setShowAll] = useState(false);
-  const bgPage = useColorModeValue("gray.50", "gray.800");
+  const router = useRouter();
+  const isDesktop = useBreakpointValue({ base: false, md: true });
+  const bg = useColorModeValue("gray.50", "gray.800");
   const cardBg = useColorModeValue("white", "gray.700");
   const border = useColorModeValue("gray.200", "gray.600");
-  const isDesktop = useBreakpointValue({ base: false, md: true });
-
-  const firstThree = mockNegative.slice(0, 3);
-  const remaining = mockNegative.slice(3);
+  const [period, setPeriod] = useState<"1M" | "3M" | "6M" | "1Y">("1M");
 
   return (
-    <Box bg={bgPage} minH="100vh">
+    <Box bg={bg} minH="100vh">
       <DashboardNavbar />
 
       <Box
         maxW="7xl"
         mx="auto"
-        py={{ base: 6, md: 12 }}
         px={{ base: 4, md: 8 }}
+        py={{ base: 6, md: 12 }}
       >
-        {/* Hero */}
-        <Heading
-          size="2xl"
-          bgGradient={accentGradient}
-          bgClip="text"
-          mb={8}
-          textAlign="center"
-        >
-          Your Credit Snapshot
-        </Heading>
-
-        {/* Main Gauge + Metrics */}
-        <Flex
-          direction={{ base: "column", md: "row" }}
-          gap={{ base: 6, md: 12 }}
-          align="flex-start"
-          mb={12}
-        >
-          <Box flex="1" textAlign="center">
-            <CustomCreditMeter score={650} size={isDesktop ? 360 : 260} />
-          </Box>
-
-          <SimpleGrid flex="2" columns={{ base: 1, sm: 2, md: 3 }} spacing={6}>
-            {mockMetrics.map((m) => (
-              <Box
-                key={m.title}
-                bg={cardBg}
-                borderRadius="lg"
-                p={6}
-                boxShadow="lg"
-                border="1px solid"
-                borderColor={border}
-                textAlign="center"
-              >
-                <Text fontSize="sm" color="gray.500" mb={2}>
-                  {m.title}
-                </Text>
-                <Text fontSize="3xl" fontWeight="bold" mb={1} color="gray.800">
-                  {m.value}
-                </Text>
-                <Text fontSize="xs" color="gray.500">
-                  {m.subtitle}
-                </Text>
-              </Box>
-            ))}
-          </SimpleGrid>
-        </Flex>
-
-        {/* Three‑Bureau Breakdown */}
-        <Heading size="lg" mb={6}>
-          Breakdown by Bureau
-        </Heading>
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8} mb={12}>
-          {bureaus.map((b) => (
-            <Box
-              key={b.name}
-              bg={cardBg}
-              borderRadius="lg"
-              p={6}
-              boxShadow="md"
-              border="1px solid"
-              borderColor={border}
-              textAlign="center"
-            >
-              <Image
-                src={b.logo}
-                alt={`${b.name} Logo`}
-                boxSize={isDesktop ? 20 : 16}
-                mx="auto"
-                mb={4}
-              />
-
-              {/* mini‑gauge WITH overlay */}
-              <CustomCreditMeter score={b.score} size={isDesktop ? 180 : 140} />
-
-              <VStack mt={4} spacing={1}>
-                {b.issues.map((issue, i) => (
-                  <HStack key={i} spacing={2}>
-                    <InfoIcon color="gray.500" />
-                    <Text fontSize="sm" color="gray.600">
-                      {issue}
-                    </Text>
-                  </HStack>
-                ))}
-              </VStack>
+        <Grid templateColumns={{ base: "1fr", md: "1fr 2fr" }} gap={8}>
+          {/* Left Column */}
+          <VStack spacing={6} align="stretch">
+            {/* Credit Gauge */}
+            <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
+              <HStack mb={4}>
+                <TimeIcon />
+                <Heading size="md">Your Credit Score</Heading>
+              </HStack>
+              <Flex justify="center" mb={4}>
+                <CustomCreditMeter score={650} size={isDesktop ? 280 : 220} />
+              </Flex>
+              <Button colorScheme="green" w="100%">
+                Start Growth
+              </Button>
             </Box>
-          ))}
-        </SimpleGrid>
 
-        {/* Growth Chart */}
-        <Box mb={12}>
-          <CreditScoreChart />
-        </Box>
+            <Divider />
 
-        {/* Negative Tradelines */}
-        <Heading size="lg" mb={6}>
-          Negative Tradelines
-        </Heading>
-        <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="md">
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-            {firstThree.map((itm, idx) => (
-              <Box
-                key={idx}
-                p={4}
-                border="1px solid"
-                borderColor={border}
-                borderRadius="md"
-              >
-                <HStack justify="space-between" mb={2}>
-                  <Text fontWeight="bold">{itm.creditor}</Text>
-                  <Badge colorScheme="purple">{itm.bureau}</Badge>
-                </HStack>
-                <HStack justify="space-between">
-                  <HStack spacing={2}>
-                    <InfoIcon color="gray.500" />
-                    <Text>{itm.issue}</Text>
-                  </HStack>
-                  <Text>{itm.accountNumber}</Text>
-                </HStack>
-              </Box>
-            ))}
-
-            <Collapse
-              in={showAll}
-              animateOpacity
-              style={{ gridColumn: "1 / -1" }}
+            {/* Live Dispute Feed */}
+            <Box
+              bg={cardBg}
+              p={6}
+              borderRadius="lg"
+              boxShadow="xl"
+              display="flex"
+              flexDirection="column"
+              justifyContent="space-between"
             >
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6} mt={4}>
-                {remaining.map((itm, idx) => (
-                  <Box
-                    key={idx}
-                    p={4}
-                    border="1px solid"
-                    borderColor={border}
-                    borderRadius="md"
-                  >
-                    <HStack justify="space-between" mb={2}>
-                      <Text fontWeight="bold">{itm.creditor}</Text>
-                      <Badge colorScheme="purple">{itm.bureau}</Badge>
-                    </HStack>
-                    <HStack justify="space-between">
-                      <HStack spacing={2}>
-                        <InfoIcon color="gray.500" />
-                        <Text>{itm.issue}</Text>
+              <Box>
+                <HStack justify="space-between" mb={4}>
+                  <HStack spacing={2}>
+                    <TimeIcon />
+                    <Text fontWeight="bold">Live Dispute Feed</Text>
+                  </HStack>
+                  <IconButton
+                    aria-label="Filter disputes"
+                    icon={<FiFilter />}
+                    size="sm"
+                    variant="ghost"
+                  />
+                </HStack>
+                <VStack spacing={4} align="stretch" mb={6}>
+                  {DISPUTES.map((d, i) => (
+                    <Box key={i} pt={2} borderTop={`1px solid ${border}`}>
+                      <Text fontWeight="medium">{d.title}</Text>
+                      <HStack fontSize="sm" color="gray.500" mt={1}>
+                        <Text>{d.type}</Text>
+                        <Text>·</Text>
+                        <Text>{d.date}</Text>
+                        <Text>·</Text>
+                        <Badge
+                          colorScheme={
+                            d.status === "New"
+                              ? "green"
+                              : d.status === "In Review"
+                              ? "orange"
+                              : "gray"
+                          }
+                        >
+                          {d.status}
+                        </Badge>
                       </HStack>
-                      <Text>{itm.accountNumber}</Text>
-                    </HStack>
-                  </Box>
-                ))}
-              </SimpleGrid>
-            </Collapse>
-          </SimpleGrid>
+                    </Box>
+                  ))}
+                </VStack>
+              </Box>
 
-          <Flex justify="space-between" mt={6}>
-            <Button variant="link" onClick={() => setShowAll((s) => !s)}>
-              {showAll ? "Show Less" : "Show More"}
-            </Button>
-            <Button colorScheme="purple">Create Dispute</Button>
-          </Flex>
-        </Box>
+              <Image
+                src="/mockups/sable-difference/graphic-ladder-girl.svg"
+                alt="Dispute Character"
+                mt="auto"
+                mx="auto"
+                maxH={isDesktop ? "190px" : "270px"}
+                objectFit="contain"
+              />
+            </Box>
+          </VStack>
+
+          {/* Right Column */}
+          <VStack spacing={6} align="stretch">
+            {/* Score Analysis */}
+            <Box>
+              <HStack justify="space-between" mb={2}>
+                <Heading size="md">Score Analysis</Heading>
+                <HStack spacing={2}>
+                  {(["1M", "3M", "6M", "1Y"] as const).map((p) => (
+                    <Button
+                      key={p}
+                      size="sm"
+                      variant={period === p ? "solid" : "outline"}
+                      onClick={() => setPeriod(p)}
+                    >
+                      {p}
+                    </Button>
+                  ))}
+                </HStack>
+              </HStack>
+              <CreditScoreChart period={period} />
+            </Box>
+
+            <Divider />
+
+            {/* Credit Overview */}
+            <Box
+              bg={cardBg}
+              p={6}
+              borderRadius="lg"
+              boxShadow="xl"
+              display="flex"
+              flexDirection="column"
+              justifyContent="space-between"
+            >
+              <Box>
+                <HStack mb={4} spacing={2}>
+                  <Image
+                    src="/mockups/sable-difference/Sable-credit-gauge.png"
+                    alt="Sable Credit Gauge"
+                    boxSize="6"
+                  />
+                  <Heading size="md">Credit Overview</Heading>
+                </HStack>
+
+                <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+                  {METRICS.map((m) => {
+                    if (m.label === "Utilization") {
+                      const val = parseInt(m.value);
+                      return (
+                        <Box
+                          key={m.label}
+                          bg={cardBg}
+                          p={4}
+                          borderRadius="md"
+                          boxShadow="md"
+                          textAlign="center"
+                          gridColumn={{ base: "span 2", md: "span 4" }}
+                        >
+                          <Text fontSize="sm" mb={2}>
+                            {m.label}
+                          </Text>
+                          <Flex align="center">
+                            <Box flex="1" mr={2}>
+                              <Box
+                                bg="gray.200"
+                                h="6px"
+                                borderRadius="md"
+                                overflow="hidden"
+                              >
+                                <Box
+                                  bg={val > 35 ? "red.400" : "green.400"}
+                                  w={`${val}%`}
+                                  h="6px"
+                                />
+                              </Box>
+                            </Box>
+                            <Text fontWeight="bold">{m.value}</Text>
+                          </Flex>
+                        </Box>
+                      );
+                    }
+
+                    return (
+                      <Box
+                        key={m.label}
+                        bg={cardBg}
+                        p={4}
+                        borderRadius="md"
+                        boxShadow="md"
+                        textAlign="center"
+                      >
+                        <Text fontSize="sm" color="gray.500">
+                          {m.label}
+                        </Text>
+                        <Text fontSize="xl" fontWeight="bold">
+                          {m.value}
+                        </Text>
+                      </Box>
+                    );
+                  })}
+                </SimpleGrid>
+              </Box>
+
+              <Button
+                mt={6}
+                colorScheme="blue"
+                onClick={() => router.push("/dashboard/metrics")}
+              >
+                View Detailed Metrics
+              </Button>
+            </Box>
+          </VStack>
+        </Grid>
       </Box>
     </Box>
   );

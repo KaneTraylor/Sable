@@ -10,15 +10,12 @@ import { useEffect, useState } from "react";
 interface CustomCreditMeterProps {
   score: number; // 0–850
   size?: number; // diameter in px (optional override)
-  hideOverlay?: boolean; // NEW: if true, hides the in‑arc text/score
 }
 
 export default function CustomCreditMeter({
   score,
   size,
-  hideOverlay = false, // default to showing overlay
 }: CustomCreditMeterProps) {
-  // Responsive sizing
   const isMobile = useBreakpointValue({ base: true, md: false });
   const dimension = size ?? (isMobile ? 200 : 300);
   const strokeWidth = 20;
@@ -53,9 +50,9 @@ export default function CustomCreditMeter({
         {/* Background arc */}
         <path
           d={`
-              M ${center - radius},${center}
-              A ${radius},${radius} 0 0 1 ${center + radius},${center}
-            `}
+            M ${center - radius},${center}
+            A ${radius},${radius} 0 0 1 ${center + radius},${center}
+          `}
           fill="none"
           stroke="#E2E8F0"
           strokeWidth={strokeWidth}
@@ -65,9 +62,9 @@ export default function CustomCreditMeter({
         {/* Animated colored arc */}
         <path
           d={`
-              M ${center - radius},${center}
-              A ${radius},${radius} 0 0 1 ${center + radius},${center}
-            `}
+            M ${center - radius},${center}
+            A ${radius},${radius} 0 0 1 ${center + radius},${center}
+          `}
           fill="none"
           stroke={`url(#${gradientId})`}
           strokeWidth={strokeWidth}
@@ -96,35 +93,25 @@ export default function CustomCreditMeter({
         })()}
       </svg>
 
-      {/* Overlay text INSIDE the arc */}
-      {!hideOverlay && (
-        <Box
-          position="absolute"
-          top="50%"
-          left="50%"
-          transform="translate(-50%, -40%)"
-          textAlign="center"
-          pointerEvents="none"
+      {/* Only the numeric score inside the arc */}
+      <Box
+        position="absolute"
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
+        textAlign="center"
+        pointerEvents="none"
+      >
+        <Text
+          fontSize={isMobile ? "3xl" : "5xl"}
+          fontWeight="extrabold"
+          bgGradient={scoreGradient}
+          bgClip="text"
+          lineHeight="1"
         >
-          <Text
-            fontSize={isMobile ? "md" : "lg"}
-            fontWeight="bold"
-            color={labelColor}
-            mb={1}
-          >
-            Your Credit Score
-          </Text>
-          <Text
-            fontSize={isMobile ? "3xl" : "5xl"}
-            fontWeight="extrabold"
-            bgGradient={scoreGradient}
-            bgClip="text"
-            lineHeight="1"
-          >
-            {score}
-          </Text>
-        </Box>
-      )}
+          {score}
+        </Text>
+      </Box>
     </Box>
   );
 }
