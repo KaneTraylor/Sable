@@ -1,35 +1,66 @@
 // components/dashboard/CreditGauge.tsx
-import { Box, useBreakpointValue } from "@chakra-ui/react";
+import {
+  Box,
+  Text,
+  useBreakpointValue,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import GaugeChart from "react-gauge-chart";
 
 interface CreditGaugeProps {
-  /** Credit score (0–850) */
   score: number;
-  /** Optional override for the gauge width (px) */
   size?: number;
 }
 
 export default function CreditGauge({ score, size }: CreditGaugeProps) {
-  // Automatically pick a smaller gauge on mobile
   const isMobile = useBreakpointValue({ base: true, md: false });
-  const gaugeWidth = size ?? (isMobile ? 120 : 140);
+  // mobile: 180px, desktop: 320px
+  const gaugeWidth = size ?? (isMobile ? 180 : 320);
+  const labelColor = useColorModeValue("gray.800", "whiteAlpha.900");
+  const scoreGradient = "linear(to-r, teal.300, green.500)";
 
   return (
-    <Box width={gaugeWidth} mx="auto">
+    <Box position="relative" width={gaugeWidth} mx="auto">
       <GaugeChart
         id="credit-gauge"
-        // Split the arc into three equal gradient segments
+        nrOfLevels={60} // more ticks around the arc
         arcsLength={[0.33, 0.33, 0.34]}
-        colors={["#FF6B6B", "#FFD93D", "#6BCB77"]}
+        colors={["#F56565", "#FFD93D", "#6BCB77"]}
         percent={score / 850}
-        arcWidth={0.15} // thinner arc
-        cornerRadius={3} // rounded ends
+        arcWidth={0.2} // chunkier arc
+        cornerRadius={4}
         needleColor="#FFFFFF"
         needleBaseColor="#FFFFFF"
         animateDuration={1500}
-        hideText // remove built‑in percentage label
+        hideText
         style={{ width: gaugeWidth }}
       />
+
+      {/* Centered ticker overlay */}
+      <Box
+        position="absolute"
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
+        textAlign="center"
+      >
+        <Text
+          fontSize={isMobile ? "md" : "lg"}
+          fontWeight="bold"
+          color={labelColor}
+          mb={1}
+        >
+          Your Credit Score
+        </Text>
+        <Text
+          fontSize={isMobile ? "3xl" : "5xl"}
+          fontWeight="extrabold"
+          bgGradient={scoreGradient}
+          bgClip="text"
+        >
+          {score}
+        </Text>
+      </Box>
     </Box>
   );
 }

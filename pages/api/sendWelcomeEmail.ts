@@ -18,11 +18,11 @@ export default async function handler(
 
   try {
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com", // or use a transactional email provider like Mailgun, SendGrid
+      host: "smtp.gmail.com", // remember to change to sendgrid later
       port: 465,
       secure: true,
       auth: {
-        user: process.env.EMAIL_USER, // Add to .env.local
+        user: process.env.EMAIL_USER, // remember to add to .env.local
         pass: process.env.EMAIL_PASS,
       },
     });
