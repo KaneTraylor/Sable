@@ -1,15 +1,10 @@
 // components/dashboard/CustomCreditMeter.tsx
-import {
-  Box,
-  Text,
-  useBreakpointValue,
-  useColorModeValue,
-} from "@chakra-ui/react";
+import { Box, Text, useBreakpointValue } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
 interface CustomCreditMeterProps {
-  score: number; // 0–850
-  size?: number; // diameter in px (optional override)
+  score: number;
+  size?: number;
 }
 
 export default function CustomCreditMeter({
@@ -23,7 +18,6 @@ export default function CustomCreditMeter({
   const center = dimension / 2;
   const arcLength = Math.PI * radius;
 
-  // Animate the arc
   const [dashOffset, setDashOffset] = useState(arcLength);
   useEffect(() => {
     const pct = Math.max(0, Math.min(1, score / 850));
@@ -31,10 +25,9 @@ export default function CustomCreditMeter({
     requestAnimationFrame(() => setDashOffset(toOffset));
   }, [arcLength, score]);
 
-  // Colors
+  // If you need unique IDs you could do:
+  // const gradientId = React.useId();
   const gradientId = "meter-gradient";
-  const scoreGradient = "linear(to-r, teal.300, green.500)";
-  const labelColor = useColorModeValue("gray.800", "whiteAlpha.900");
 
   return (
     <Box position="relative" width={dimension} mx="auto">
@@ -87,25 +80,25 @@ export default function CustomCreditMeter({
               r={strokeWidth / 2}
               fill="#2D3748"
               stroke="#FFFFFF"
-              strokeWidth="3"
+              strokeWidth={3}
             />
           );
         })()}
       </svg>
 
-      {/* Only the numeric score inside the arc */}
+      {/* Centered score */}
       <Box
         position="absolute"
         top="50%"
         left="50%"
-        transform="translate(-50%, -50%)"
+        transform="translate(-50%, -40%)"
         textAlign="center"
         pointerEvents="none"
       >
         <Text
           fontSize={isMobile ? "3xl" : "5xl"}
           fontWeight="extrabold"
-          bgGradient={scoreGradient}
+          bgGradient="linear(to-r, teal.300, green.500)"
           bgClip="text"
           lineHeight="1"
         >

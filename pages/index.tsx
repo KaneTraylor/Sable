@@ -5,12 +5,8 @@ import { Box } from "@chakra-ui/react";
 
 import Navbar from "@/components/common/Navbar";
 import HeroSection from "@/components/home/HeroSection";
-import HowItWorksSection from "@/components/home/HowItWorksSection";
-import WhatYouGetSection from "@/components/home/WhatYouGetSection";
-import ExamplePlanSection from "@/components/home/ExamplePlanSection";
-import TestimonialsSection from "@/components/home/TestimonialsSection";
-import FAQSection from "@/components/home/FAQSection";
 import StickyCTA from "@/components/common/StickyCTA";
+import PlansSection from "@/components/home/PlanSection";
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -28,15 +24,7 @@ export default function HomePage() {
 
       <HeroSection />
 
-      <HowItWorksSection />
-
-      <WhatYouGetSection />
-
-      <ExamplePlanSection />
-
-      <TestimonialsSection />
-
-      <FAQSection />
+      <PlansSection />
 
       <StickyCTA />
     </Box>

@@ -10,6 +10,7 @@ import {
   IconButton,
   Image,
   SimpleGrid,
+  Spinner,
   Text,
   useBreakpointValue,
   useColorModeValue,
@@ -20,9 +21,11 @@ import { TimeIcon } from "@chakra-ui/icons";
 import { FiFilter } from "react-icons/fi";
 import { useRouter } from "next/router";
 import { useState } from "react";
+
 import DashboardNavbar from "./DashboardNavbar";
 import CustomCreditMeter from "./CustomCreditMeter";
 import CreditScoreChart from "./CreditScoreChart";
+import useConsumerDirect from "./useConsumerDirect"; // default import
 
 // mock dispute items
 const DISPUTES = [
@@ -65,6 +68,9 @@ export default function ScoreOverview() {
   const border = useColorModeValue("gray.200", "gray.600");
   const [period, setPeriod] = useState<"1M" | "3M" | "6M" | "1Y">("1M");
 
+  // pull in your real score
+  const { score, loading, error } = useConsumerDirect();
+
   return (
     <Box bg={bg} minH="100vh">
       <DashboardNavbar />
@@ -85,7 +91,16 @@ export default function ScoreOverview() {
                 <Heading size="md">Your Credit Score</Heading>
               </HStack>
               <Flex justify="center" mb={4}>
-                <CustomCreditMeter score={650} size={isDesktop ? 280 : 220} />
+                {loading ? (
+                  <Spinner size="xl" />
+                ) : error ? (
+                  <Text color="red.500">Error loading score</Text>
+                ) : (
+                  <CustomCreditMeter
+                    score={score!}
+                    size={isDesktop ? 280 : 220}
+                  />
+                )}
               </Flex>
               <Button colorScheme="green" w="100%">
                 Start Growth

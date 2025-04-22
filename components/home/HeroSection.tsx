@@ -1,76 +1,65 @@
-import {
-  Box,
-  Heading,
-  Text,
-  Button,
-  VStack,
-  Image,
-  Flex,
-  Container,
-  useBreakpointValue,
-} from "@chakra-ui/react";
-import { keyframes } from "@emotion/react";
+// components/HeroSection.tsx
+import React from "react";
+import { Box, Flex, Heading, Text, Button, Image } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-
-const fadeInUp = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
 
 export default function HeroSection() {
   const router = useRouter();
-  const isMobile = useBreakpointValue({ base: true, md: false });
 
   return (
-    <Box bg="gray.50" pt={[12, 20]} pb={[16, 24]} overflow="hidden">
-      <Container maxW="7xl" px={[4, 6, 10]}>
-        <Flex
-          direction={{ base: "column", md: "row" }}
-          align="center"
-          justify="space-between"
-          gap={12}
-        >
-          <VStack
-            spacing={6}
-            align="start"
-            flex="1"
-            animation={`${fadeInUp} 0.8s ease-out`}
+    <Box
+      bg="rgba(248,244,240,1)"
+      pb={{ base: 12, md: 16 }}
+      px={{ base: 6, md: 10 }}
+    >
+      <Flex
+        maxW="1024px"
+        mx="auto"
+        direction={{ base: "column-reverse", md: "row" }}
+        align="center"
+        justify="space-between"
+        gap={8}
+      >
+        <Box flex="1" textAlign={{ base: "center", md: "left" }}>
+          <Heading
+            as="h1"
+            fontFamily="heading"
+            fontSize={{ base: "3rem", xl: "4rem" }}
+            lineHeight="1.1"
+            mb={4}
           >
-            <Text fontSize="md" color="green.500" fontWeight="semibold">
-              Your credit journey starts here
+            Build credit, grow savings,{" "}
+            <Text as="span" color="green.500">
+              and achieve your goals.
             </Text>
-            <Heading as="h1" size="2xl" fontWeight="extrabold">
-              Build credit the easy way.
-            </Heading>
-            <Text fontSize="lg" color="gray.600">
-              Start building credit instantly — no credit check, no interest, no
-              hidden fees.
-            </Text>
-            <Button
-              size="lg"
-              bgGradient="linear(to-r, green.400, green.500)"
-              color="white"
-              _hover={{ bgGradient: "linear(to-r, green.500, green.600)" }}
-              onClick={() => router.push("/onboarding/signup")} // ✅ updated route
-            >
-              Get Started
-            </Button>
-          </VStack>
+          </Heading>
 
+          <Text fontFamily="body" fontSize={{ base: "md", xl: "lg" }} mb={6}>
+            Instantly access smarter financial tools—no hidden fees, no stress.
+          </Text>
+
+          <Button
+            size="lg"
+            bg="green.500"
+            color="white"
+            fontFamily="heading"
+            letterSpacing="0.5px"
+            _hover={{ bg: "green.700" }}
+            onClick={() => router.push("/onboarding/signup")}
+          >
+            Get Started
+          </Button>
+        </Box>
+
+        <Box flex="1">
           <Image
-            src="/mockups/credit-growth-illustration.png"
-            alt="Credit growth illustration"
-            maxW={{ base: "90%", md: "500px" }}
-            animation={`${fadeInUp} 1s ease-out`}
+            src="/mockups/sable-difference/savings-party.png"
+            alt="Financial growth illustration"
+            w="100%"
+            h="auto"
           />
-        </Flex>
-      </Container>
+        </Box>
+      </Flex>
     </Box>
   );
 }
