@@ -7,6 +7,10 @@ import Navbar from "@/components/common/Navbar";
 import HeroSection from "@/components/home/HeroSection";
 import StickyCTA from "@/components/common/StickyCTA";
 import PlansSection from "@/components/home/PlanSection";
+import FactsSection from "@/components/home/FactsSection";
+import FeaturesSection from "@/components/home/FeaturesSection";
+import CTASection from "@/components/home/CTASection";
+import Footer from "@/components/home/Footer";
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -26,7 +30,15 @@ export default function HomePage() {
 
       <PlansSection />
 
+      <FactsSection />
+
+      <FeaturesSection />
+
       <StickyCTA />
+
+      <CTASection />
+
+      <Footer />
     </Box>
   );
 }
