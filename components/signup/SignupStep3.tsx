@@ -1,17 +1,16 @@
 // components/signup/SignupStep3.tsx
+
+import React from "react";
 import {
+  Container,
   Box,
-  Button,
   Heading,
   Text,
   VStack,
-  Radio,
-  RadioGroup,
-  Stack,
-  useToast,
-  Spinner,
+  Button,
+  useBreakpointValue,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { CheckIcon } from "@chakra-ui/icons";
 
 interface SignupStep3Props {
   selectedPlan: string;
@@ -20,84 +19,133 @@ interface SignupStep3Props {
   onBack: () => void;
 }
 
+const plans = [
+  {
+    key: "protect",
+    title: "SmartCredit Protect",
+    price: "$24.95/mo",
+    description:
+      "Monthly 3-bureau reports & scores, $1M identity theft insurance, credit monitoring & alerts, 2 single-bureau updates/mo.",
+  },
+  {
+    key: "build",
+    title: "SmartCredit Build",
+    price: "$29.95/mo",
+    description:
+      "All Protect benefits, plus unlimited single-bureau report updates.",
+  },
+];
+
 export default function SignupStep3({
   selectedPlan,
   onPlanSelect,
   onNext,
   onBack,
 }: SignupStep3Props) {
-  const [isLoading, setIsLoading] = useState(false);
-  const toast = useToast();
-
-  const handleContinue = () => {
-    if (!selectedPlan) {
-      toast({
-        title: "Plan Required",
-        description: "Please select a plan before continuing.",
-        status: "warning",
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    onNext();
-  };
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   return (
-    <Box maxW="600px" mx="auto" p={6}>
-      <Heading size="lg" mb={4}>
-        Connect Your Credit Report
-      </Heading>
-      <Text fontSize="sm" color="gray.600" mb={6}>
-        Select a SmartCredit option to connect your 3 bureau credit report to
-        your Sable Credit account.
-      </Text>
+    <Container maxW={{ base: "full", md: "lg" }} mx="auto" px={4} py={0}>
+      {/* Header */}
+      <Box textAlign="center" mb={6} pt={4}>
+        <Heading
+          as="h3"
+          fontFamily="Franklin Gothic, sans-serif"
+          fontWeight="400"
+          fontSize="2xl"
+          color="green.500"
+          mb={1}
+        >
+          Choose your plan
+        </Heading>
+        <Text fontFamily="Inter, sans-serif" fontSize="md" color="gray.800">
+          Select a SmartCredit option to connect your 3-bureau credit report.
+        </Text>
+      </Box>
 
-      <RadioGroup onChange={onPlanSelect} value={selectedPlan}>
-        <VStack spacing={5} align="stretch">
-          <Box border="1px solid #CBD5E0" p={4} borderRadius="md">
-            <Radio value="protect">
-              <Stack align="start" spacing={1}>
-                <Text fontWeight="bold">SmartCredit Protect - $24.95/mo</Text>
-                <Text fontSize="sm">
-                  Monthly 3 Bureau Reports & Scores, $1M Identity Theft
-                  Insurance, Credit Monitoring & Alerts, 2 Single Bureau Report
-                  Updates/mo.
-                </Text>
-              </Stack>
-            </Radio>
-          </Box>
-          <Box border="1px solid #CBD5E0" p={4} borderRadius="md">
-            <Radio value="build">
-              <Stack align="start" spacing={1}>
-                <Text fontWeight="bold">SmartCredit Build - $29.95/mo</Text>
-                <Text fontSize="sm">
-                  Same benefits as Protect, plus unlimited Single Bureau Report
-                  Updates.
-                </Text>
-              </Stack>
-            </Radio>
-          </Box>
-        </VStack>
-      </RadioGroup>
+      {/* Plan cards */}
+      <VStack spacing={6}>
+        {plans.map(({ key, title, price, description }) => {
+          const selected = selectedPlan === key;
+          return (
+            <Box
+              key={key}
+              w="full"
+              rounded="2xl"
+              border="2px solid"
+              borderColor={selected ? "green.500" : "gray.200"}
+              px={6}
+              py={6}
+              position="relative"
+              cursor="pointer"
+              onClick={() => onPlanSelect(key)}
+              _hover={{
+                borderColor: "green.500",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+              }}
+              transition="all 0.2s"
+            >
+              {selected && (
+                <Box
+                  position="absolute"
+                  top={-2}
+                  right={-2}
+                  bg="green.200"
+                  rounded="full"
+                  p={1}
+                  zIndex={1}
+                >
+                  <CheckIcon color="green.600" w={4} h={4} />
+                </Box>
+              )}
 
-      <Text mt={4} fontSize="xs" color="gray.500">
-        This will not create an inquiry or lower your credit score.
-      </Text>
+              <Heading
+                as="h4"
+                fontFamily="Franklin Gothic, sans-serif"
+                fontWeight="bold"
+                fontSize="xl"
+                color="gray.800"
+                mb={2}
+              >
+                {title} — {price}
+              </Heading>
+              <Text
+                fontFamily="Inter, sans-serif"
+                fontSize="sm"
+                color="gray.600"
+                lineHeight="1.5"
+              >
+                {description}
+              </Text>
+            </Box>
+          );
+        })}
+      </VStack>
 
-      <Box display="flex" justifyContent="space-between" mt={8}>
-        <Button variant="ghost" onClick={onBack}>
+      {/* Navigation */}
+      <VStack spacing={3} mt={8} w="full">
+        <Button
+          variant="outline"
+          colorScheme="gray"
+          w="full"
+          size="lg"
+          onClick={onBack}
+        >
           Back
         </Button>
         <Button
-          colorScheme="green"
-          onClick={handleContinue}
-          isDisabled={isLoading}
+          bg="green.500"
+          color="white"
+          _hover={{ bg: "green.700" }}
+          rounded="lg"
+          w="full"
+          size="lg"
+          onClick={onNext}
+          isDisabled={!selectedPlan}
         >
-          {isLoading ? <Spinner size="sm" /> : "Continue"}
+          Continue
         </Button>
-      </Box>
-    </Box>
+      </VStack>
+    </Container>
   );
 }

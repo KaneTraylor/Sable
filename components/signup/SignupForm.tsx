@@ -132,9 +132,9 @@ export default function SignupForm() {
         return (
           <SignupStep4
             formData={formData}
-            onChange={handleFieldChange}
             onSubmit={handleSubmit}
             onBack={prevStep}
+            onEdit={(stepNumber) => jumpToStep(stepNumber)}
           />
         );
       default:

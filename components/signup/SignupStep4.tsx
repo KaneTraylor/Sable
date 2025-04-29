@@ -1,104 +1,138 @@
 // components/signup/SignupStep4.tsx
-import { Box, Heading, VStack, Text, Center, Button } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import Confetti from "react-confetti";
-import { motion } from "framer-motion";
-import { useWindowSize } from "@react-hook/window-size";
-import { useRouter } from "next/router";
+
+import React, { useState } from "react";
+import {
+  Container,
+  Box,
+  Heading,
+  Text,
+  VStack,
+  Button,
+} from "@chakra-ui/react";
 
 interface SignupStep4Props {
   formData: {
+    firstName: string;
+    lastName: string;
     email: string;
-    password: string;
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+    phone: string;
+    plan: string;
   };
-  onChange: (field: string, value: string) => void;
   onSubmit: () => Promise<void>;
   onBack: () => void;
+  onEdit: (step: number) => void;
 }
+
+const planLabels: Record<string, string> = {
+  protect: "SmartCredit Protect",
+  build: "SmartCredit Build",
+};
 
 export default function SignupStep4({
   formData,
-  onChange,
   onSubmit,
   onBack,
+  onEdit,
 }: SignupStep4Props) {
-  const [submitted, setSubmitted] = useState(false);
-  const [width, height] = useWindowSize();
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
-  const handleFinalSubmit = async () => {
+  const handleConfirm = async () => {
+    setLoading(true);
     await onSubmit();
-    setSubmitted(true);
   };
 
-  useEffect(() => {
-    if (submitted) {
-      const timer = setTimeout(() => {
-        router.push("/dashboard");
-      }, 4000); // 4-second delay before redirect
-
-      return () => clearTimeout(timer); // Cleanup
-    }
-  }, [submitted, router]);
-
-  if (submitted) {
-    return (
-      <Box textAlign="center" mt={10}>
-        <Confetti width={width} height={height} numberOfPieces={300} />
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-        >
-          <Center>
-            <Box
-              boxSize="120px"
-              bg="green.400"
-              borderRadius="full"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              color="white"
-              fontSize="4xl"
-              fontWeight="bold"
-            >
-              ✓
-            </Box>
-          </Center>
-        </motion.div>
-        <Heading mt={6}>You're all set!</Heading>
-        <Text fontSize="md" mt={2}>
-          Redirecting you to your dashboard...
-        </Text>
-      </Box>
-    );
-  }
+  const summaryItems: Array<{
+    label: string;
+    value: string;
+    editStep: number;
+  }> = [
+    {
+      label: "Name",
+      value: `${formData.firstName} ${formData.lastName}`,
+      editStep: 1,
+    },
+    { label: "Email", value: formData.email, editStep: 1 },
+    {
+      label: "Address",
+      value: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}`,
+      editStep: 2,
+    },
+    { label: "Phone", value: formData.phone, editStep: 2 },
+    {
+      label: "Plan",
+      value: planLabels[formData.plan] ?? formData.plan,
+      editStep: 3,
+    },
+  ];
 
   return (
-    <Box
-      maxW="500px"
-      mx="auto"
-      p={6}
-      bg="white"
-      borderRadius="md"
-      boxShadow="md"
-      textAlign="center"
-    >
-      <Heading size="lg" mb={4}>
-        Final Step
-      </Heading>
-      <Text fontSize="md" color="gray.600" mb={6}>
-        Click the button below to create your account.
-      </Text>
+    <Container maxW="md" mx="auto" px={4} py={0}>
+      {/* Header */}
+      <Box textAlign="center" mb={6} pt={4}>
+        <Heading
+          as="h3"
+          fontFamily="Franklin Gothic, sans-serif"
+          fontWeight="400"
+          fontSize="2xl"
+          color="green.500"
+          mb={1}
+        >
+          Review & Confirm
+        </Heading>
+        <Text fontFamily="Inter, sans-serif" fontSize="md" color="gray.800">
+          Click any line to edit, or confirm to finish.
+        </Text>
+      </Box>
 
+      {/* Summary */}
       <VStack spacing={4} align="stretch">
-        <Button colorScheme="green" size="lg" onClick={handleFinalSubmit}>
-          Create My Account
-        </Button>
-        <Button variant="ghost" onClick={onBack}>
+        {summaryItems.map(({ label, value, editStep }) => (
+          <Box
+            key={label}
+            bg="white"
+            border="1px solid"
+            borderColor="gray.200"
+            rounded="md"
+            px={4}
+            py={3}
+            cursor="pointer"
+            _hover={{ borderColor: "green.500", bg: "gray.50" }}
+            onClick={() => onEdit(editStep)}
+          >
+            <Text fontWeight="bold">{label}</Text>
+            <Text>{value}</Text>
+          </Box>
+        ))}
+      </VStack>
+
+      {/* Actions */}
+      <VStack spacing={3} mt={8} w="full">
+        <Button
+          variant="outline"
+          colorScheme="gray"
+          w="full"
+          size="lg"
+          onClick={onBack}
+        >
           Back
         </Button>
+        <Button
+          bg="green.500"
+          color="white"
+          _hover={{ bg: "green.700" }}
+          rounded="lg"
+          w="full"
+          size="lg"
+          onClick={handleConfirm}
+          isLoading={loading}
+        >
+          Create Account
+        </Button>
       </VStack>
-    </Box>
+    </Container>
   );
 }

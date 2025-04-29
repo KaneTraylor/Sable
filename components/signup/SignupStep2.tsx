@@ -1,3 +1,6 @@
+// components/signup/SignupStep2.tsx
+
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Heading,
@@ -8,17 +11,12 @@ import {
   Button,
   Checkbox,
   useToast,
-  Spinner,
   FormControl,
   FormErrorMessage,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
 
 interface SignupStep2Props {
-  onNext: () => void;
-  onBack: () => void;
   formData: {
-    email?: string;
     address?: string;
     city?: string;
     state?: string;
@@ -26,13 +24,15 @@ interface SignupStep2Props {
     phone?: string;
   };
   onChange: (field: string, value: string) => void;
+  onNext: () => void;
+  onBack: () => void;
 }
 
 export default function SignupStep2({
-  onNext,
-  onBack,
   formData = {},
   onChange,
+  onNext,
+  onBack,
 }: SignupStep2Props) {
   const toast = useToast();
   const [consentGiven, setConsentGiven] = useState(false);
@@ -43,12 +43,12 @@ export default function SignupStep2({
     const saved = localStorage.getItem("signup-step2");
     if (saved) {
       const parsed = JSON.parse(saved);
-      for (const key in parsed) {
-        if (parsed[key]) onChange(key, parsed[key]);
-      }
+      Object.entries(parsed).forEach(([key, val]) => {
+        if (val) onChange(key, val as string);
+      });
       setConsentGiven(parsed.consentGiven || false);
     }
-  }, []);
+  }, [onChange]);
 
   useEffect(() => {
     localStorage.setItem(
@@ -59,12 +59,12 @@ export default function SignupStep2({
 
   const validateFields = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData?.address) newErrors.address = "Address is required.";
-    if (!formData?.city) newErrors.city = "City is required.";
-    if (!formData?.state) newErrors.state = "State is required.";
-    if (!formData?.zip || formData.zip.length < 5)
-      newErrors.zip = "Zip code is invalid.";
-    if (!formData?.phone || formData.phone.replace(/\D/g, "").length !== 10)
+    if (!formData.address) newErrors.address = "Address is required.";
+    if (!formData.city) newErrors.city = "City is required.";
+    if (!formData.state) newErrors.state = "State is required.";
+    if (!formData.zip || formData.zip.length < 5)
+      newErrors.zip = "ZIP code is invalid.";
+    if (!formData.phone || formData.phone.replace(/\D/g, "").length !== 10)
       newErrors.phone = "Phone number must be 10 digits.";
 
     setErrors(newErrors);
@@ -82,19 +82,35 @@ export default function SignupStep2({
       });
       return;
     }
-
+    setIsLoading(true);
     onNext();
   };
 
   return (
-    <Box maxW="500px" mx="auto" p={[4, 8]}>
-      <Heading size="lg" mb={4}>
+    <Box maxW="md" mx="auto" px={4} py={0}>
+      <Heading
+        as="h3"
+        fontFamily="Franklin Gothic, sans-serif"
+        fontWeight="400"
+        fontSize="2xl"
+        color="green.500"
+        mb={2}
+        pt={4}
+        textAlign="center"
+      >
         Your Contact Details
       </Heading>
-      <Text fontSize="sm" mb={6} color="gray.600">
+      <Text
+        fontFamily="Inter, sans-serif"
+        fontSize="md"
+        color="gray.600"
+        mb={6}
+        textAlign="center"
+      >
         We use this to verify and secure your profile.
       </Text>
-      <VStack spacing={5} align="stretch">
+
+      <VStack spacing={4} align="stretch">
         <FormControl isInvalid={!!errors.address}>
           <FormLabel>Address</FormLabel>
           <Input
@@ -147,26 +163,29 @@ export default function SignupStep2({
           {errors.phone && <FormErrorMessage>{errors.phone}</FormErrorMessage>}
         </FormControl>
 
-        <Checkbox
-          isChecked={consentGiven}
-          onChange={(e) => setConsentGiven(e.target.checked)}
-        >
-          By clicking “Continue,” I consent to be contacted about this service
-          by autodialer or prerecorded voice. Consent not required to enroll.
-        </Checkbox>
-
-        <Box display="flex" justifyContent="space-between">
-          <Button variant="ghost" onClick={onBack}>
+        <VStack spacing={3} mt={6} w="full">
+          <Button
+            variant="outline"
+            colorScheme="gray"
+            w="full"
+            size="lg"
+            onClick={onBack}
+          >
             Back
           </Button>
           <Button
-            colorScheme="green"
+            bg="green.500"
+            color="white"
+            _hover={{ bg: "green.700" }}
+            rounded="lg"
+            w="full"
+            size="lg"
             onClick={handleContinue}
-            isDisabled={isLoading}
+            isLoading={isLoading}
           >
-            {isLoading ? <Spinner size="sm" /> : "Continue"}
+            Continue
           </Button>
-        </Box>
+        </VStack>
       </VStack>
     </Box>
   );
