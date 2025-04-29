@@ -1,19 +1,23 @@
+// components/signup/SignupStep1.tsx
+
+import React, { useState, useEffect } from "react";
 import {
+  Container,
+  Center,
+  Image,
   Box,
   Heading,
   VStack,
-  Input,
+  FormControl,
   FormLabel,
+  Input,
   Button,
+  Checkbox,
   Text,
-  Container,
-  Flex,
-  Icon,
+  Link,
   useBreakpointValue,
   useToast,
 } from "@chakra-ui/react";
-import { FaBolt, FaDollarSign, FaShieldAlt } from "react-icons/fa";
-import { useState } from "react";
 
 interface SignupStep1Props {
   formData: {
@@ -23,26 +27,8 @@ interface SignupStep1Props {
     password: string;
   };
   onChange: (field: string, value: string) => void;
-  onNext: (initialStep: number, initialData?: any) => void;
+  onNext: (step: number, data?: any) => void;
 }
-
-const benefits = [
-  {
-    icon: FaBolt,
-    title: "Fast",
-    description: "No credit check, no credit pull.",
-  },
-  {
-    icon: FaDollarSign,
-    title: "Affordable",
-    description: "Plans start at $5/month.",
-  },
-  {
-    icon: FaShieldAlt,
-    title: "Secure",
-    description: "Bank-level security keeps your data safe.",
-  },
-];
 
 export default function SignupStep1({
   formData,
@@ -50,10 +36,26 @@ export default function SignupStep1({
   onNext,
 }: SignupStep1Props) {
   const [loading, setLoading] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  const [agree, setAgree] = useState(false);
   const isMobile = useBreakpointValue({ base: true, md: false });
   const toast = useToast();
 
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const handleContinue = async () => {
+    if (!agree) {
+      toast({
+        title: "Consent required",
+        description: "Please agree to the policies to continue.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/signup/partial", {
@@ -64,14 +66,9 @@ export default function SignupStep1({
           password: formData.password,
         }),
       });
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Signup failed");
-
-      if (!data.formData?.userId) {
-        throw new Error("Missing userId from response");
-      }
-
+      if (!data.formData?.userId) throw new Error("Missing userId");
       onNext(data.currentStep, {
         ...formData,
         userId: data.formData.userId,
@@ -90,108 +87,185 @@ export default function SignupStep1({
     }
   };
 
+  const handleDummy = async () => {
+    const dummy = {
+      email: `user${Date.now()}@devmail.com`,
+      password: "TestPass123!",
+      firstName: "Dev",
+      lastName: "User",
+    };
+    try {
+      const res = await fetch("/api/signup/partial", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: dummy.email, password: dummy.password }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.formData?.userId) throw new Error();
+      onNext(data.currentStep, {
+        ...dummy,
+        userId: data.formData.userId,
+      });
+    } catch {
+      toast({
+        title: "Error",
+        description: "Could not create dummy account",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
-    <Container maxW="7xl" minH="100vh" display="flex" alignItems="center">
-      <Flex
-        direction={{ base: "column", md: "row" }}
-        justify="center"
-        align="center"
-        gap={12}
-        w="full"
-      >
-        <Box
-          bg="white"
-          p={[6, 10]}
-          borderRadius="xl"
-          flex="1"
-          maxW={{ base: "100%", md: "560px" }}
-          w="100%"
+    <Container maxW="md" mx="auto" px={4} py={0}>
+      {/* Logo immediately above the headings */}
+      <Center mb={1}>
+        <Image
+          src="/mockups/logo/Sablerework.png"
+          alt="Sable Logo"
+          width={{ base: "120px", md: "160px" }}
+          height="auto"
+        />
+      </Center>
+
+      {/* Headings with minimal spacing */}
+      <Box textAlign="center" mb={1}>
+        <Heading
+          as="h3"
+          fontFamily="Franklin Gothic, sans-serif"
+          fontWeight="400"
+          fontSize="3xl"
+          color="green.500"
+          mb={1}
         >
-          <VStack spacing={6} align="stretch">
-            <Heading size="lg" textAlign="left">
-              Create your account
-            </Heading>
+          Let's go!
+        </Heading>
+        <Heading
+          as="h3"
+          fontFamily="Franklin Gothic, sans-serif"
+          fontWeight="400"
+          fontSize="3xl"
+          color="gray.800"
+        >
+          Start building credit in less than 5 minutes.
+        </Heading>
+      </Box>
 
-            <Box>
-              <FormLabel>First Name</FormLabel>
+      {/* Inputs */}
+      <VStack spacing={4} mt={4}>
+        {[
+          { label: "First Name", field: "firstName", type: "text" },
+          { label: "Last Name", field: "lastName", type: "text" },
+          { label: "Email", field: "email", type: "email" },
+          { label: "Password", field: "password", type: "password" },
+        ].map(({ label, field, type }) => (
+          <Box
+            key={field}
+            w="full"
+            rounded="xl"
+            border="2px solid"
+            borderColor="gray.200"
+            px={5}
+            py={3}
+            cursor="text"
+            _focusWithin={{
+              borderColor: "green.500",
+              boxShadow: "0 0 0 1px rgba(53,166,26,0.8)",
+            }}
+          >
+            <FormControl>
+              <FormLabel mb={1}>{label}</FormLabel>
               <Input
-                value={formData.firstName || ""}
-                onChange={(e) => onChange("firstName", e.target.value)}
-                placeholder="First Name"
-                size="lg"
+                type={type}
+                value={(formData as any)[field]}
+                onChange={(e) => onChange(field, e.target.value)}
+                variant="unstyled"
+                placeholder={label}
               />
-            </Box>
+            </FormControl>
+          </Box>
+        ))}
 
-            <Box>
-              <FormLabel>Last Name</FormLabel>
-              <Input
-                value={formData.lastName || ""}
-                onChange={(e) => onChange("lastName", e.target.value)}
-                placeholder="Last Name"
-                size="lg"
-              />
-            </Box>
-
-            <Box>
-              <FormLabel>Email</FormLabel>
-              <Input
-                value={formData.email || ""}
-                onChange={(e) => onChange("email", e.target.value)}
-                placeholder="you@example.com"
-                size="lg"
-                type="email"
-              />
-            </Box>
-
-            <Box>
-              <FormLabel>Password</FormLabel>
-              <Input
-                value={formData.password || ""}
-                onChange={(e) => onChange("password", e.target.value)}
-                placeholder="Password"
-                size="lg"
-                type="password"
-              />
-            </Box>
-
-            <Flex justify="center" flexDirection="column" gap={3}>
-              <Button
-                colorScheme="green"
-                size="lg"
-                onClick={handleContinue}
-                isLoading={loading}
-                w={isMobile ? "100%" : "auto"}
+        {/* Consent checkbox */}
+        <FormControl display="flex" alignItems="center" pt={2}>
+          <Checkbox
+            isChecked={agree}
+            onChange={(e) => setAgree(e.target.checked)}
+            size="md"
+            colorScheme="green"
+            transition="all 0.15s"
+          >
+            <Text fontSize="sm" ml={2}>
+              Agree to Sable’s{" "}
+              <Link
+                href="/privacy-policy"
+                color="green.500"
+                textDecoration="underline"
               >
-                Continue
-              </Button>
-            </Flex>
-          </VStack>
-        </Box>
+                Privacy Policy
+              </Link>
+              ,{" "}
+              <Link href="/terms" color="green.500" textDecoration="underline">
+                Terms of Use
+              </Link>
+              , and{" "}
+              <Link href="/e-sign" color="green.500" textDecoration="underline">
+                E-Sign Consent
+              </Link>
+              .
+            </Text>
+          </Checkbox>
+        </FormControl>
 
-        <VStack
-          spacing={6}
-          align="start"
-          pt={[10, 4]}
-          borderTop={{ base: "1px solid", md: "none" }}
-          borderLeft={{ base: "none", md: "1px solid" }}
-          borderColor="gray.200"
-          pl={{ base: 0, md: 10 }}
-          flex="1"
-          maxW={{ base: "100%", md: "420px" }}
+        {/* Continue */}
+        <Button
+          bg="green.500"
+          color="white"
+          _hover={{ bg: "green.700" }}
+          rounded="lg"
+          size="lg"
+          w="full"
+          maxW="xs"
+          h="14"
+          onClick={handleContinue}
+          isLoading={loading}
         >
-          {benefits.map((benefit, idx) => (
-            <Flex key={idx} align="center" gap={4}>
-              <Icon as={benefit.icon} w={6} h={6} color="green.500" />
-              <Box>
-                <Text fontWeight="bold">{benefit.title}</Text>
-                <Text fontSize="sm" color="gray.600">
-                  {benefit.description}
-                </Text>
-              </Box>
-            </Flex>
-          ))}
+          Continue
+        </Button>
+
+        {/* Dummy */}
+        {isClient && window.location.hostname === "localhost" && (
+          <Button
+            variant="outline"
+            colorScheme="green"
+            rounded="lg"
+            size="lg"
+            w={isMobile ? "full" : "auto"}
+            onClick={handleDummy}
+          >
+            Fill with Dummy Data
+          </Button>
+        )}
+
+        {/* Extras */}
+        <VStack spacing={2} pt={4}>
+          <Text fontSize="sm">
+            Already have an account?{" "}
+            <Link href="/login" color="green.500" textDecoration="underline">
+              Log in
+            </Link>
+            .
+          </Text>
+          <Text fontSize="sm">
+            Need help?{" "}
+            <Link color="green.500" textDecoration="underline">
+              Get in touch
+            </Link>
+            .
+          </Text>
         </VStack>
-      </Flex>
+      </VStack>
     </Container>
   );
 }
