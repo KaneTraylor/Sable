@@ -1,6 +1,14 @@
 /* styles/globals.css */
 
-/* 1) Reset */
+/* In globals.css — ensure you have a generic fallback for headings */
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: "Franklin Gothic", Arial, sans-serif;
+}
+
 *,
 *::before,
 *::after {
@@ -9,12 +17,12 @@
   padding: 0;
 }
 
-/* 2) Define your Inter faces */
 @font-face {
   font-family: "Inter";
   font-style: normal;
   font-weight: 400;
-  src: url("/fonts/inter-regular.ttf") format("truetype");
+  src: url("/fonts/inter-regular.woff2") format("woff2"),
+    url("/fonts/inter-regular.ttf") format("truetype");
   font-display: swap;
 }
 
@@ -22,7 +30,17 @@
   font-family: "Inter";
   font-style: normal;
   font-weight: 700;
-  src: url("/fonts/inter-bold.ttf") format("truetype");
+  src: url("/fonts/inter-bold.woff2") format("woff2"),
+    url("/fonts/inter-bold.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 900;
+  src: url("/fonts/inter-black.woff2") format("woff2"),
+    url("/fonts/inter-bold.ttf") format("truetype");
   font-display: swap;
 }
 

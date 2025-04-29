@@ -8,9 +8,10 @@ import HeroSection from "@/components/home/HeroSection";
 import StickyCTA from "@/components/common/StickyCTA";
 import PlansSection from "@/components/home/PlanSection";
 import FactsSection from "@/components/home/FactsSection";
-import FeaturesSection from "@/components/home/FeaturesSection";
+import TestimonialSection from "@/components/home/TestimonialSection";
 import CTASection from "@/components/home/CTASection";
 import Footer from "@/components/home/Footer";
+import HowItWorksSection from "@/components/home/HowItWorksSection";
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -30,9 +31,11 @@ export default function HomePage() {
 
       <PlansSection />
 
+      <HowItWorksSection />
+
       <FactsSection />
 
-      <FeaturesSection />
+      <TestimonialSection />
 
       <StickyCTA />
 

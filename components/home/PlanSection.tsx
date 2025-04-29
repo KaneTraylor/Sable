@@ -29,20 +29,29 @@ export default function PlanSection() {
   return (
     <Box bg="white" py={{ base: 12, md: 20 }} px={{ base: 6, md: 10 }}>
       <Box maxW="1024px" mx="auto">
+        {/* Section Intro */}
         <Box textAlign={{ base: "center", md: "left" }} mb={12}>
           <Text
-            fontFamily="heading"
-            fontWeight="bold"
+            fontFamily="Inter, sans-serif"
+            fontWeight={700}
             fontSize="sm"
             color="gray.500"
             textTransform="uppercase"
-            letterSpacing="wide"
+            letterSpacing="widest"
           >
             Our Plans
           </Text>
           <Heading
-            fontFamily="heading"
-            fontSize={{ base: "3xl", md: "5xl" }}
+            as="h2"
+            fontFamily="Inter, sans-serif"
+            fontWeight={900}
+            fontSize={{
+              base: "2.5rem",
+              sm: "3rem",
+              md: "3.5rem",
+              lg: "4rem",
+            }}
+            lineHeight={1.1}
             color="gray.900"
             mt={2}
           >
@@ -57,6 +66,7 @@ export default function PlanSection() {
           </Text>
         </Box>
 
+        {/* Plan Cards */}
         <Flex direction={{ base: "column", md: "row" }} gap={8} align="stretch">
           {/* Credit Builder Plan */}
           <VStack
@@ -66,21 +76,21 @@ export default function PlanSection() {
             rounded="lg"
             p={6}
             flex={1}
+            spacing={6}
           >
             <Image
               src="/mockups/sable-difference/Sable-credit-gauge.png"
               alt="Credit Builder"
               h={20}
-              mb={4}
             />
             <Heading
-              fontFamily="heading"
+              fontFamily="Inter, sans-serif"
+              fontWeight={900}
               fontSize="2xl"
               color="gray.900"
-              mb={2}
             >
               Credit{" "}
-              <Text as="span" color="green.500">
+              <Text as="span" color="#35A61A">
                 Builder
               </Text>
             </Heading>
@@ -89,19 +99,23 @@ export default function PlanSection() {
               the same time.
             </Text>
 
-            <Box my={4}>
-              <Text fontWeight="bold" fontFamily="heading" color="gray.800">
+            <Box width="100%">
+              <Text
+                fontWeight={700}
+                fontFamily="Inter, sans-serif"
+                color="gray.800"
+              >
                 Great for:
               </Text>
-              <VStack align="start" spacing={2} mt={2}>
+              <VStack align="start" spacing={3} mt={2}>
                 {benefitsCreditBuilder.map((benefit) => (
-                  <HStack key={benefit}>
+                  <HStack key={benefit} spacing={3} align="center">
                     <Image
-                      src="/mockups/other/green-plus-icon.png"
+                      src="/mockups/other/icon-plus-green.svg"
                       alt="+"
-                      boxSize={5}
+                      boxSize={6}
                     />
-                    <Text>{benefit}</Text>
+                    <Text fontFamily="Inter, sans-serif">{benefit}</Text>
                   </HStack>
                 ))}
               </VStack>
@@ -109,10 +123,13 @@ export default function PlanSection() {
 
             <Button
               size="md"
-              bg="green.500"
+              bg="#35A61A"
               color="white"
-              _hover={{ bg: "green.600" }}
+              fontFamily="Inter, sans-serif"
+              fontWeight={700}
+              _hover={{ bg: "#2E8D16" }}
               onClick={() => router.push("/plans/credit-builder")}
+              width="100%"
             >
               Learn more
             </Button>
@@ -126,18 +143,18 @@ export default function PlanSection() {
             rounded="lg"
             p={6}
             flex={1}
+            spacing={6}
           >
             <Image
               src="/mockups/grow/graphic-money-bag-orange.svg"
               alt="Borrow and Grow"
               h={20}
-              mb={4}
             />
             <Heading
-              fontFamily="heading"
+              fontFamily="Inter, sans-serif"
+              fontWeight={900}
               fontSize="2xl"
               color="gray.900"
-              mb={2}
             >
               Borrow{" "}
               <Text as="span" color="orange.400">
@@ -150,19 +167,23 @@ export default function PlanSection() {
               for later.
             </Text>
 
-            <Box my={4}>
-              <Text fontWeight="bold" fontFamily="heading" color="gray.800">
+            <Box width="100%">
+              <Text
+                fontWeight={700}
+                fontFamily="Inter, sans-serif"
+                color="gray.800"
+              >
                 Great for:
               </Text>
-              <VStack align="start" spacing={2} mt={2}>
+              <VStack align="start" spacing={3} mt={2}>
                 {benefitsBorrowGrow.map((benefit) => (
-                  <HStack key={benefit}>
+                  <HStack key={benefit} spacing={3} align="center">
                     <Image
-                      src="/mockups/other/green-plus-icon.png"
+                      src="/mockups/other/icon-plus-orange.svg"
                       alt="+"
-                      boxSize={5}
+                      boxSize={6}
                     />
-                    <Text>{benefit}</Text>
+                    <Text fontFamily="Inter, sans-serif">{benefit}</Text>
                   </HStack>
                 ))}
               </VStack>
@@ -172,8 +193,11 @@ export default function PlanSection() {
               size="md"
               bg="orange.400"
               color="white"
+              fontFamily="Inter, sans-serif"
+              fontWeight={700}
               _hover={{ bg: "orange.500" }}
               onClick={() => router.push("/plans/borrow-and-grow")}
+              width="100%"
             >
               Learn more
             </Button>

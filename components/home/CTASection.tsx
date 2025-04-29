@@ -7,6 +7,7 @@ import {
   Button,
   Image,
   chakra,
+  BoxProps,
 } from "@chakra-ui/react";
 
 // simple break element that only shows on mobile
@@ -29,8 +30,8 @@ export default function CTASection() {
           <Box flex="1" textAlign={{ base: "center", md: "left" }}>
             <Heading
               as="h2"
-              fontFamily="heading" // Franklin Gothic
-              fontWeight="400"
+              fontFamily="Franklin Gothic, sans-serif"
+              fontWeight={700} // ← bold
               fontSize={{ base: "2.5rem", md: "3rem", lg: "4rem" }}
               lineHeight="0.95"
               letterSpacing="-0.04em"
@@ -39,15 +40,15 @@ export default function CTASection() {
               <Break display={{ base: "block", md: "none" }} />
               <chakra.span color="green.500"> dreamers, </chakra.span>
               <Break display={{ base: "block", md: "none" }} />
-              <chakra.span color="sunshine.500">seekers, </chakra.span>
+              <chakra.span color="orange.400">seekers, </chakra.span>
               <Break display={{ base: "block", md: "none" }} />
-              <chakra.span color="purpleBlue.500">newbies, </chakra.span>
+              <chakra.span color="purple.500">newbies, </chakra.span>
               <Break display={{ base: "block", md: "none" }} />
-              <chakra.span color="mauve.500">chasers, </chakra.span>
+              <chakra.span color="pink.500">chasers, </chakra.span>
               <Break display={{ base: "block", md: "none" }} />
-              <chakra.span color="deepOrange.500">doers, </chakra.span>
+              <chakra.span color="red.500">doers, </chakra.span>
               <Break display={{ base: "block", md: "none" }} />
-              <chakra.span color="wave.500">strivers, </chakra.span>
+              <chakra.span color="blue.500">strivers, </chakra.span>
               <Break display={{ base: "block", md: "none" }} />
               <chakra.span color="orange.500">& you.</chakra.span>
             </Heading>
@@ -56,10 +57,10 @@ export default function CTASection() {
               mt={8}
               size="lg"
               bg="green.500"
-              _hover={{ bg: "green.600" }}
+              _hover={{ bg: "green.700" }}
               color="white"
-              fontFamily="body"
-              fontWeight="600"
+              fontFamily="Franklin Gothic, sans-serif" // ← bold font family
+              fontWeight={700} // ← bold weight
               borderRadius="0.5rem"
               px="2rem"
               py="1.5rem"

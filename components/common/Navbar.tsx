@@ -29,7 +29,12 @@ export default function Navbar() {
       >
         {/* Logo */}
         <ChakraLink as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
-          <Image src="mockups/logo/SableBlack.png" alt="Sable" h={8} w="auto" />
+          <Image
+            src="mockups/logo/Sablerework.png"
+            alt="Sable"
+            h={8}
+            w="auto"
+          />
         </ChakraLink>
 
         {/* Desktop Nav */}

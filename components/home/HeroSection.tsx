@@ -7,11 +7,7 @@ export default function HeroSection() {
   const router = useRouter();
 
   return (
-    <Box
-      bg="rgba(248,244,240,1)"
-      pb={{ base: 12, md: 16 }}
-      px={{ base: 6, md: 10 }}
-    >
+    <Box bg="#F8F4F0" py={{ base: 8, md: 12 }} px={{ base: 4, md: 10 }}>
       <Flex
         maxW="1024px"
         mx="auto"
@@ -20,42 +16,51 @@ export default function HeroSection() {
         justify="space-between"
         gap={8}
       >
+        {/* Text */}
         <Box flex="1" textAlign={{ base: "center", md: "left" }}>
           <Heading
             as="h1"
-            fontFamily="heading"
-            fontSize={{ base: "3rem", xl: "4rem" }}
-            lineHeight="1.1"
+            fontFamily="Inter, sans-serif"
+            fontWeight={900}
+            fontSize={{ base: "2.5rem", sm: "3rem", md: "3.5rem", lg: "4rem" }}
+            lineHeight={1.1}
+            color="gray.900"
             mb={4}
           >
-            Build credit, grow savings,{" "}
-            <Text as="span" color="green.500">
-              and achieve your goals.
+            Build credit, grow{" "}
+            <Text as="span" color="#35A61A">
+              savings
             </Text>
+            ,<br />
+            and achieve your goals.
           </Heading>
 
-          <Text fontFamily="body" fontSize={{ base: "md", xl: "lg" }} mb={6}>
+          <Text fontSize={{ base: "sm", md: "md" }} color="gray.700" mb={6}>
             Instantly access smarter financial tools—no hidden fees, no stress.
           </Text>
 
           <Button
-            size="lg"
-            bg="green.500"
-            color="white"
-            fontFamily="heading"
-            letterSpacing="0.5px"
-            _hover={{ bg: "green.700" }}
             onClick={() => router.push("/onboarding/signup")}
+            fontFamily="Inter, sans-serif"
+            fontWeight={700}
+            fontSize={{ base: "1.125rem", md: "1.25rem" }}
+            bg="#35A61A"
+            color="white"
+            height={{ base: "3.5rem", md: "4rem" }}
+            px={{ base: 8, md: 10 }}
+            _hover={{ bg: "#2E8D16" }}
           >
             Get Started
           </Button>
         </Box>
 
-        <Box flex="1">
+        {/* Illustration */}
+        <Box flex="1" textAlign="center">
           <Image
             src="/mockups/sable-difference/savings-party.png"
             alt="Financial growth illustration"
-            w="100%"
+            maxW={{ base: "70%", md: "100%" }}
+            mx="auto"
             h="auto"
           />
         </Box>
