@@ -31,9 +31,10 @@ export default function Navbar() {
         <ChakraLink as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
           <Image
             src="mockups/logo/Sablerework.png"
-            alt="Sable"
-            h={8}
-            w="auto"
+            alt="Sable Logo"
+            boxSize={{ base: "80px", sm: "100px", md: "120px" }}
+            objectFit="contain"
+            mb={0}
           />
         </ChakraLink>
 
