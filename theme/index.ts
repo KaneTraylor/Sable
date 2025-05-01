@@ -26,12 +26,12 @@ const colors = {
     red: "#F56565",
   },
   wave: {
-    500: "#7898EA", // rgba(120,152,234,1)
+    500: "#7898EA",
   },
 };
 
 const fonts = {
-  heading: `"Franklin Gothic", sans-serif`,
+  heading: `"Lato", sans-serif`,
   body: `"Inter", sans-serif`,
 };
 
@@ -62,7 +62,7 @@ export const theme = extendTheme({
         bg: "gray.50",
         color: "gray.800",
         lineHeight: "tall",
-        fontFamily: `"Inter", sans-serif`, // ensure body uses Inter
+        fontFamily: fonts.body,
       },
       a: {
         color: "brand.500",
@@ -90,12 +90,12 @@ export const theme = extendTheme({
     },
     Heading: {
       baseStyle: {
-        fontFamily: "Franklin Gothic", // headings use Franklin Gothic
+        fontFamily: fonts.heading,
       },
     },
     Text: {
       baseStyle: {
-        fontFamily: "body", // uses your body font (Inter)
+        fontFamily: fonts.body,
       },
     },
   },

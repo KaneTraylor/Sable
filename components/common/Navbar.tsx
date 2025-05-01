@@ -32,7 +32,7 @@ export default function Navbar() {
           <Image
             src="mockups/logo/Sablerework.png"
             alt="Sable Logo"
-            boxSize={{ base: "80px", sm: "100px", md: "120px" }}
+            boxSize={{ base: "80px", sm: "80px", md: "100px" }}
             objectFit="contain"
             mb={0}
           />
