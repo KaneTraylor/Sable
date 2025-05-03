@@ -43,37 +43,30 @@ const emptyFormData: FormData = {
 };
 
 export default function SignupForm() {
+  const router = useRouter();
+  const { email: emailQuery } = router.query;
+
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState<FormData>(emptyFormData);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const router = useRouter();
 
+  // Prefill email from query param
   useEffect(() => {
-    const saved = localStorage.getItem("signupFormData");
-    if (saved) {
-      try {
-        setFormData(JSON.parse(saved));
-      } catch {
-        console.error("Failed to parse saved signup data");
-      }
+    if (typeof emailQuery === "string" && emailQuery) {
+      setFormData((prev) => ({ ...prev, email: emailQuery }));
     }
-  }, []);
+  }, [emailQuery]);
 
   const handleFieldChange = (field: string, value: string) => {
-    const updated = { ...formData, [field]: value };
-    setFormData(updated);
-    localStorage.setItem("signupFormData", JSON.stringify(updated));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const jumpToStep = (newStep: number, data?: Partial<FormData>) => {
     if (data) {
-      const merged = { ...formData, ...data };
-      setFormData(merged as FormData);
-      localStorage.setItem("signupFormData", JSON.stringify(merged));
+      setFormData((prev) => ({ ...prev, ...data }));
     }
     setStep(newStep);
   };
-
   const nextStep = () => setStep((s) => Math.min(4, s + 1));
   const prevStep = () => setStep((s) => Math.max(1, s - 1));
 
@@ -86,13 +79,15 @@ export default function SignupForm() {
         body: JSON.stringify(formData),
       });
       if (!res.ok) throw new Error(await res.text());
+
+      // Force a full-signin redirect so the session cookie is set
       await signIn("credentials", {
-        redirect: false,
+        redirect: true,
+        callbackUrl: `${window.location.origin}/dashboard`,
         email: formData.email,
         password: formData.password,
       });
-      localStorage.removeItem("signupFormData");
-      router.push("/dashboard");
+      // no router.push here
     } catch (err) {
       console.error("Signup error:", err);
     } finally {

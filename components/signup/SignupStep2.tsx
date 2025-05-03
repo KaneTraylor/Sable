@@ -1,6 +1,6 @@
 // components/signup/SignupStep2.tsx
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Heading,
@@ -9,7 +9,6 @@ import {
   FormLabel,
   Input,
   Button,
-  Checkbox,
   useToast,
   FormControl,
   FormErrorMessage,
@@ -35,27 +34,8 @@ export default function SignupStep2({
   onBack,
 }: SignupStep2Props) {
   const toast = useToast();
-  const [consentGiven, setConsentGiven] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    const saved = localStorage.getItem("signup-step2");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      Object.entries(parsed).forEach(([key, val]) => {
-        if (val) onChange(key, val as string);
-      });
-      setConsentGiven(parsed.consentGiven || false);
-    }
-  }, [onChange]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "signup-step2",
-      JSON.stringify({ ...formData, consentGiven })
-    );
-  }, [formData, consentGiven]);
 
   const validateFields = () => {
     const newErrors: Record<string, string> = {};
@@ -72,10 +52,10 @@ export default function SignupStep2({
   };
 
   const handleContinue = () => {
-    if (!consentGiven || !validateFields()) {
+    if (!validateFields()) {
       toast({
         title: "Missing or invalid fields",
-        description: "Please complete all fields and provide consent.",
+        description: "Please complete all required fields.",
         status: "warning",
         duration: 3000,
         isClosable: true,
@@ -118,9 +98,7 @@ export default function SignupStep2({
             value={formData.address || ""}
             onChange={(e) => onChange("address", e.target.value)}
           />
-          {errors.address && (
-            <FormErrorMessage>{errors.address}</FormErrorMessage>
-          )}
+          <FormErrorMessage>{errors.address}</FormErrorMessage>
         </FormControl>
 
         <FormControl isInvalid={!!errors.city}>
@@ -130,7 +108,7 @@ export default function SignupStep2({
             value={formData.city || ""}
             onChange={(e) => onChange("city", e.target.value)}
           />
-          {errors.city && <FormErrorMessage>{errors.city}</FormErrorMessage>}
+          <FormErrorMessage>{errors.city}</FormErrorMessage>
         </FormControl>
 
         <FormControl isInvalid={!!errors.state}>
@@ -140,7 +118,7 @@ export default function SignupStep2({
             value={formData.state || ""}
             onChange={(e) => onChange("state", e.target.value)}
           />
-          {errors.state && <FormErrorMessage>{errors.state}</FormErrorMessage>}
+          <FormErrorMessage>{errors.state}</FormErrorMessage>
         </FormControl>
 
         <FormControl isInvalid={!!errors.zip}>
@@ -150,7 +128,7 @@ export default function SignupStep2({
             value={formData.zip || ""}
             onChange={(e) => onChange("zip", e.target.value)}
           />
-          {errors.zip && <FormErrorMessage>{errors.zip}</FormErrorMessage>}
+          <FormErrorMessage>{errors.zip}</FormErrorMessage>
         </FormControl>
 
         <FormControl isInvalid={!!errors.phone}>
@@ -160,7 +138,7 @@ export default function SignupStep2({
             value={formData.phone || ""}
             onChange={(e) => onChange("phone", e.target.value)}
           />
-          {errors.phone && <FormErrorMessage>{errors.phone}</FormErrorMessage>}
+          <FormErrorMessage>{errors.phone}</FormErrorMessage>
         </FormControl>
 
         <VStack spacing={3} mt={6} w="full">

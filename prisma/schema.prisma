@@ -28,3 +28,9 @@ model User {
   verificationToken String?
   currentStep       Int       @default(1)
 }
+
+model Lead {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}

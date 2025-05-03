@@ -14,41 +14,51 @@ export default async function handler(
   }
 
   const { email, password } = req.body;
-
   if (!email || !password) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    // 1) See if a user already exists
+    const existing = await prisma.user.findUnique({ where: { email } });
 
-    if (existingUser) {
+    // 2) If they do AND they've completed signup (we'll consider
+    //    "fully created" any user who has a firstName on record):
+    if (existing && existing.firstName) {
       return res
         .status(409)
-        .json({ error: "An account with this email already exists." });
+        .json({ error: "FULL_ACCOUNT_EXISTS", message: "User already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // 3) Hash password once
+    const hashed = await bcrypt.hash(password, 10);
 
-    const newUser = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-      },
-    });
+    let user;
+    if (existing) {
+      // Partial exists: bump them to step 2
+      user = await prisma.user.update({
+        where: { email },
+        data: { password: hashed, currentStep: 2 },
+      });
+    } else {
+      // No user yet: create them at step 2
+      user = await prisma.user.create({
+        data: { email, password: hashed, currentStep: 2 },
+      });
+    }
 
     return res.status(200).json({
       currentStep: 2,
       formData: {
-        userId: newUser.id,
-        email: newUser.email,
-        firstName: "", // Leave blank for now
-        lastName: "", // Leave blank for now
-        password, // Keep unhashed version for frontend login later
+        userId: user.id.toString(),
+        email: user.email,
+        firstName: "",
+        lastName: "",
+        password, // raw for front-end login later
       },
     });
-  } catch (error: any) {
-    console.error("❌ Partial signup error:", error);
-    return res.status(500).json({ error: "Failed to create user" });
+  } catch (err) {
+    console.error("❌ Partial signup error:", err);
+    return res.status(500).json({ error: "SERVER_ERROR" });
   }
 }

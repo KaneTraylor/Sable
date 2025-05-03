@@ -1,6 +1,8 @@
 // components/signup/SignupStep4.tsx
 
 import React, { useState } from "react";
+import { useRouter } from "next/router";
+import { signIn } from "next-auth/react";
 import {
   Container,
   Box,
@@ -15,6 +17,7 @@ interface SignupStep4Props {
     firstName: string;
     lastName: string;
     email: string;
+    password?: string;
     address: string;
     city: string;
     state: string;
@@ -38,18 +41,37 @@ export default function SignupStep4({
   onBack,
   onEdit,
 }: SignupStep4Props) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const handleConfirm = async () => {
     setLoading(true);
-    await onSubmit();
+    try {
+      // 1) Complete the signup (PATCH to your API)
+      await onSubmit();
+
+      // 2) Sign in and get back the URL to redirect to
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: formData.email,
+        password: formData.password!,
+        callbackUrl: "/dashboard",
+      });
+
+      // 3) Navigate to the dashboard (or fallback)
+      if (result?.url) {
+        router.push(result.url);
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (err) {
+      console.error("SignupStep4 error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const summaryItems: Array<{
-    label: string;
-    value: string;
-    editStep: number;
-  }> = [
+  const summaryItems = [
     {
       label: "Name",
       value: `${formData.firstName} ${formData.lastName}`,

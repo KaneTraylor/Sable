@@ -8,8 +8,6 @@ import {
   Button,
   Image,
   Input,
-  InputGroup,
-  InputRightElement,
   HStack,
   VStack,
   Center,
@@ -33,6 +31,7 @@ const ROTATING_TEXT = [
   "Auto-Dispute your errors.",
   "Credit Building loans.",
   "Monitor your FICO® score.",
+  "Re-write your credit story.",
 ];
 
 export default function HeroSection() {
@@ -40,7 +39,7 @@ export default function HeroSection() {
   const router = useRouter();
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  // Parallax downwards
+  // Parallax
   const { scrollY } = useViewportScroll();
   const y = useTransform(scrollY, [0, 300], [0, 50]);
 
@@ -54,7 +53,7 @@ export default function HeroSection() {
     return () => clearInterval(iv);
   }, []);
 
-  // Animated disputes counter
+  // Animated counter
   const [disputes, setDisputes] = useState(0);
   useEffect(() => {
     const target = 4562129;
@@ -70,20 +69,33 @@ export default function HeroSection() {
     return () => clearInterval(t);
   }, []);
 
-  // Lead-capture form
+  // Lead-capture
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const handleLeadSubmit = () => {
+  const handleLeadSubmit = async () => {
     if (!/\S+@\S+\.\S+/.test(email)) {
       toast({ status: "warning", title: "Enter a valid email" });
       return;
     }
     setSubmitting(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error("Failed to save lead");
+      // redirect into signup with email pre-filled
+      router.push({
+        pathname: "/onboarding/signup",
+        query: { email },
+      });
+    } catch (err) {
+      console.error(err);
+      toast({ status: "error", title: "Something went wrong. Try again." });
+    } finally {
       setSubmitting(false);
-      toast({ status: "success", title: "Thanks—watch your inbox!" });
-      setEmail("");
-    }, 1000);
+    }
   };
 
   return (
@@ -105,17 +117,22 @@ export default function HeroSection() {
           <VStack align="start" spacing={6} flex="1">
             <MotionHeading
               as="h1"
-              fontFamily="Lato, sans-serif"
+              fontFamily="Inter, sans-serif"
               fontWeight="900"
-              fontSize={{ base: "2.25rem", md: "3rem", xl: "3.5rem" }}
+              fontSize={{
+                base: "2.5rem",
+                sm: "2.5rem",
+                md: "3.5rem",
+                lg: "3rem",
+              }}
               lineHeight="1.1"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              Build credit, grow savings,&nbsp;
+              Boost your credit score{" "}
               <Text as="span" color="green.500">
-                and achieve your goals.
+                on autopilot
               </Text>
             </MotionHeading>
 
@@ -154,37 +171,48 @@ export default function HeroSection() {
             </Button>
 
             {/* Email Capture */}
-            <Box
+            <Flex
               w={{ base: "100%", md: "400px" }}
-              border="2px solid"
-              borderColor="gray.200"
-              rounded="xl"
-              px={4}
-              py={2}
-              _focusWithin={{
-                borderColor: "green.500",
-                boxShadow: "0 0 0 1px rgba(53,166,26,0.8)",
-              }}
+              bg="white"
+              borderRadius="full"
+              boxShadow="0 4px 12px rgba(0,0,0,0.08)"
+              overflow="hidden"
+              align="center"
             >
-              <InputGroup>
-                <Input
-                  variant="unstyled"
-                  placeholder="Your email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+              <Input
+                variant="unstyled"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                px={4}
+                py={2}
+                flex={1}
+                fontFamily="Inter, sans-serif"
+                fontSize="md"
+                _placeholder={{ color: "gray.400" }}
+              />
+              <Box
+                as="button"
+                onClick={handleLeadSubmit}
+                disabled={submitting}
+                w="2.5rem"
+                h="2.5rem"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                bg="green.500"
+                borderRadius="full"
+                _hover={{ bg: "green.600" }}
+                _disabled={{ bg: "green.300", cursor: "not-allowed" }}
+              >
+                <Image
+                  src="/mockups/other/white-right-arrow-icon.png"
+                  alt="Send"
+                  boxSize="1.25rem"
+                  filter="invert(1)"
                 />
-                <InputRightElement width="6rem">
-                  <Button
-                    size="sm"
-                    colorScheme="green"
-                    isLoading={submitting}
-                    onClick={handleLeadSubmit}
-                  >
-                    Submit
-                  </Button>
-                </InputRightElement>
-              </InputGroup>
-            </Box>
+              </Box>
+            </Flex>
 
             {/* Social Proof */}
             <HStack spacing={4} fontSize="sm" color="gray.600">
@@ -216,7 +244,11 @@ export default function HeroSection() {
           </VStack>
 
           {/* Right Column: Parallax Illustration */}
-          <Box flex="1">
+          <Box
+            flex="1"
+            display="flex"
+            justifyContent={{ base: "center", md: "flex-end" }}
+          >
             <MotionImage
               src="/mockups/sable-difference/savings-party.png"
               alt="Financial growth illustration"
@@ -224,6 +256,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4, duration: 0.8 }}
+              maxW={{ base: "370px", md: "100%" }}
             />
           </Box>
         </Flex>

@@ -18,6 +18,7 @@ import {
   useBreakpointValue,
   useToast,
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 
 interface SignupStep1Props {
   formData: {
@@ -40,6 +41,7 @@ export default function SignupStep1({
   const [agree, setAgree] = useState(false);
   const isMobile = useBreakpointValue({ base: true, md: false });
   const toast = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     setIsClient(true);
@@ -67,8 +69,30 @@ export default function SignupStep1({
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Signup failed");
-      if (!data.formData?.userId) throw new Error("Missing userId");
+
+      // If a full account already exists, redirect to sign in
+      if (res.status === 409 && data.error === "FULL_ACCOUNT_EXISTS") {
+        toast({
+          status: "info",
+          title: "Account already exists",
+          description: "Redirecting to sign in…",
+          duration: 3000,
+          isClosable: true,
+        });
+        // adding a delay before push to make toast readable
+        setTimeout(() => {
+          router.push("/auth/signin");
+        }, 5000);
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error(data.error || "Signup failed");
+      }
+      if (!data.formData?.userId) {
+        throw new Error("Missing userId");
+      }
+
       onNext(data.currentStep, {
         ...formData,
         userId: data.formData.userId,
@@ -119,7 +143,6 @@ export default function SignupStep1({
 
   return (
     <Container maxW="md" mx="auto" px={4} py={0}>
-      {/* Logo immediately above the headings */}
       <Center mb={1}>
         <Image
           src="/mockups/logo/Sablerework.png"
@@ -129,7 +152,6 @@ export default function SignupStep1({
         />
       </Center>
 
-      {/* Headings with minimal spacing */}
       <Box textAlign="center" mb={1}>
         <Heading
           as="h3"
@@ -152,7 +174,6 @@ export default function SignupStep1({
         </Heading>
       </Box>
 
-      {/* Inputs */}
       <VStack spacing={4} mt={4}>
         {[
           { label: "First Name", field: "firstName", type: "text" },
@@ -187,7 +208,6 @@ export default function SignupStep1({
           </Box>
         ))}
 
-        {/* Consent checkbox */}
         <FormControl display="flex" alignItems="center" pt={2}>
           <Checkbox
             isChecked={agree}
@@ -218,7 +238,6 @@ export default function SignupStep1({
           </Checkbox>
         </FormControl>
 
-        {/* Continue */}
         <Button
           bg="green.500"
           color="white"
@@ -234,7 +253,6 @@ export default function SignupStep1({
           Continue
         </Button>
 
-        {/* Dummy */}
         {isClient && window.location.hostname === "localhost" && (
           <Button
             variant="outline"
@@ -248,7 +266,6 @@ export default function SignupStep1({
           </Button>
         )}
 
-        {/* Extras */}
         <VStack spacing={2} pt={4}>
           <Text fontSize="sm">
             Already have an account?{" "}
