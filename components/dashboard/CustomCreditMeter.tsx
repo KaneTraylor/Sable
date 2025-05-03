@@ -1,5 +1,5 @@
 // components/dashboard/CustomCreditMeter.tsx
-import { Box, Text, useBreakpointValue } from "@chakra-ui/react";
+import { Box, useBreakpointValue } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
 interface CustomCreditMeterProps {
@@ -85,26 +85,6 @@ export default function CustomCreditMeter({
           );
         })()}
       </svg>
-
-      {/* Centered score */}
-      <Box
-        position="absolute"
-        top="50%"
-        left="50%"
-        transform="translate(-50%, -40%)"
-        textAlign="center"
-        pointerEvents="none"
-      >
-        <Text
-          fontSize={isMobile ? "3xl" : "5xl"}
-          fontWeight="extrabold"
-          bgGradient="linear(to-r, teal.300, green.500)"
-          bgClip="text"
-          lineHeight="1"
-        >
-          {score}
-        </Text>
-      </Box>
     </Box>
   );
 }

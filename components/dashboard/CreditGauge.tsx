@@ -1,4 +1,5 @@
 // components/dashboard/CreditGauge.tsx
+
 import {
   Box,
   Text,
@@ -17,17 +18,18 @@ export default function CreditGauge({ score, size }: CreditGaugeProps) {
   // mobile: 180px, desktop: 320px
   const gaugeWidth = size ?? (isMobile ? 180 : 320);
   const labelColor = useColorModeValue("gray.800", "whiteAlpha.900");
-  const scoreGradient = "linear(to-r, teal.300, green.500)";
+  // Use brand green gradient
+  const scoreGradient = "linear(to-r, green.300, green.500)";
 
   return (
     <Box position="relative" width={gaugeWidth} mx="auto">
       <GaugeChart
         id="credit-gauge"
-        nrOfLevels={60} // more ticks around the arc
+        nrOfLevels={60}
         arcsLength={[0.33, 0.33, 0.34]}
         colors={["#F56565", "#FFD93D", "#6BCB77"]}
         percent={score / 850}
-        arcWidth={0.2} // chunkier arc
+        arcWidth={0.2}
         cornerRadius={4}
         needleColor="#FFFFFF"
         needleBaseColor="#FFFFFF"
@@ -36,7 +38,7 @@ export default function CreditGauge({ score, size }: CreditGaugeProps) {
         style={{ width: gaugeWidth }}
       />
 
-      {/* Centered ticker overlay */}
+      {/* Centered overlay */}
       <Box
         position="absolute"
         top="50%"
@@ -49,6 +51,7 @@ export default function CreditGauge({ score, size }: CreditGaugeProps) {
           fontWeight="bold"
           color={labelColor}
           mb={1}
+          fontFamily="Lato, sans-serif"
         >
           Your Credit Score
         </Text>
@@ -57,6 +60,7 @@ export default function CreditGauge({ score, size }: CreditGaugeProps) {
           fontWeight="extrabold"
           bgGradient={scoreGradient}
           bgClip="text"
+          fontFamily="Lato, sans-serif"
         >
           {score}
         </Text>

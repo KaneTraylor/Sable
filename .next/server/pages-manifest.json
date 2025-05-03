@@ -2,12 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/onboarding/signup": "pages/onboarding/signup.js",
-  "/auth/signin": "pages/auth/signin.js",
-  "/api/signup/complete": "pages/api/signup/complete.js",
-  "/api/signup/partial": "pages/api/signup/partial.js",
   "/dashboard": "pages/dashboard.js",
-  "/api/consumerdirect/score": "pages/api/consumerdirect/score.js",
-  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js"
+  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
+  "/api/consumerdirect/score": "pages/api/consumerdirect/score.js"
 }

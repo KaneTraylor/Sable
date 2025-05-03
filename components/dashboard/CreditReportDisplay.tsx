@@ -1,3 +1,4 @@
+// components/dashboard/CreditReportDisplay.tsx
 import {
   Box,
   Heading,
@@ -21,7 +22,6 @@ import { InfoIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import CreditScoreChart from "@/components/dashboard/CreditScoreChart";
 
-// Define the type for each tradeline
 export type Tradeline = {
   creditor: string;
   issue: string;
@@ -98,9 +98,7 @@ export default function CreditReportDisplay({
 }: CreditReportDisplayProps) {
   const [showAll, setShowAll] = useState(false);
   const dataToRender =
-    Array.isArray(tradelines) && tradelines.length > 0
-      ? tradelines
-      : mockNegativeItems;
+    tradelines && tradelines.length > 0 ? tradelines : mockNegativeItems;
 
   const cardBg = useColorModeValue("gray.50", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
@@ -117,19 +115,28 @@ export default function CreditReportDisplay({
       boxShadow="sm"
     >
       <HStack justify="space-between" mb={2}>
-        <Text fontWeight="bold" fontSize="lg">
+        <Text fontWeight="bold" fontSize="lg" fontFamily="Inter, sans-serif">
           {item.creditor}
         </Text>
-        <Badge colorScheme="blue" fontSize="0.8em">
+        <Badge
+          colorScheme="green"
+          fontSize="0.8em"
+          fontFamily="Inter, sans-serif"
+        >
           {item.bureau}
         </Badge>
       </HStack>
       <HStack justify="space-between" mb={1}>
-        <Tag colorScheme="red" size="sm" variant="subtle">
+        <Tag
+          colorScheme="red"
+          size="sm"
+          variant="subtle"
+          fontFamily="Inter, sans-serif"
+        >
           <TagLeftIcon as={InfoIcon} />
           <TagLabel>{item.issue}</TagLabel>
         </Tag>
-        <Text fontSize="sm" color="gray.500">
+        <Text fontSize="sm" color="gray.500" fontFamily="Inter, sans-serif">
           {item.accountNumber}
         </Text>
       </HStack>
@@ -138,7 +145,7 @@ export default function CreditReportDisplay({
 
   const renderScoreBox = (bureau: keyof typeof mockScores) => {
     const info = mockScores[bureau];
-    const logoSrc = `/logos/${bureau.toLowerCase()}.png`; // assume you have /public/logos/experian.png etc.
+    const logoSrc = `/logos/${bureau.toLowerCase()}.png`;
 
     return (
       <Box
@@ -152,10 +159,21 @@ export default function CreditReportDisplay({
         textAlign="center"
       >
         <Image src={logoSrc} alt={`${bureau} logo`} h={8} mb={2} mx="auto" />
-        <Text fontSize="4xl" fontWeight="bold" color="green.500">
+        <Text
+          fontSize="4xl"
+          fontWeight="bold"
+          color="green.500"
+          fontFamily="Inter, sans-serif"
+        >
           {info.score}
         </Text>
-        <VStack align="start" spacing={1} fontSize="sm" mt={2}>
+        <VStack
+          align="start"
+          spacing={1}
+          fontSize="sm"
+          mt={2}
+          fontFamily="Inter, sans-serif"
+        >
           <Text>{info.breakdown.collections} collections</Text>
           <Text>{info.breakdown.latePayments} late payment(s)</Text>
           <Text>{info.breakdown.chargeOffs} charge-off(s)</Text>
@@ -168,7 +186,7 @@ export default function CreditReportDisplay({
 
   return (
     <Box p={6} bg="white" boxShadow="md" borderRadius="xl">
-      <Heading size="md" mb={6}>
+      <Heading size="md" mb={6} fontFamily="Lato, sans-serif">
         Credit Bureaus Summary
       </Heading>
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mb={10}>
@@ -179,10 +197,9 @@ export default function CreditReportDisplay({
 
       <Divider mb={6} />
 
-      <Heading size="md" mb={6}>
+      <Heading size="md" mb={6} fontFamily="Lato, sans-serif">
         Negative Tradelines
       </Heading>
-
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
         {dataToRender.slice(0, 3).map(renderCard)}
         <Collapse in={showAll} animateOpacity style={{ gridColumn: "1 / -1" }}>
@@ -203,14 +220,16 @@ export default function CreditReportDisplay({
           <Button
             onClick={() => setShowAll((prev) => !prev)}
             variant="link"
-            colorScheme="blue"
+            colorScheme="green"
+            fontFamily="Inter, sans-serif"
           >
             {showAll ? "Show Less" : "Show More"}
           </Button>
         )}
         <Button
-          colorScheme="blue"
+          colorScheme="green"
           onClick={() => alert("Generate dispute PDF")}
+          fontFamily="Inter, sans-serif"
         >
           Create Dispute
         </Button>

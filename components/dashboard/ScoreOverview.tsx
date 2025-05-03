@@ -1,7 +1,6 @@
 // components/dashboard/ScoreOverview.tsx
 import {
   Box,
-  Button,
   Divider,
   Flex,
   Grid,
@@ -23,33 +22,32 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 
 import DashboardNavbar from "./DashboardNavbar";
-import CustomCreditMeter from "./CustomCreditMeter";
+import CustomCreditMeter from "./CreditScoreCard";
 import CreditScoreChart from "./CreditScoreChart";
-import useConsumerDirect from "./useConsumerDirect"; // default import
+import useConsumerDirect from "./useConsumerDirect";
+import { DashboardButton as Button } from "./DashboardButton";
 
-// mock dispute items
 const DISPUTES = [
   {
     title: "A payment is incorrectly marked delayed.",
     type: "Payment Delay",
-    date: "2024‑08‑04",
+    date: "2024-08-04",
     status: "New",
   },
   {
     title: "Credit limit is displayed incorrectly.",
     type: "Credit Limit",
-    date: "2024‑08‑03",
+    date: "2024-08-03",
     status: "In Review",
   },
   {
     title: "Closed account still appears active.",
     type: "Account Info",
-    date: "2024‑08‑03",
+    date: "2024-08-03",
     status: "Resolved",
   },
 ];
 
-// mock financial overview metrics
 const METRICS = [
   { label: "Current Balance", value: "$5,000" },
   { label: "Open Accounts", value: "4" },
@@ -67,8 +65,8 @@ export default function ScoreOverview() {
   const cardBg = useColorModeValue("white", "gray.700");
   const border = useColorModeValue("gray.200", "gray.600");
   const [period, setPeriod] = useState<"1M" | "3M" | "6M" | "1Y">("1M");
+  const brandGreen = "#37a169";
 
-  // pull in your real score
   const { score, loading, error } = useConsumerDirect();
 
   return (
@@ -88,13 +86,21 @@ export default function ScoreOverview() {
             <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
               <HStack mb={4}>
                 <TimeIcon />
-                <Heading size="md">Your Credit Score</Heading>
+                <Heading
+                  size="md"
+                  fontFamily="Lato, sans-serif"
+                  color="gray.800"
+                >
+                  Your Credit Score
+                </Heading>
               </HStack>
               <Flex justify="center" mb={4}>
                 {loading ? (
                   <Spinner size="xl" />
                 ) : error ? (
-                  <Text color="red.500">Error loading score</Text>
+                  <Text color="red.500" fontFamily="Inter, sans-serif">
+                    Error loading score
+                  </Text>
                 ) : (
                   <CustomCreditMeter
                     score={score!}
@@ -102,9 +108,6 @@ export default function ScoreOverview() {
                   />
                 )}
               </Flex>
-              <Button colorScheme="green" w="100%">
-                Start Growth
-              </Button>
             </Box>
 
             <Divider />
@@ -123,23 +126,28 @@ export default function ScoreOverview() {
                 <HStack justify="space-between" mb={4}>
                   <HStack spacing={2}>
                     <TimeIcon />
-                    <Text fontWeight="bold">Live Dispute Feed</Text>
+                    <Text fontWeight="bold" fontFamily="Lato, sans-serif">
+                      Live Dispute Feed
+                    </Text>
                   </HStack>
                   <IconButton
                     aria-label="Filter disputes"
                     icon={<FiFilter />}
                     size="sm"
                     variant="ghost"
+                    colorScheme="green"
                   />
                 </HStack>
                 <VStack spacing={4} align="stretch" mb={6}>
                   {DISPUTES.map((d, i) => (
                     <Box key={i} pt={2} borderTop={`1px solid ${border}`}>
-                      <Text fontWeight="medium">{d.title}</Text>
+                      <Text fontWeight="medium" fontFamily="Inter, sans-serif">
+                        {d.title}
+                      </Text>
                       <HStack fontSize="sm" color="gray.500" mt={1}>
-                        <Text>{d.type}</Text>
+                        <Text fontFamily="Inter, sans-serif">{d.type}</Text>
                         <Text>·</Text>
-                        <Text>{d.date}</Text>
+                        <Text fontFamily="Inter, sans-serif">{d.date}</Text>
                         <Text>·</Text>
                         <Badge
                           colorScheme={
@@ -149,6 +157,7 @@ export default function ScoreOverview() {
                               ? "orange"
                               : "gray"
                           }
+                          fontFamily="Inter, sans-serif"
                         >
                           {d.status}
                         </Badge>
@@ -174,13 +183,32 @@ export default function ScoreOverview() {
             {/* Score Analysis */}
             <Box>
               <HStack justify="space-between" mb={2}>
-                <Heading size="md">Score Analysis</Heading>
+                <Heading
+                  size="md"
+                  fontFamily="Lato, sans-serif"
+                  color="gray.800"
+                >
+                  Score Analysis
+                </Heading>
                 <HStack spacing={2}>
                   {(["1M", "3M", "6M", "1Y"] as const).map((p) => (
                     <Button
                       key={p}
                       size="sm"
                       variant={period === p ? "solid" : "outline"}
+                      bg={period === p ? brandGreen : "transparent"}
+                      color={
+                        period === p
+                          ? "white"
+                          : useColorModeValue("gray.700", "gray.200")
+                      }
+                      borderColor={brandGreen}
+                      borderWidth="1px"
+                      borderRadius="16px"
+                      fontFamily="Inter, sans-serif"
+                      _hover={{
+                        bg: period === p ? "#2f855a" : `${brandGreen}1A`,
+                      }}
                       onClick={() => setPeriod(p)}
                     >
                       {p}
@@ -210,7 +238,13 @@ export default function ScoreOverview() {
                     alt="Sable Credit Gauge"
                     boxSize="6"
                   />
-                  <Heading size="md">Credit Overview</Heading>
+                  <Heading
+                    size="md"
+                    fontFamily="Lato, sans-serif"
+                    color="gray.800"
+                  >
+                    Credit Overview
+                  </Heading>
                 </HStack>
 
                 <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
@@ -227,7 +261,11 @@ export default function ScoreOverview() {
                           textAlign="center"
                           gridColumn={{ base: "span 2", md: "span 4" }}
                         >
-                          <Text fontSize="sm" mb={2}>
+                          <Text
+                            fontSize="sm"
+                            mb={2}
+                            fontFamily="Inter, sans-serif"
+                          >
                             {m.label}
                           </Text>
                           <Flex align="center">
@@ -239,18 +277,22 @@ export default function ScoreOverview() {
                                 overflow="hidden"
                               >
                                 <Box
-                                  bg={val > 35 ? "red.400" : "green.400"}
+                                  bg={val > 35 ? "red.400" : brandGreen}
                                   w={`${val}%`}
                                   h="6px"
                                 />
                               </Box>
                             </Box>
-                            <Text fontWeight="bold">{m.value}</Text>
+                            <Text
+                              fontWeight="bold"
+                              fontFamily="Inter, sans-serif"
+                            >
+                              {m.value}
+                            </Text>
                           </Flex>
                         </Box>
                       );
                     }
-
                     return (
                       <Box
                         key={m.label}
@@ -260,10 +302,18 @@ export default function ScoreOverview() {
                         boxShadow="md"
                         textAlign="center"
                       >
-                        <Text fontSize="sm" color="gray.500">
+                        <Text
+                          fontSize="sm"
+                          color="gray.500"
+                          fontFamily="Inter, sans-serif"
+                        >
                           {m.label}
                         </Text>
-                        <Text fontSize="xl" fontWeight="bold">
+                        <Text
+                          fontSize="xl"
+                          fontWeight="bold"
+                          fontFamily="Inter, sans-serif"
+                        >
                           {m.value}
                         </Text>
                       </Box>
@@ -274,7 +324,10 @@ export default function ScoreOverview() {
 
               <Button
                 mt={6}
-                colorScheme="blue"
+                bg={brandGreen}
+                color="white"
+                _hover={{ bg: "#2f855a" }}
+                fontFamily="Inter, sans-serif"
                 onClick={() => router.push("/dashboard/metrics")}
               >
                 View Detailed Metrics

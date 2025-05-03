@@ -20,6 +20,7 @@ import { FiBarChart2 } from "react-icons/fi";
 import { AiOutlineRobot } from "react-icons/ai";
 import { useSession, signOut } from "next-auth/react";
 import { ReactElement } from "react";
+import { DashboardButton as Button } from "./DashboardButton";
 
 interface NavItem {
   label: string;
@@ -57,7 +58,12 @@ export default function DashboardNavbar() {
   return (
     <Box bg={bg} px={{ base: 4, md: 8 }} py={4} boxShadow="sm">
       <Flex align="center">
-        <chakra.h1 fontSize="lg" fontWeight="bold" color={linkColor}>
+        <chakra.h1
+          fontSize="lg"
+          fontWeight="bold"
+          color={linkColor}
+          fontFamily="Lato, sans-serif"
+        >
           Sable Credit
         </chakra.h1>
         <Spacer />
@@ -83,12 +89,17 @@ export default function DashboardNavbar() {
                   as="a"
                   href={item.href}
                   icon={item.icon}
+                  fontFamily="Inter, sans-serif"
                 >
                   {item.label}
                 </MenuItem>
               ))}
               {session && (
-                <MenuItem onClick={() => signOut()} color="red.500">
+                <MenuItem
+                  onClick={() => signOut()}
+                  color="red.500"
+                  fontFamily="Inter, sans-serif"
+                >
                   Sign Out
                 </MenuItem>
               )}
@@ -105,6 +116,7 @@ export default function DashboardNavbar() {
                 _hover={{ color: linkHover, textDecoration: "none" }}
                 color={linkColor}
                 fontWeight="medium"
+                fontFamily="Inter, sans-serif"
               >
                 <Box as="span" mr={2}>
                   {item.icon}
@@ -117,6 +129,7 @@ export default function DashboardNavbar() {
                 onClick={() => signOut()}
                 color="red.500"
                 _hover={{ textDecoration: "underline" }}
+                fontFamily="Inter, sans-serif"
               >
                 Sign Out
               </Link>

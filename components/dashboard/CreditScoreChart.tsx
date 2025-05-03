@@ -14,6 +14,7 @@ import {
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
 import { useMemo } from "react";
+import { DashboardButton as Button } from "./DashboardButton";
 
 ChartJS.register(
   CategoryScale,
@@ -68,13 +69,10 @@ export default function CreditScoreChart({
         data: rawData,
         fill: true,
         backgroundColor: (ctx: any) => {
-          const chart = ctx.chart;
-          const chartArea = chart.chartArea;
-          // guard against undefined chartArea
-          if (!chartArea) {
-            return `${strokeColor}33`;
-          }
-          return gradientFill(ctx.chart.ctx, chartArea);
+          const chartArea = ctx.chart.chartArea;
+          return chartArea
+            ? gradientFill(ctx.chart.ctx, chartArea)
+            : `${strokeColor}33`;
         },
         borderColor: strokeColor,
         pointRadius: 4,
@@ -88,10 +86,7 @@ export default function CreditScoreChart({
     scales: {
       x: {
         type: "time" as const,
-        time: {
-          unit: "month" as const,
-          tooltipFormat: "MMM yyyy" as const,
-        },
+        time: { unit: "month" as const, tooltipFormat: "MMM yyyy" as const },
         grid: { display: false },
       },
       y: {
@@ -101,9 +96,7 @@ export default function CreditScoreChart({
         grid: { color: useColorModeValue("#eee", "#555") },
       },
     },
-    plugins: {
-      legend: { display: false },
-    },
+    plugins: { legend: { display: false } },
     maintainAspectRatio: false,
   };
 
