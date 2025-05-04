@@ -22,7 +22,7 @@ const navItems = [
   { key: "home", label: "Home", href: "/dashboard", icon: FiHome },
   {
     key: "cash",
-    label: "Credit Building Loan",
+    label: "Credit Builder",
     href: "/dashboard/creditbuilder",
     icon: FiCreditCard,
   },
@@ -48,12 +48,12 @@ const navItems = [
 
 export default function BottomNavigation() {
   const isMobile = useBreakpointValue({ base: true, md: false });
+  if (!isMobile) return null;
+
   const router = useRouter();
   const bg = useColorModeValue("white", "gray.800");
   const defaultColor = useColorModeValue("gray.600", "gray.400");
-  const brandGreen = "#37a169";
-
-  if (!isMobile) return null;
+  const activeColor = "#37a169";
 
   return (
     <Flex
@@ -71,7 +71,7 @@ export default function BottomNavigation() {
       <Flex maxW="800px" w="full" justify="space-evenly">
         {navItems.map(({ key, label, href, icon: Icon }) => {
           const isActive = router.pathname === href;
-          const color = isActive ? brandGreen : defaultColor;
+          const color = isActive ? activeColor : defaultColor;
           return (
             <ChakraLink
               key={key}
@@ -79,7 +79,7 @@ export default function BottomNavigation() {
               href={href}
               flex="1"
               textAlign="center"
-              _hover={{ textDecoration: "none", color: brandGreen }}
+              _hover={{ textDecoration: "none", color: activeColor }}
             >
               <Flex
                 direction="column"

@@ -18,6 +18,7 @@ const colors = {
     700: "#285E61",
     800: "#234E52",
     900: "#1D4044",
+    tan: "#f9f5f1", // added hero tan
   },
   accent: {
     greenLight: "#48BB78",
@@ -59,7 +60,7 @@ export const theme = extendTheme({
   styles: {
     global: {
       "html, body": {
-        bg: "gray.50",
+        bg: "brand.tan",
         color: "gray.800",
         lineHeight: "tall",
         fontFamily: fonts.body,
@@ -71,7 +72,6 @@ export const theme = extendTheme({
     },
   },
   components: {
-    // NO more global Button override here
     Heading: {
       baseStyle: {
         fontFamily: fonts.heading,

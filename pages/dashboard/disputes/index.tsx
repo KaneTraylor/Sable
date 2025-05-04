@@ -1,4 +1,3 @@
-// pages/dashboard/disputes/step1.tsx
 import {
   Box,
   Center,
@@ -13,7 +12,6 @@ import NextLink from "next/link";
 
 export default function DisputeStep1() {
   const bg = useColorModeValue("white", "gray.700");
-  const numberBg = useColorModeValue("gray.200", "gray.600");
 
   const STEPS = [
     "Select up to 5 error items per month",
@@ -25,25 +23,31 @@ export default function DisputeStep1() {
     <Flex
       direction="column"
       minH="100vh"
-      bg={useColorModeValue("gray.50", "gray.800")}
+      bg="#f9f5f1" // tan background matching hero section
     >
-      {/* You could swap this for your DashboardNavbar if desired */}
+      {/* Nav */}
       <Box as="nav" p={4} bg={bg} boxShadow="sm">
-        <NextLink href="/dashboard">
-          <Text fontWeight="bold" cursor="pointer">
+        <NextLink href="/dashboard" passHref>
+          <Text
+            fontWeight="medium"
+            fontSize="md"
+            color="black"
+            cursor="pointer"
+          >
             ← Back to Dashboard
           </Text>
         </NextLink>
       </Box>
 
+      {/* Main content */}
       <Center flex="1" px={{ base: 4, md: 6 }} py={8}>
         <Box maxW="800px" w="full">
           {/* Illustration */}
           <Center mb={8}>
             <Image
-              src="/mockups/disputes_center_explorations_basic.svg"
-              alt="Dispute Instructions Illustration"
-              maxW="60%"
+              src="/mockups/sable-difference/500unsecured.svg"
+              alt="Dispute Instructions"
+              maxW="320px"
               minW="240px"
             />
           </Center>
@@ -53,21 +57,16 @@ export default function DisputeStep1() {
             Submitting disputes only takes a few steps
           </Heading>
 
-          {/* Steps list */}
+          {/* Steps */}
           <VStack spacing={6} align="stretch">
             {STEPS.map((title, i) => (
               <Flex key={i} align="center">
-                <Center
-                  w="24px"
-                  h="24px"
-                  bg={numberBg}
-                  borderRadius="full"
-                  color={useColorModeValue("gray.800", "white")}
-                  fontWeight="bold"
+                <Image
+                  src="/mockups/other/icon-plus-green.svg"
+                  alt="Plus Icon"
+                  boxSize="24px"
                   mr={4}
-                >
-                  {i + 1}
-                </Center>
+                />
                 <Text fontSize="lg" fontWeight="medium">
                   {title}
                 </Text>
@@ -77,7 +76,7 @@ export default function DisputeStep1() {
         </Box>
       </Center>
 
-      {/* Next button */}
+      {/* CTA */}
       <Box as="footer" p={4} bg={bg} boxShadow="inner">
         <NextLink href="/dashboard/disputes/select" passHref>
           <Box
