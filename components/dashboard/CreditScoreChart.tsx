@@ -14,7 +14,6 @@ import {
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
 import { useMemo } from "react";
-import { DashboardButton as Button } from "./DashboardButton";
 
 ChartJS.register(
   CategoryScale,
@@ -36,6 +35,7 @@ interface CreditScoreChartProps {
 export default function CreditScoreChart({
   period = "1M",
 }: CreditScoreChartProps) {
+  // Mock data – you can filter by period if you want
   const rawData = useMemo(
     () => [
       { x: "2024-01-01", y: 500 },
@@ -50,7 +50,8 @@ export default function CreditScoreChart({
     [period]
   );
 
-  const strokeColor = useColorModeValue("#38A169", "#48BB78");
+  // Chart colors
+  const strokeColor = useColorModeValue("#37a169", "#48BB78");
   const gradientFill = (
     ctx: CanvasRenderingContext2D,
     chartArea: { top: number; bottom: number }

@@ -1,4 +1,5 @@
 // components/dashboard/ScoreOverview.tsx
+import React, { useState } from "react";
 import {
   Box,
   Divider,
@@ -19,11 +20,12 @@ import {
 import { TimeIcon } from "@chakra-ui/icons";
 import { FiFilter } from "react-icons/fi";
 import { useRouter } from "next/router";
-import { useState } from "react";
 
 import DashboardNavbar from "./DashboardNavbar";
-import CustomCreditMeter from "./CreditScoreCard";
+import CreditScoreCard from "./CreditScoreCard";
 import CreditScoreChart from "./CreditScoreChart";
+import ActionItems from "./ActionItems";
+import CreditTasks from "./CreditTasks";
 import useConsumerDirect from "./useConsumerDirect";
 import { DashboardButton as Button } from "./DashboardButton";
 
@@ -65,12 +67,11 @@ export default function ScoreOverview() {
   const cardBg = useColorModeValue("white", "gray.700");
   const border = useColorModeValue("gray.200", "gray.600");
   const [period, setPeriod] = useState<"1M" | "3M" | "6M" | "1Y">("1M");
-  const brandGreen = "#37a169";
 
   const { score, loading, error } = useConsumerDirect();
 
   return (
-    <Box bg={bg} minH="100vh">
+    <Box bg={bg} minH="100vh" pl={{ md: "80px" }}>
       <DashboardNavbar />
 
       <Box
@@ -82,37 +83,24 @@ export default function ScoreOverview() {
         <Grid templateColumns={{ base: "1fr", md: "1fr 2fr" }} gap={8}>
           {/* Left Column */}
           <VStack spacing={6} align="stretch">
-            {/* Credit Gauge */}
-            <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
-              <HStack mb={4}>
-                <TimeIcon />
-                <Heading
-                  size="md"
-                  fontFamily="Lato, sans-serif"
-                  color="gray.800"
-                >
-                  Your Credit Score
-                </Heading>
-              </HStack>
-              <Flex justify="center" mb={4}>
-                {loading ? (
+            {/* 1) Credit Score Card */}
+            <Box>
+              {loading ? (
+                <Flex justify="center" p={6}>
                   <Spinner size="xl" />
-                ) : error ? (
-                  <Text color="red.500" fontFamily="Inter, sans-serif">
-                    Error loading score
-                  </Text>
-                ) : (
-                  <CustomCreditMeter
-                    score={score!}
-                    size={isDesktop ? 280 : 220}
-                  />
-                )}
-              </Flex>
+                </Flex>
+              ) : error ? (
+                <Text color="red.500" textAlign="center">
+                  Error loading score
+                </Text>
+              ) : (
+                <CreditScoreCard />
+              )}
             </Box>
 
             <Divider />
 
-            {/* Live Dispute Feed */}
+            {/* 2) Live Dispute Feed */}
             <Box
               bg={cardBg}
               p={6}
@@ -166,7 +154,6 @@ export default function ScoreOverview() {
                   ))}
                 </VStack>
               </Box>
-
               <Image
                 src="/mockups/sable-difference/graphic-ladder-girl.svg"
                 alt="Dispute Character"
@@ -176,11 +163,22 @@ export default function ScoreOverview() {
                 objectFit="contain"
               />
             </Box>
+
+            {/* 3) Actions */}
+            <Box
+              bg={cardBg}
+              p={6}
+              borderRadius="lg"
+              boxShadow="xl"
+              minH={{ base: "auto", md: "500px" }}
+            >
+              <ActionItems />
+            </Box>
           </VStack>
 
           {/* Right Column */}
           <VStack spacing={6} align="stretch">
-            {/* Score Analysis */}
+            {/* 1) Score Analysis */}
             <Box>
               <HStack justify="space-between" mb={2}>
                 <Heading
@@ -196,19 +194,6 @@ export default function ScoreOverview() {
                       key={p}
                       size="sm"
                       variant={period === p ? "solid" : "outline"}
-                      bg={period === p ? brandGreen : "transparent"}
-                      color={
-                        period === p
-                          ? "white"
-                          : useColorModeValue("gray.700", "gray.200")
-                      }
-                      borderColor={brandGreen}
-                      borderWidth="1px"
-                      borderRadius="16px"
-                      fontFamily="Inter, sans-serif"
-                      _hover={{
-                        bg: period === p ? "#2f855a" : `${brandGreen}1A`,
-                      }}
                       onClick={() => setPeriod(p)}
                     >
                       {p}
@@ -221,7 +206,7 @@ export default function ScoreOverview() {
 
             <Divider />
 
-            {/* Credit Overview */}
+            {/* 2) Credit Overview */}
             <Box
               bg={cardBg}
               p={6}
@@ -246,7 +231,6 @@ export default function ScoreOverview() {
                     Credit Overview
                   </Heading>
                 </HStack>
-
                 <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
                   {METRICS.map((m) => {
                     if (m.label === "Utilization") {
@@ -277,7 +261,7 @@ export default function ScoreOverview() {
                                 overflow="hidden"
                               >
                                 <Box
-                                  bg={val > 35 ? "red.400" : brandGreen}
+                                  bg={val > 35 ? "red.400" : "#37a169"}
                                   w={`${val}%`}
                                   h="6px"
                                 />
@@ -321,17 +305,17 @@ export default function ScoreOverview() {
                   })}
                 </SimpleGrid>
               </Box>
+            </Box>
 
-              <Button
-                mt={6}
-                bg={brandGreen}
-                color="white"
-                _hover={{ bg: "#2f855a" }}
-                fontFamily="Inter, sans-serif"
-                onClick={() => router.push("/dashboard/metrics")}
-              >
-                View Detailed Metrics
-              </Button>
+            {/* 3) Credit-Boosting Tasks */}
+            <Box
+              bg={cardBg}
+              p={6}
+              borderRadius="lg"
+              boxShadow="xl"
+              minH={{ base: "auto", md: "500px" }}
+            >
+              <CreditTasks />
             </Box>
           </VStack>
         </Grid>

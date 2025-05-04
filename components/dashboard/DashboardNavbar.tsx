@@ -1,142 +1,108 @@
 // components/dashboard/DashboardNavbar.tsx
+import React from "react";
 import {
   Box,
-  Flex,
-  HStack,
-  Link,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  useBreakpointValue,
-  Spacer,
+  VStack,
+  Link as ChakraLink,
+  Text,
+  Show,
+  Hide,
   useColorModeValue,
-  chakra,
-  Image as ChakraImage,
 } from "@chakra-ui/react";
-import { ViewIcon, SettingsIcon, AddIcon } from "@chakra-ui/icons";
-import { FiBarChart2 } from "react-icons/fi";
-import { AiOutlineRobot } from "react-icons/ai";
-import { useSession, signOut } from "next-auth/react";
-import { ReactElement } from "react";
-import { DashboardButton as Button } from "./DashboardButton";
+import NextLink from "next/link";
+import { useRouter } from "next/router";
+import {
+  FiHome,
+  FiCreditCard,
+  FiBarChart2,
+  FiAlertTriangle,
+  FiUser,
+} from "react-icons/fi";
+import BottomNavigation from "./BottomNavigation";
 
-interface NavItem {
-  label: string;
-  href: string;
-  icon: ReactElement;
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { label: "Overview", href: "/dashboard", icon: <ViewIcon /> },
+const NAV_ITEMS = [
+  { key: "home", label: "Home", href: "/dashboard", icon: FiHome },
   {
-    label: "Credit Analysis",
-    href: "/dashboard/credit-analysis",
-    icon: <FiBarChart2 />,
+    key: "cash",
+    label: "Credit Building Loan",
+    href: "/dashboard/cash-card",
+    icon: FiCreditCard,
   },
   {
-    label: "Growth Settings",
-    href: "/dashboard/growth-settings",
-    icon: <SettingsIcon />,
+    key: "credit-score",
+    label: "Credit Score",
+    href: "/dashboard/credit-score",
+    icon: FiBarChart2,
   },
   {
-    label: "Credit Builder",
-    href: "/dashboard/credit-builder",
-    icon: <AddIcon />,
+    key: "disputes",
+    label: "Disputes",
+    href: "/dashboard/disputes",
+    icon: FiAlertTriangle,
   },
-  { label: "Sable AI", href: "/dashboard/sable-ai", icon: <AiOutlineRobot /> },
+  {
+    key: "account",
+    label: "Account",
+    href: "/dashboard/account",
+    icon: FiUser,
+  },
 ];
 
 export default function DashboardNavbar() {
-  const { data: session } = useSession();
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const router = useRouter();
   const bg = useColorModeValue("white", "gray.800");
-  const linkColor = useColorModeValue("gray.700", "gray.200");
-  const linkHover = useColorModeValue("gray.900", "white");
+  const defaultColor = useColorModeValue("gray.600", "gray.400");
+  const activeColor = "#37a169";
 
   return (
-    <Box bg={bg} px={{ base: 4, md: 8 }} py={4} boxShadow="sm">
-      <Flex align="center">
-        <chakra.h1
-          fontSize="lg"
-          fontWeight="bold"
-          color={linkColor}
-          fontFamily="Lato, sans-serif"
-        >
-          Sable Credit
-        </chakra.h1>
-        <Spacer />
+    <>
+      {/* Mobile bottom nav */}
+      <Show below="md">
+        <BottomNavigation />
+      </Show>
 
-        {isMobile ? (
-          <Menu>
-            <MenuButton
-              as={IconButton}
-              aria-label="Open menu"
-              icon={
-                <ChakraImage
-                  src="/mockups/other/navbar-open-menu-icon.svg"
-                  alt="Menu"
-                  boxSize={6}
-                />
-              }
-              variant="ghost"
-            />
-            <MenuList>
-              {NAV_ITEMS.map((item) => (
-                <MenuItem
-                  key={item.href}
-                  as="a"
-                  href={item.href}
-                  icon={item.icon}
-                  fontFamily="Inter, sans-serif"
+      {/* Desktop left‐side nav */}
+      <Hide below="md">
+        <Box
+          as="nav"
+          position="fixed"
+          top="0"
+          left="0"
+          h="100vh"
+          w="80px"
+          bg={bg}
+          boxShadow="0 0 8px rgba(0,0,0,0.1)"
+          zIndex="100"
+          px={2}
+          py={4}
+        >
+          <VStack spacing={6}>
+            {NAV_ITEMS.map(({ key, label, href, icon: Icon }) => {
+              const isActive = router.pathname === href;
+              return (
+                <ChakraLink
+                  key={key}
+                  as={NextLink}
+                  href={href}
+                  display="flex"
+                  flexDir="column"
+                  alignItems="center"
+                  justifyContent="center"
+                  p={2}
+                  borderRadius="16px"
+                  color={isActive ? activeColor : defaultColor}
+                  _hover={{ color: activeColor, bg: `${activeColor}1A` }}
                 >
-                  {item.label}
-                </MenuItem>
-              ))}
-              {session && (
-                <MenuItem
-                  onClick={() => signOut()}
-                  color="red.500"
-                  fontFamily="Inter, sans-serif"
-                >
-                  Sign Out
-                </MenuItem>
-              )}
-            </MenuList>
-          </Menu>
-        ) : (
-          <HStack spacing={6}>
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                display="flex"
-                alignItems="center"
-                _hover={{ color: linkHover, textDecoration: "none" }}
-                color={linkColor}
-                fontWeight="medium"
-                fontFamily="Inter, sans-serif"
-              >
-                <Box as="span" mr={2}>
-                  {item.icon}
-                </Box>
-                {item.label}
-              </Link>
-            ))}
-            {session && (
-              <Link
-                onClick={() => signOut()}
-                color="red.500"
-                _hover={{ textDecoration: "underline" }}
-                fontFamily="Inter, sans-serif"
-              >
-                Sign Out
-              </Link>
-            )}
-          </HStack>
-        )}
-      </Flex>
-    </Box>
+                  <Icon size="24px" />
+                  <Text fontSize="10px" mt={1} fontFamily="Inter, sans-serif">
+                    {label}
+                  </Text>
+                </ChakraLink>
+              );
+            })}
+          </VStack>
+        </Box>
+      </Hide>
+    </>
   );
 }

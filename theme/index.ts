@@ -71,23 +71,7 @@ export const theme = extendTheme({
     },
   },
   components: {
-    Button: {
-      baseStyle: {
-        borderRadius: "md",
-      },
-      variants: {
-        solid: (props: any) => ({
-          bg: props.colorMode === "dark" ? "brand.300" : "brand.500",
-          color: "white",
-          _hover: { bg: "brand.600" },
-        }),
-        outline: {
-          borderColor: "brand.500",
-          color: "brand.500",
-          _hover: { bg: "brand.50" },
-        },
-      },
-    },
+    // NO more global Button override here
     Heading: {
       baseStyle: {
         fontFamily: fonts.heading,
