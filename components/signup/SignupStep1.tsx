@@ -59,6 +59,7 @@ export default function SignupStep1({
       return;
     }
     setLoading(true);
+
     try {
       const res = await fetch("/api/signup/partial", {
         method: "POST",
@@ -68,9 +69,19 @@ export default function SignupStep1({
           password: formData.password,
         }),
       });
-      const data = await res.json();
 
-      // If a full account already exists, redirect to sign in
+      // read raw text and guard against empty or invalid JSON
+      const text = await res.text();
+      let data: any = {};
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch {
+          // invalid JSON; data remains {}
+        }
+      }
+
+      // handle full-account exists case
       if (res.status === 409 && data.error === "FULL_ACCOUNT_EXISTS") {
         toast({
           status: "info",
@@ -79,10 +90,7 @@ export default function SignupStep1({
           duration: 3000,
           isClosable: true,
         });
-        // adding a delay before push to make toast readable
-        setTimeout(() => {
-          router.push("/auth/signin");
-        }, 5000);
+        setTimeout(() => router.push("/auth/signin"), 5000);
         return;
       }
 
@@ -124,8 +132,17 @@ export default function SignupStep1({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: dummy.email, password: dummy.password }),
       });
-      const data = await res.json();
+
+      const text = await res.text();
+      let data: any = {};
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch {}
+      }
+
       if (!res.ok || !data.formData?.userId) throw new Error();
+
       onNext(data.currentStep, {
         ...dummy,
         userId: data.formData.userId,
