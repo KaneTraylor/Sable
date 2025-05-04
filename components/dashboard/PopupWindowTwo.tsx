@@ -19,18 +19,39 @@ import {
   Spacer,
 } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
+import { useSession } from "next-auth/react";
+import axios from "axios";
 
 export default function PopupWindowTwo() {
   const isMobile = useBreakpointValue({ base: true, md: false });
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    onOpen();
-  }, [onOpen]);
+    const checkAndOpen = async () => {
+      if (status !== "authenticated" || !session?.user?.email) return;
+
+      try {
+        const popupName = "popup2";
+        const res = await axios.get(`/api/popups/${popupName}`);
+        const lastShown = new Date(res.data.lastShown);
+        const now = new Date();
+        const oneDay = 24 * 60 * 60 * 1000;
+
+        if (now.getTime() - lastShown.getTime() > oneDay) {
+          onOpen();
+          await axios.post(`/api/popups/${popupName}`);
+        }
+      } catch (err) {
+        console.error("Popup tracking failed:", err);
+      }
+    };
+
+    checkAndOpen();
+  }, [session, status, onOpen]);
 
   const content = (
     <VStack spacing={6} align="stretch" p={isMobile ? 4 : 6}>
-      {/* Close button */}
       <Box w="100%" display="flex">
         <Spacer />
         <IconButton
@@ -41,7 +62,6 @@ export default function PopupWindowTwo() {
         />
       </Box>
 
-      {/* Drag handle for mobile */}
       {isMobile && (
         <Box
           width="40px"
@@ -53,7 +73,6 @@ export default function PopupWindowTwo() {
         />
       )}
 
-      {/* Heading */}
       <Heading
         as="h4"
         fontSize="2xl"
@@ -66,7 +85,6 @@ export default function PopupWindowTwo() {
         We’ll reimburse you for out-of-pocket expenses up to $1,000,000
       </Heading>
 
-      {/* Description */}
       <Text fontSize="md" fontFamily="Inter, sans-serif" pb={2}>
         Our Identity Theft Reimbursement, with zero deductible, reimburses you
         for expenses related to identity theft restoration, including
@@ -75,7 +93,6 @@ export default function PopupWindowTwo() {
         legal costs.
       </Text>
 
-      {/* Action */}
       <Button
         colorScheme="green"
         size="lg"
@@ -91,18 +108,14 @@ export default function PopupWindowTwo() {
     </VStack>
   );
 
-  if (isMobile) {
-    return (
-      <Drawer placement="bottom" onClose={onClose} isOpen={isOpen} size="full">
-        <DrawerOverlay />
-        <DrawerContent borderTopRadius="16px" p={0} maxH="60vh">
-          <DrawerBody p={0}>{content}</DrawerBody>
-        </DrawerContent>
-      </Drawer>
-    );
-  }
-
-  return (
+  return isMobile ? (
+    <Drawer placement="bottom" onClose={onClose} isOpen={isOpen} size="full">
+      <DrawerOverlay />
+      <DrawerContent borderTopRadius="16px" p={0} maxH="60vh">
+        <DrawerBody p={0}>{content}</DrawerBody>
+      </DrawerContent>
+    </Drawer>
+  ) : (
     <Modal isOpen={isOpen} onClose={onClose} isCentered size="md">
       <ModalOverlay />
       <ModalContent borderRadius="16px" mx="auto" maxW="500px">

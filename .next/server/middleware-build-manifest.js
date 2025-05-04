@@ -28,16 +28,6 @@ self.__BUILD_MANIFEST = {
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/dashboard/disputes.js"
-    ],
-    "/dashboard/disputes/center": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/dashboard/disputes/center.js"
-    ],
-    "/dashboard/disputes/select": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/dashboard/disputes/select.js"
     ]
   },
   "ampFirstPages": []

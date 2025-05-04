@@ -26,11 +26,18 @@ model User {
   emailVerified     DateTime?
   verificationToken String?
   currentStep       Int       @default(1)
+  popupOneLastSeen DateTime?
+  popupTwoLastSeen DateTime?
+
 
   // dispute cadence tracking
   lastDisputeSentAt DateTime?
   nextDisputeAt     DateTime?
   sentWithSable     Boolean?  @default(false)
+
+  // popup display tracking
+  popupOneLastSeen DateTime?
+  popupTwoLastSeen DateTime?
 
   loans    CreditBuilderLoan[] @relation("UserLoans")
   disputes Dispute[]

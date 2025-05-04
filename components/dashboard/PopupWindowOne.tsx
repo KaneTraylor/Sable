@@ -20,10 +20,12 @@ import {
   Spacer,
 } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
+import { useSession } from "next-auth/react";
+import axios from "axios";
 
 const features = [
   {
-    icon: "/mockups/other/deal.svg",
+    icon: "/mockups/other/green-plus-icon.png",
     text: (
       <>
         Add payments for <strong>natural gas, electric, water, or phone</strong>{" "}
@@ -32,7 +34,7 @@ const features = [
     ),
   },
   {
-    icon: "/mockups/other/credit-score.svg",
+    icon: "/mockups/other/green-plus-icon.png",
     text: (
       <>
         We’ll report eligible payments to <strong>TransUnion</strong>
@@ -40,7 +42,7 @@ const features = [
     ),
   },
   {
-    icon: "/mockups/other/checkmark-circle.svg",
+    icon: "/mockups/other/green-plus-icon.png",
     text: (
       <>
         Get up to four new sources of <strong>positive payment</strong>{" "}
@@ -53,15 +55,33 @@ const features = [
 export default function PopupWindowOne() {
   const isMobile = useBreakpointValue({ base: true, md: false });
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    onOpen();
-  }, [onOpen]);
+    const checkAndOpen = async () => {
+      if (status !== "authenticated" || !session?.user?.email) return;
 
-  // shared content
+      try {
+        const popupName = "popup1";
+        const res = await axios.get(`/api/popups/${popupName}`);
+        const lastShown = new Date(res.data.lastShown);
+        const now = new Date();
+        const oneDay = 24 * 60 * 60 * 1000;
+
+        if (now.getTime() - lastShown.getTime() > oneDay) {
+          onOpen();
+          await axios.post(`/api/popups/${popupName}`);
+        }
+      } catch (err) {
+        console.error("Popup tracking failed:", err);
+      }
+    };
+
+    checkAndOpen();
+  }, [session, status, onOpen]);
+
   const content = (
     <VStack spacing={6} align="center" p={isMobile ? 4 : 6}>
-      {/* Close button */}
       <Box w="100%" display="flex">
         <Spacer />
         <IconButton
@@ -72,14 +92,12 @@ export default function PopupWindowOne() {
         />
       </Box>
 
-      {/* Illustration */}
       <Image
-        src="https://kikoff.com/_next/static/media/bill-calendar-1.81a7cb0d.svg"
-        alt="Calendar"
+        src="/mockups/sable-difference/46points.svg"
+        alt="Credit Boost Illustration"
         h="232px"
       />
 
-      {/* Heading */}
       <Text
         as="h3"
         fontSize="2xl"
@@ -93,7 +111,6 @@ export default function PopupWindowOne() {
         positive credit with your utilities
       </Text>
 
-      {/* Feature list */}
       <VStack spacing={4} w="100%" px={6}>
         {features.map(({ icon, text }, i) => (
           <HStack key={i} spacing={4} align="center" w="100%">
@@ -105,14 +122,13 @@ export default function PopupWindowOne() {
         ))}
       </VStack>
 
-      {/* Action */}
       <Button
         colorScheme="green"
         size="lg"
         fontFamily="Inter, sans-serif"
         onClick={() => {
           onClose();
-          // TODO: integrate your Array loan flow
+          // TODO: integrate Array loan flow
         }}
       >
         Get started
@@ -120,20 +136,14 @@ export default function PopupWindowOne() {
     </VStack>
   );
 
-  // Mobile: bottom sheet
-  if (isMobile) {
-    return (
-      <Drawer placement="bottom" onClose={onClose} isOpen={isOpen} size="full">
-        <DrawerOverlay />
-        <DrawerContent borderTopRadius="16px" p={0} maxH="80vh">
-          <DrawerBody p={0}>{content}</DrawerBody>
-        </DrawerContent>
-      </Drawer>
-    );
-  }
-
-  // Desktop: centered modal
-  return (
+  return isMobile ? (
+    <Drawer placement="bottom" onClose={onClose} isOpen={isOpen} size="full">
+      <DrawerOverlay />
+      <DrawerContent borderTopRadius="16px" p={0} maxH="80vh">
+        <DrawerBody p={0}>{content}</DrawerBody>
+      </DrawerContent>
+    </Drawer>
+  ) : (
     <Modal isOpen={isOpen} onClose={onClose} isCentered size="lg">
       <ModalOverlay />
       <ModalContent borderRadius="16px" mx="auto" maxW="600px">
