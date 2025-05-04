@@ -20,7 +20,7 @@ const ACTIONS = [
     subtitle: "Dispute errors in your report that are hurting your score.",
   },
   {
-    href: "/dashboard/offer/credit-builder-savings",
+    href: "/dashboard/creditbuilder", // now points at the folder’s index
     imgSrc: "https://kikoff.com/_next/static/media/rocket.4441a7a4.svg",
     title: "Double your positive payment progress",
     subtitle: "Sign up for Credit Builder Loan",

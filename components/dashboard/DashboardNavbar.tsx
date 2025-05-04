@@ -25,13 +25,13 @@ const NAV_ITEMS = [
   {
     key: "cash",
     label: "Credit Building Loan",
-    href: "/dashboard/cash-card",
+    href: "/dashboard/creditbuilder/index",
     icon: FiCreditCard,
   },
   {
     key: "credit-score",
     label: "Credit Score",
-    href: "/dashboard/credit-score",
+    href: "/dashboard/credit-score/index",
     icon: FiBarChart2,
   },
   {

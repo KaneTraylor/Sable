@@ -1,8 +1,5 @@
-// prisma/schema.prisma
-
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["clientExtensions"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -29,6 +26,36 @@ model User {
   emailVerified     DateTime?
   verificationToken String?
   currentStep       Int       @default(1)
+
+  // dispute cadence tracking
+  lastDisputeSentAt DateTime?
+  nextDisputeAt     DateTime?
+  sentWithSable     Boolean?  @default(false)
+
+  loans    CreditBuilderLoan[] @relation("UserLoans")
+  disputes Dispute[]
+}
+
+model CreditBuilderLoan {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  openedAt DateTime @default(now())
+
+  user User @relation("UserLoans", fields: [userId], references: [id])
+}
+
+model Dispute {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  bureau      String
+  accountName String
+  occurredAt  DateTime
+  reason      String
+  letterBody  String   @default("")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
 
 model Lead {

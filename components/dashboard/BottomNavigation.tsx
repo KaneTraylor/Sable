@@ -23,7 +23,7 @@ const navItems = [
   {
     key: "cash",
     label: "Credit Building Loan",
-    href: "/dashboard/cash-card",
+    href: "/dashboard/creditbuilder",
     icon: FiCreditCard,
   },
   {
