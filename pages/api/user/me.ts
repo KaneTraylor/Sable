@@ -1,8 +1,9 @@
 // pages/api/user/me.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]";
+import authOptions from "../auth/[...nextauth]";
 import { PrismaClient } from "@prisma/client";
+import type { Session } from "next-auth";
 
 const prisma = new PrismaClient();
 
@@ -10,12 +11,13 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const session = await getServerSession(req, res, authOptions);
-  if (!session || !session.user?.email) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
   try {
+    const session = (await getServerSession(req, res, authOptions)) as Session;
+
+    if (!session?.user?.email) {
+      return res.status(401).json({ error: "Unauthorized access" });
+    }
+
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       select: {
@@ -31,8 +33,8 @@ export default async function handler(
     }
 
     return res.status(200).json(user);
-  } catch (err) {
-    console.error("Failed to fetch user", err);
-    return res.status(500).json({ error: "Server error" });
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
