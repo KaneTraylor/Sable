@@ -9,7 +9,7 @@ import {
   Icon,
   Text,
   VStack,
-  useColorModeValue,
+  HStack,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -18,12 +18,12 @@ import {
   ModalFooter,
   IconButton,
   Textarea,
-  HStack,
   Alert,
   AlertIcon,
   AlertTitle,
   AlertDescription,
   CloseButton,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FiX, FiEdit } from "react-icons/fi";
 import { useDisputeStore } from "../../../stores/useDisputeStore";
@@ -78,7 +78,7 @@ export default function DisputePremium() {
     alert("Your progress has been saved. You can finish later.");
   };
 
-  // Whenever the selected disputes change, regenerate three mock letters
+  // Regenerate letters whenever `selected` changes
   useEffect(() => {
     if (selected.length === 0) return;
 
@@ -88,12 +88,10 @@ export default function DisputePremium() {
       day: "2-digit",
     });
 
-    // Build the dispute list body
     const body = selected
       .map((d) => `- ${d.name}\n  Reason: ${d.reason}`)
       .join("\n\n");
 
-    // Generic mock header/footer
     const generate = (bureau: string) =>
       `
 ${today}
@@ -163,7 +161,7 @@ John Q. Public
       </Text>
 
       <VStack spacing={4} align="stretch">
-        {Object.entries(letters).map(([bureau, _]) => (
+        {Object.keys(letters).map((bureau) => (
           <Box
             key={bureau}
             role="button"
@@ -182,20 +180,23 @@ John Q. Public
           </Box>
         ))}
 
-        <Box
+        {/* Now wrapped in a proper Alert */}
+        <Alert
+          status="info"
+          variant="subtle"
           bg={dugoutBg}
           color={dugoutText}
-          p={4}
           borderRadius="16px"
-          display="flex"
           alignItems="flex-start"
+          py={4}
+          px={3}
         >
           <AlertIcon boxSize="24px" mr={2} />
-          <Text fontSize="sm">
+          <AlertDescription fontSize="sm">
             Filing with Sable Premium ensures delivery, but does not guarantee
             dispute outcomes.
-          </Text>
-        </Box>
+          </AlertDescription>
+        </Alert>
 
         <HStack spacing={4} mt={6} justify="space-between">
           <Button variant="outline" onClick={handleSaveForLater}>
