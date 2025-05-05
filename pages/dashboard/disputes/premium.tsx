@@ -25,7 +25,7 @@ import {
   AlertDescription,
   CloseButton,
 } from "@chakra-ui/react";
-import { FiChevronRight, FiInfo, FiX, FiEdit } from "react-icons/fi";
+import { FiX, FiEdit } from "react-icons/fi";
 import { useDisputeStore } from "../../../stores/useDisputeStore";
 
 export default function DisputePremium() {
@@ -41,27 +41,27 @@ export default function DisputePremium() {
     TransUnion: "",
     Experian: "",
   });
-  const [activeLetter, setActiveLetter] = useState<null | string>(null);
+  const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const [showResumePrompt, setShowResumePrompt] = useState(false);
 
+  // Check for saved draft on mount
   useEffect(() => {
-    const saved = localStorage.getItem("savedLetters");
+    const savedLetters = localStorage.getItem("savedLetters");
     const savedDisputes = localStorage.getItem("savedDisputes");
-    if (saved && savedDisputes) {
+    if (savedLetters && savedDisputes) {
       setShowResumePrompt(true);
     }
   }, []);
 
   const handleResume = () => {
-    const saved = localStorage.getItem("savedLetters");
+    const savedLetters = localStorage.getItem("savedLetters");
     const savedDisputes = localStorage.getItem("savedDisputes");
-    if (saved && savedDisputes) {
-      setLetters(JSON.parse(saved));
+    if (savedLetters && savedDisputes) {
+      setLetters(JSON.parse(savedLetters));
       reset();
-      const parsedDisputes = JSON.parse(savedDisputes);
-      for (const dispute of parsedDisputes) {
-        useDisputeStore.getState().addDispute(dispute);
-      }
+      JSON.parse(savedDisputes).forEach((d: any) =>
+        useDisputeStore.getState().addDispute(d)
+      );
     }
     setShowResumePrompt(false);
   };
@@ -78,38 +78,48 @@ export default function DisputePremium() {
     alert("Your progress has been saved. You can finish later.");
   };
 
+  // Whenever the selected disputes change, regenerate three mock letters
   useEffect(() => {
-    if (!selected.length) return;
+    if (selected.length === 0) return;
+
     const today = new Date().toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "2-digit",
     });
-    const body = selected
-      .map((d) => `Inquiry from ${d.name}\n${d.reason}\n`)
-      .join("\n");
-    const generate = (bureau: string) =>
-      `${today}
 
-Kane Michael Traylor 4612 New Garden Avenue
-Portsmouth, OH, 45662
-Date of Birth: 07/29/1998 SSN: 301028285
-${bureau} Information Services
+    // Build the dispute list body
+    const body = selected
+      .map((d) => `- ${d.name}\n  Reason: ${d.reason}`)
+      .join("\n\n");
+
+    // Generic mock header/footer
+    const generate = (bureau: string) =>
+      `
+${today}
+
+John Q. Public  
+1234 Elm Street  
+Anytown, USA 12345  
+DOB: 01/01/1990   SSN: 000-00-0000  
+
+${bureau} Services  
+123 Mockingbird Lane  
+Suite 100  
 
 Dear ${bureau},
 
-I received a copy of my credit report and am writing to dispute the following information that appears on my ${bureau} report.
-
-The following inquiries are unauthorized or inaccurate, and I ask that you delete them:
+I’m writing to dispute the following items on my credit file:
 
 ${body}
 
-By the provisions of the Fair Credit Reporting Act, I demand that these items be investigated and removed from my report. Please remove any information that the creditor cannot verify. I understand that under 15 U.S.C. Sec. 1681i(a), you must complete this reinvestigation within 30 days of receipt of this letter.
-
-Thank you for your time and help in this matter.
+Please reinvestigate these items and remove any information you cannot verify within 30 days as required by the Fair Credit Reporting Act.
 
 Sincerely,
-Kane Michael Traylor`;
+
+John Q. Public
+`.trim();
+
     setLetters({
       Equifax: generate("Equifax"),
       TransUnion: generate("TransUnion"),
@@ -118,13 +128,7 @@ Kane Michael Traylor`;
   }, [selected]);
 
   return (
-    <Box
-      className="page_align_content__d_XFJ"
-      maxW="800px"
-      mx="auto"
-      py={8}
-      px={4}
-    >
+    <Box maxW="800px" mx="auto" py={8} px={4}>
       <Button variant="ghost" mb={4} onClick={() => router.back()}>
         ← Back
       </Button>
@@ -133,10 +137,9 @@ Kane Michael Traylor`;
         <Alert status="info" borderRadius="md" mb={6} alignItems="start">
           <AlertIcon />
           <Box flex="1">
-            <AlertTitle>Resume where you left off?</AlertTitle>
+            <AlertTitle>Resume draft?</AlertTitle>
             <AlertDescription>
-              You have a saved draft of your letters and selected disputes. Do
-              you want to load it?
+              You have a saved draft—load your previous letters & selections?
             </AlertDescription>
           </Box>
           <Button ml={4} colorScheme="green" size="sm" onClick={handleResume}>
@@ -160,7 +163,7 @@ Kane Michael Traylor`;
       </Text>
 
       <VStack spacing={4} align="stretch">
-        {Object.keys(letters).map((bureau) => (
+        {Object.entries(letters).map(([bureau, _]) => (
           <Box
             key={bureau}
             role="button"
@@ -180,21 +183,18 @@ Kane Michael Traylor`;
         ))}
 
         <Box
-          className="mt-4 bg:dugout color-base:dugout Alert_alert__hGgSN Card_card__j4UbT"
-          display="flex"
-          alignItems="flex-start"
+          bg={dugoutBg}
+          color={dugoutText}
           p={4}
           borderRadius="16px"
+          display="flex"
+          alignItems="flex-start"
         >
-          <Text fontSize="xl" mr={4}>
-            
+          <AlertIcon boxSize="24px" mr={2} />
+          <Text fontSize="sm">
+            Filing with Sable Premium ensures delivery, but does not guarantee
+            dispute outcomes.
           </Text>
-          <Box className="Alert_content__FY3m5">
-            <Text fontSize="sm" color="gray.500">
-              Keep in mind, filing a dispute doesn't guarantee that the credit
-              bureaus will change your report.
-            </Text>
-          </Box>
         </Box>
 
         <HStack spacing={4} mt={6} justify="space-between">
@@ -208,23 +208,14 @@ Kane Michael Traylor`;
       </VStack>
 
       <Modal
-        isOpen={!!activeLetter}
+        isOpen={Boolean(activeLetter)}
         onClose={() => setActiveLetter(null)}
         size="full"
         motionPreset="slideInBottom"
       >
         <ModalOverlay />
-        <ModalContent
-          borderTopRadius="16px"
-          mt="auto"
-          pb={4}
-          className="bottom_sheet_bottom-sheet__rUeSx"
-        >
-          <ModalHeader
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-          >
+        <ModalContent borderTopRadius="16px" mt="auto" pb={4}>
+          <ModalHeader display="flex" justifyContent="space-between">
             <Text fontSize="xl">{activeLetter} Letter</Text>
             <IconButton
               icon={<FiX />}
@@ -234,31 +225,20 @@ Kane Michael Traylor`;
             />
           </ModalHeader>
           <ModalBody>
-            <Box
-              bg={bg}
-              p={4}
-              borderRadius="md"
-              boxShadow={`inset 0 0 0 1px ${outline}`}
-            >
-              <Textarea
-                value={activeLetter ? letters[activeLetter] : ""}
-                onChange={(e) =>
-                  setLetters((prev) => ({
-                    ...prev,
-                    [activeLetter!]: e.target.value,
-                  }))
-                }
-                fontFamily="monospace"
-                rows={20}
-              />
-            </Box>
+            <Textarea
+              value={activeLetter ? letters[activeLetter] : ""}
+              onChange={(e) =>
+                setLetters((prev) => ({
+                  ...prev,
+                  [activeLetter!]: e.target.value,
+                }))
+              }
+              fontFamily="monospace"
+              rows={20}
+            />
           </ModalBody>
           <ModalFooter>
-            <Button
-              onClick={() => setActiveLetter(null)}
-              variant="solid"
-              colorScheme="green"
-            >
+            <Button onClick={() => setActiveLetter(null)} colorScheme="green">
               Done Editing
             </Button>
           </ModalFooter>
