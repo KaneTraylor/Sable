@@ -21,11 +21,11 @@ interface Props {
 }
 
 export default function PersonalInfoCard({
-  accountId = "NDCQV4PB",
-  fullName = "Kane Michael Traylor",
-  email = "kanetraylor556@gmail.com",
-  phone = "+1 (606) 585-8676",
-  address = "4612 New Garden Avenue, Portsmouth, OH, 45662",
+  accountId = "NDCQV5BB",
+  fullName = "Rod Doucheman",
+  email = "rod@gmail.com",
+  phone = "+1 (606) 281-9727",
+  address = "1222 New Rose Avenue, Portsmouth, OH, 45662",
   onEditEmail,
   onEditPhone,
   onEditAddress,

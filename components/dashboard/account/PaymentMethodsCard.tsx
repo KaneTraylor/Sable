@@ -34,10 +34,10 @@ type Props = {
 
 export default function PaymentMethodsCard({
   cards = [
-    { id: "1", brand: "Mastercard", last4: "0292", label: "Backup" },
-    { id: "2", brand: "Visa", last4: "9072", label: "Preferred" },
+    { id: "1", brand: "Mastercard", last4: "0432", label: "Backup" },
+    { id: "2", brand: "Visa", last4: "2319", label: "Preferred" },
   ],
-  banks = [{ id: "1", bankName: "U.S. Bank", last4: "1679" }],
+  banks = [{ id: "1", bankName: "U.S. Bank", last4: "1239" }],
   onAddCard,
   onAddBank,
   onRemoveCard,
