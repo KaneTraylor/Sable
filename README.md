@@ -84,8 +84,6 @@ Clone the repo
 
 Run npm install
 
-I honestly pushed .env to the repo on accident so i dont need to post creds here
-
 Run npx prisma migrate dev
 
 Run npm run dev
