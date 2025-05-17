@@ -29,15 +29,25 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/dashboard/disputes.js"
     ],
+    "/dashboard/disputes/center": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/dashboard/disputes/center.js"
+    ],
+    "/dashboard/disputes/confirmation": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/dashboard/disputes/confirmation.js"
+    ],
     "/dashboard/disputes/delivery": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/dashboard/disputes/delivery.js"
     ],
-    "/dashboard/disputes/manual": [
+    "/dashboard/disputes/premium": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/dashboard/disputes/manual.js"
+      "static/chunks/pages/dashboard/disputes/premium.js"
     ],
     "/dashboard/disputes/review": [
       "static/chunks/webpack.js",

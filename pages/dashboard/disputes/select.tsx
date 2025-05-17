@@ -1,339 +1,318 @@
 // pages/dashboard/disputes/select.tsx
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import {
   Box,
+  Container,
   Heading,
   Text,
-  VStack,
+  Image,
+  Accordion,
   Flex,
-  Checkbox,
-  Select as ChakraSelect,
-  Input,
   Button,
   useColorModeValue,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  IconButton,
-  UnorderedList,
-  ListItem,
-  Image as ChakraImage,
 } from "@chakra-ui/react";
-import { FiX } from "react-icons/fi";
+import DisputeCard, {
+  AccountData,
+  DisputeItem,
+  AccountFields,
+} from "@/components/dashboard/disputes/DisputeCard";
 import { useDisputeStore } from "@/stores/useDisputeStore";
+import IntroGraphic from "public/mockups/3b.svg";
 
-// Mock groups for disputes
-const MOCK_GROUPS = [
-  {
-    label: "Inquiries",
-    type: "inquiry",
-    items: [
-      { id: "1", name: "Ems Usbank" },
-      { id: "2", name: "Factual Data" },
-      { id: "3", name: "Citibank NA" },
-    ],
-  },
-  {
-    label: "Credit Accounts",
-    type: "account",
-    items: [
-      { id: "4", name: "SALLIE MAE - Installment" },
-      { id: "5", name: "Visa Platinum - Revolving" },
-      { id: "6", name: "Capital One - Revolving" },
-    ],
-  },
-  {
-    label: "Collections",
-    type: "collection",
-    items: [
-      { id: "7", name: "Portfolio Recov Assoc" },
-      { id: "8", name: "Midland Funding" },
-    ],
-  },
-  {
-    label: "Public Records",
-    type: "public_record",
-    items: [
-      { id: "9", name: "Bankruptcy" },
-      { id: "10", name: "Tax Lien" },
-    ],
-  },
+// --- mock reasons & instructions ---
+const reasonList = [
+  "Wrong account number",
+  "Balance is incorrect",
+  "Account not mine",
 ];
+const instructionList = ["Validate with creditor", "Remove from report"];
 
-// Reason & instruction options per group type
-const reasonOptions: Record<string, string[]> = {
-  inquiry: ["I don't recognize this inquiry", "Incorrect date", "Wrong amount"],
-  account: [
-    "Balance incorrect",
-    "Payment history inaccuracy",
-    "Date opened incorrect",
-  ],
-  collection: [
-    "Debt not mine",
-    "Balance should be $0",
-    "Account already resolved",
-  ],
-  public_record: ["Record not mine", "Record outdated", "Documentation error"],
-};
-const instructionOptions: Record<string, string[]> = {
-  inquiry: ["Remove this inquiry", "Validate with original creditor"],
-  account: ["Update to paid", "Validate balance", "Provide verification"],
-  collection: ["Remove from report", "Validate with debt collector"],
-  public_record: ["Remove record", "Provide certified documentation"],
+// --- three base AccountFields objects (one per category) ---
+const baseCollection: AccountFields = {
+  accountNumber: "1234-XXXX-XXXX-5678",
+  accountType: "Collection",
+  accountTypeDetail: "Medical",
+  accountName: "Hospital Collection",
+  status: "Open",
+  highCredit: "$2,500",
+  balance: "$2,250",
+  monthlyPayment: "$0",
+  creditLimit: "$0",
+  pastDue: "$0",
+  dateOpened: "Jan 10, 2020",
+  dateClosed: "—",
+  terms: "—",
+  paymentStatus: "N/A",
+  lastReportedDate: "Mar 01, 2025",
+  comments: "Sent to collections",
+  paymentFrequency: "N/A",
+  disputeStatus: "None",
+  creditorType: "Medical",
+  description: "Unpaid hospital bill",
+  rating: "—",
+  originalCreditor: "City Hospital",
+  bureauCode: "E",
+  pastDue30Days: "$0",
+  pastDue60Days: "$0",
+  pastDue90Days: "$0",
+  lastVerified: "Feb 15, 2025",
+  responsibility: "Consumer",
+  lastActiveDate: "Mar 01, 2025",
+  lastPaymentDate: "—",
 };
 
-export default function DisputeSelect() {
+const baseInquiry: AccountFields = {
+  accountNumber: "Inquiry #002",
+  accountType: "Inquiry",
+  accountTypeDetail: "Credit Pull",
+  accountName: "SoftBank Inquiry",
+  status: "Closed",
+  highCredit: "$0",
+  balance: "$0",
+  monthlyPayment: "$0",
+  creditLimit: "$0",
+  pastDue: "$0",
+  dateOpened: "Feb 20, 2025",
+  dateClosed: "Feb 20, 2025",
+  terms: "—",
+  paymentStatus: "N/A",
+  lastReportedDate: "Feb 20, 2025",
+  comments: "Soft credit pull",
+  paymentFrequency: "N/A",
+  disputeStatus: "None",
+  creditorType: "Inquiry",
+  description: "Soft inquiry by lender",
+  rating: "—",
+  originalCreditor: "SoftBank",
+  bureauCode: "E",
+  pastDue30Days: "$0",
+  pastDue60Days: "$0",
+  pastDue90Days: "$0",
+  lastVerified: "Feb 20, 2025",
+  responsibility: "Consumer",
+  lastActiveDate: "Feb 20, 2025",
+  lastPaymentDate: "—",
+};
+
+const baseLate: AccountFields = {
+  accountNumber: "9876-XXXX-XXXX-5432",
+  accountType: "Credit Card",
+  accountTypeDetail: "Visa",
+  accountName: "Visa Rewards",
+  status: "Open",
+  highCredit: "$10,000",
+  balance: "$3,200",
+  monthlyPayment: "$100",
+  creditLimit: "$10,000",
+  pastDue: "$200",
+  dateOpened: "Jun 15, 2019",
+  dateClosed: "—",
+  terms: "Revolving",
+  paymentStatus: "30 days late",
+  lastReportedDate: "Mar 01, 2025",
+  comments: "30 days late once",
+  paymentFrequency: "Monthly",
+  disputeStatus: "None",
+  creditorType: "Revolving",
+  description: "Visa credit card",
+  rating: "—",
+  originalCreditor: "Big Bank",
+  bureauCode: "E",
+  pastDue30Days: "$200",
+  pastDue60Days: "$0",
+  pastDue90Days: "$0",
+  lastVerified: "Feb 28, 2025",
+  responsibility: "Consumer",
+  lastActiveDate: "Mar 01, 2025",
+  lastPaymentDate: "Jan 15, 2025",
+};
+
+export default function DisputeSelectPage() {
   const router = useRouter();
-  const bg = useColorModeValue("white", "gray.700");
-  const border = useColorModeValue("gray.200", "gray.600");
+  const bg = useColorModeValue("white", "gray.800");
+  const isPremium = false; // TODO: hook into your user store
+  const totalLimit = 5;
 
-  const { selected, addDispute, removeDispute, updateDispute } =
-    useDisputeStore();
-  const [disputeStyle, setDisputeStyle] = useState("fcra");
-  const [selectedModal, setSelectedModal] = useState<null | {
-    id: string;
-    name: string;
-  }>(null);
-  const onClose = () => setSelectedModal(null);
+  // grab the two store methods we need
+  const { reset, addDispute } = useDisputeStore();
 
-  // Toggle selection
-  const handleToggle = (item: { id: string; name: string }) => {
-    const isSelected = selected.some((i) => i.id === item.id);
-    if (isSelected) removeDispute(item.id);
-    else if (selected.length < 5)
-      addDispute({ ...item, reason: "", instruction: "" });
+  // shape for our mock
+  type ExtendedAccount = AccountData & { category: string };
+
+  // --- 1) our three demo accounts ― one per category
+  const mockAccounts: ExtendedAccount[] = [
+    {
+      id: "acct1",
+      category: "Collections",
+      bureauData: {
+        equifax: baseCollection,
+        experian: baseCollection,
+        transunion: baseCollection,
+      },
+    },
+    {
+      id: "acct2",
+      category: "Inquiries",
+      bureauData: {
+        equifax: baseInquiry,
+        experian: baseInquiry,
+        transunion: baseInquiry,
+      },
+    },
+    {
+      id: "acct3",
+      category: "Late Payments",
+      bureauData: {
+        equifax: baseLate,
+        experian: baseLate,
+        transunion: baseLate,
+      },
+    },
+  ];
+
+  // --- 2) group by category
+  const categories = Array.from(new Set(mockAccounts.map((a) => a.category)));
+  const accountsByCategory: Record<string, ExtendedAccount[]> = {};
+  categories.forEach(
+    (cat) =>
+      (accountsByCategory[cat] = mockAccounts.filter((a) => a.category === cat))
+  );
+
+  // --- 3) local pick‐and‐choose state for reason/instruction
+  const [selections, setSelections] = useState<
+    Record<string, Omit<DisputeItem, "name"> & { name: string }>
+  >({});
+
+  const handleReasonChange = (id: string, reason: string) =>
+    setSelections((prev) => ({
+      ...prev,
+      [id]: {
+        ...(prev[id] ?? {
+          id,
+          name: mockAccounts.find((a) => a.id === id)!.bureauData.equifax
+            .accountName,
+          instruction: "",
+        }),
+        reason,
+      },
+    }));
+
+  const handleInstructionChange = (id: string, instruction: string) =>
+    setSelections((prev) => ({
+      ...prev,
+      [id]: {
+        ...(prev[id] ?? {
+          id,
+          name: mockAccounts.find((a) => a.id === id)!.bureauData.equifax
+            .accountName,
+          reason: "",
+        }),
+        instruction,
+      },
+    }));
+
+  const handleRemove = (id: string) =>
+    setSelections((prev) => {
+      const { [id]: _, ...rest } = prev;
+      return rest;
+    });
+
+  const numDisputes = Object.values(selections).filter(
+    (s) => s.reason && s.instruction
+  ).length;
+
+  // --- 4) when they click “Review”, push into the global store and navigate
+  const handleSubmit = () => {
+    reset();
+    Object.values(selections).forEach((s) => {
+      if (s.reason && s.instruction) {
+        addDispute({
+          id: s.id,
+          name: s.name,
+          reason: s.reason,
+          instruction: s.instruction,
+        });
+      }
+    });
+    router.push("/dashboard/disputes/review");
   };
 
-  const handleNext = () => router.push("/dashboard/disputes/review");
-
   return (
-    <Box minH="100vh" px={{ base: 4, md: 8 }} py={8}>
-      <VStack spacing={6} align="center" w="full" maxW="800px" mx="auto">
-        {/* Illustration */}
-        <ChakraImage
+    <Container maxW="container.lg" py={8} bg={bg}>
+      {/* Intro */}
+      <Flex direction="column" align="center" mb={10}>
+        {" "}
+        <Image
           src="/mockups/3b.svg"
-          alt="Dispute illustration"
-          maxW={{ base: "180px", md: "280px" }}
-          objectFit="contain"
+          alt="Dispute intro graphic"
+          boxSize="120px"
           mb={4}
         />
-
-        {/* Header */}
-        <Heading as="h2" size="2xl" textAlign="center" color="teal.500">
-          Kickoff Your Dispute
+        <Heading as="h1" size="xl" mb={2}>
+          Dispute Your Accounts
         </Heading>
-        <Text fontSize="lg" color="gray.600" textAlign="center">
-          Choose your style, select items, and craft powerful dispute letters.
+        <Text color="gray.600" textAlign="center" maxW="600px">
+          Select which accounts you’d like to dispute and provide a reason +
+          instruction. Free members can dispute up to {totalLimit} accounts;
+          premium members have no limit.
         </Text>
-      </VStack>
+      </Flex>
 
-      {/* Style Selector */}
-      <Box mt={8} mb={6} px={{ base: 4, md: 0 }}>
-        <Flex align="center" justify="space-between">
-          <Text fontSize="md" fontWeight="bold">
-            Dispute Style
-          </Text>
-          <ChakraSelect
-            width="250px"
-            value={disputeStyle}
-            onChange={(e) => setDisputeStyle(e.target.value)}
-          >
-            <option value="fcra">FCRA Standard</option>
-            <option value="metro2">Metro 2 Format</option>
-            <option value="ai">AI Enhanced (ChatGPT)</option>
-          </ChakraSelect>
-        </Flex>
-        <Box
-          bg={useColorModeValue("gray.50", "gray.600")}
-          p={4}
-          borderRadius="md"
-          mt={4}
-        >
-          {disputeStyle === "fcra" && (
-            <Text>
-              <strong>FCRA Standard</strong>: Plain FCRA-compliant letter.
-            </Text>
-          )}
-          {disputeStyle === "metro2" && (
-            <>
-              <Text mb={2}>
-                <strong>Metro 2 Format</strong>: Includes compliance codes.
-              </Text>
-              <UnorderedList spacing={1} ml={4}>
-                <ListItem>
-                  <Text as="code">BS-13</Text> - Months payment history
-                </ListItem>
-                <ListItem>
-                  <Text as="code">BS-40</Text> - Current address
-                </ListItem>
-                <ListItem>
-                  <Text as="code">BS-42</Text> - Previous address
-                </ListItem>
-                <ListItem>
-                  <Text as="code">BS-17</Text> - Account status
-                </ListItem>
-              </UnorderedList>
-            </>
-          )}
-          {disputeStyle === "ai" && (
-            <Text>
-              <strong>AI Enhanced</strong>: Auto-generated reasons &
-              instructions via ChatGPT.
-            </Text>
-          )}
-        </Box>
-      </Box>
+      {/* Per‐category sections */}
+      {categories.map((cat) => (
+        <Box key={cat} mb={8}>
+          <Heading size="md" mb={4}>
+            {cat}
+          </Heading>
+          <Accordion allowMultiple>
+            {accountsByCategory[cat].map((acct) => {
+              const sel = selections[acct.id] ?? {
+                id: acct.id,
+                name: acct.bureauData.equifax.accountName,
+                reason: "",
+                instruction: "",
+              };
+              const alreadySelected = Boolean(sel.reason && sel.instruction);
+              const cardDisabled =
+                !isPremium && numDisputes >= totalLimit && !alreadySelected;
 
-      {/* Item Selection Sections */}
-      <VStack spacing={8} align="stretch" px={{ base: 4, md: 0 }}>
-        {MOCK_GROUPS.map((group) => (
-          <Box key={group.label}>
-            <Flex justify="space-between" align="center" mb={2}>
-              <Text fontSize="2xl" fontWeight="600">
-                {group.label}
-              </Text>
-              <Box
-                bg={useColorModeValue("gray.200", "gray.600")}
-                px={2}
-                py={1}
-                borderRadius="full"
-                fontSize="sm"
-                fontWeight="600"
-              >
-                {
-                  selected.filter((i) => group.items.some((g) => g.id === i.id))
-                    .length
-                }{" "}
-                / 5
-              </Box>
-            </Flex>
-            {group.items.map((item) => {
-              const selectedItem = selected.find((i) => i.id === item.id);
               return (
-                <Box
-                  key={item.id}
-                  bg={bg}
-                  p={4}
-                  borderRadius="md"
-                  border={`1px solid ${border}`}
-                  mb={4}
-                >
-                  <Flex align="flex-start">
-                    <Checkbox
-                      isChecked={!!selectedItem}
-                      mr={4}
-                      onChange={() => handleToggle(item)}
-                    />
-                    <Box flex="1">
-                      <Text fontSize="lg" fontWeight="600">
-                        {item.name}
-                      </Text>
-                      {selectedItem && (
-                        <VStack spacing={2} align="stretch" mt={2}>
-                          {/* Reason selector */}
-                          <ChakraSelect
-                            placeholder={
-                              disputeStyle === "ai"
-                                ? "AI generating reason..."
-                                : "Select a reason"
-                            }
-                            isDisabled={disputeStyle === "ai"}
-                            value={selectedItem.reason}
-                            onChange={(e) =>
-                              updateDispute(item.id, { reason: e.target.value })
-                            }
-                          >
-                            {reasonOptions[group.type].map((opt) => (
-                              <option key={opt} value={opt}>
-                                {opt}
-                              </option>
-                            ))}
-                          </ChakraSelect>
-                          {/* Instruction selector */}
-                          <ChakraSelect
-                            placeholder={
-                              disputeStyle === "ai"
-                                ? "AI generating instruction..."
-                                : "Select an instruction"
-                            }
-                            isDisabled={disputeStyle === "ai"}
-                            value={selectedItem.instruction}
-                            onChange={(e) =>
-                              updateDispute(item.id, {
-                                instruction: e.target.value,
-                              })
-                            }
-                          >
-                            {instructionOptions[group.type].map((opt) => (
-                              <option key={opt} value={opt}>
-                                {opt}
-                              </option>
-                            ))}
-                          </ChakraSelect>
-                        </VStack>
-                      )}
-                    </Box>
-                    {selectedItem && (
-                      <IconButton
-                        aria-label="See details"
-                        icon={<FiX />}
-                        variant="ghost"
-                        onClick={() => setSelectedModal(item)}
-                      />
-                    )}
-                  </Flex>
-                </Box>
+                <DisputeCard
+                  key={acct.id}
+                  style="fcra" // satisfy the required prop
+                  onToggle={() => {}} // stub—no internal toggle logic
+                  item={{
+                    id: acct.id,
+                    name: acct.bureauData.equifax.accountName,
+                  }}
+                  sel={sel}
+                  disabled={cardDisabled}
+                  reasonList={reasonList}
+                  instructionList={instructionList}
+                  onReasonChange={(v) => handleReasonChange(acct.id, v)}
+                  onInstructionChange={(v) =>
+                    handleInstructionChange(acct.id, v)
+                  }
+                  onRemove={() => handleRemove(acct.id)}
+                  accountData={acct}
+                />
               );
             })}
-          </Box>
-        ))}
-        <Button
-          colorScheme="green"
-          onClick={handleNext}
-          isDisabled={selected.length === 0}
-        >
-          Next: Review & Send
-        </Button>
-      </VStack>
+          </Accordion>
+        </Box>
+      ))}
 
-      {/* Detail Modal */}
-      <Modal
-        isOpen={!!selectedModal}
-        onClose={onClose}
-        size="lg"
-        motionPreset="slideInBottom"
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Text fontSize="xl">{selectedModal?.name}</Text>
-            <IconButton
-              aria-label="Close"
-              icon={<FiX />}
-              variant="ghost"
-              onClick={onClose}
-            />
-          </ModalHeader>
-          <ModalBody>
-            <Text fontSize="sm" color="gray.500">
-              Item Details (coming soon)
-            </Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="outline" mr={3} onClick={onClose}>
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </Box>
+      {/* Review button */}
+      <Flex justify="flex-end" mt={6}>
+        <Button
+          colorScheme="blue"
+          onClick={handleSubmit}
+          isDisabled={numDisputes === 0}
+        >
+          Review Disputes ({numDisputes})
+        </Button>
+      </Flex>
+    </Container>
   );
 }

@@ -6,6 +6,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Text,
   Textarea,
   Button,
   Tabs,
@@ -15,14 +16,24 @@ import {
   TabPanel,
   useColorModeValue,
   VStack,
+  RadioGroup,
+  Radio,
+  Stack,
 } from "@chakra-ui/react";
 import { useDisputeStore } from "@/stores/useDisputeStore";
+
+type StyleKey = "fcra" | "metro2" | "ai";
 
 export default function DisputeReview() {
   const router = useRouter();
   const bg = useColorModeValue("white", "gray.700");
   const { selected } = useDisputeStore();
-  const [letters, setLetters] = useState<{ [bureau: string]: string }>({
+
+  // 1) add local state for style
+  const [style, setStyle] = useState<StyleKey>("fcra");
+
+  // 2) letters per‐bureau
+  const [letters, setLetters] = useState<Record<string, string>>({
     Equifax: "",
     TransUnion: "",
     Experian: "",
@@ -35,28 +46,34 @@ export default function DisputeReview() {
       day: "2-digit",
     });
 
-    const userDetails = selected.map((d) => `${d.name}`).join("\n");
+    // one‐line for each account
+    const userDetails = selected.map((d) => `- ${d.name}`).join("\n");
+    // the body with reasons/instructions
     const letterBody = selected
       .map(
         (d) =>
-          `- ${d.name}\n  Reason: ${d.reason || "N/A"}\n  Instruction: ${
+          `  • ${d.name}\n    Reason: ${d.reason || "N/A"}\n    Instruction: ${
             d.instruction || "N/A"
           }\n`
       )
       .join("\n");
 
-    const buildLetter = (bureau: string) =>
-      `${today}
+    // choose a different header based on style
+    const styleHeader = {
+      fcra: `Pursuant to the Fair Credit Reporting Act (15 U.S.C. § 1681 et seq.), I am writing to dispute the following item(s) on my credit report:`,
+      metro2: `Per Metro‐2 dispute specifications, please reinvestigate the following item(s) on my credit report:`,
+      ai: `With assistance from my AI credit advocate, I request a reinvestigation of the following item(s):`,
+    }[style];
 
-${userDetails}
+    const buildLetter = (bureau: string) => `
+${today}
 
-Dear ${bureau},
+To: ${bureau} Credit Bureau
 
-I received a copy of my credit report and am writing to dispute the following items:
+${styleHeader}
 
 ${letterBody}
-
-Please reinvestigate these items and let me know within 30 days.
+Please complete your reinvestigation within the timeframes required by law.
 
 Sincerely,
 [Your Name]
@@ -67,10 +84,10 @@ Sincerely,
       TransUnion: buildLetter("TransUnion"),
       Experian: buildLetter("Experian"),
     });
-  }, [selected]);
+  }, [selected, style]);
 
   const handleSend = () => {
-    // TODO: POST letters to your API
+    // TODO: POST letters + style to your API
     router.push("/dashboard/disputes/delivery");
   };
 
@@ -78,9 +95,22 @@ Sincerely,
     <Box maxW="800px" mx="auto" py={8} px={4}>
       <VStack spacing={6} align="stretch">
         <Heading as="h3" size="lg">
-          Review your dispute letter
+          Review your dispute letters
         </Heading>
 
+        {/* style selector */}
+        <Box>
+          <Text mb={2}>Choose dispute style:</Text>
+          <RadioGroup onChange={(v) => setStyle(v as StyleKey)} value={style}>
+            <Stack direction="row" spacing={6}>
+              <Radio value="fcra">FCRA (factual)</Radio>
+              <Radio value="metro2">Metro-2</Radio>
+              <Radio value="ai">AI-assisted</Radio>
+            </Stack>
+          </RadioGroup>
+        </Box>
+
+        {/* per‐bureau tabs */}
         <Tabs isFitted variant="enclosed">
           <TabList mb="1em">
             {Object.keys(letters).map((bureau) => (
@@ -116,12 +146,13 @@ Sincerely,
           </TabPanels>
         </Tabs>
 
+        {/* actions */}
         <HStack justify="space-between" pt={4}>
           <Button variant="outline" onClick={() => router.back()}>
             Back
           </Button>
           <Button colorScheme="green" onClick={handleSend}>
-            Send Letter
+            Send Letters
           </Button>
         </HStack>
       </VStack>
