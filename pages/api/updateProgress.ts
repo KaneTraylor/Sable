@@ -33,7 +33,7 @@ export default async function handler(
       user: updatedUser,
     });
   } catch (error) {
-    console.error("❌ Update progress error:", error);
+    console.error("Update progress error:", error);
     return res.status(500).json({ error: "Failed to update progress" });
   }
 }

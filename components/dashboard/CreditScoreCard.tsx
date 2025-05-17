@@ -1,5 +1,4 @@
-// components/dashboard/CreditScoreCard.tsx
-import React, { useState, useMemo } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import {
   Box,
   Flex,
@@ -10,11 +9,12 @@ import {
   IconButton,
   useBreakpointValue,
   useColorModeValue,
+  Spinner,
 } from "@chakra-ui/react";
 import { InfoIcon } from "@chakra-ui/icons";
 import { FaRegCalendarAlt } from "react-icons/fa";
 
-// Mock data for three bureaus – replace with your real data source
+// Mock data — replace with API call or DB sync
 const bureauData = {
   Experian: { score: 739, delta: 54, updated: "May 3", next: "May 10" },
   TransUnion: { score: 688, delta: -5, updated: "May 2", next: "May 9" },
@@ -35,10 +35,57 @@ export default function CreditScoreCard() {
     return "Poor";
   }, [score]);
 
-  // Colors
   const outline = useColorModeValue("gray.200", "gray.600");
   const divider = useColorModeValue("white", "gray.800");
   const brandGreen = "#37a169";
+
+  // Array widget logic
+  const widgetRef = useRef<HTMLDivElement>(null);
+  const [userToken, setUserToken] = useState<string | null>(null);
+  const [loadingToken, setLoadingToken] = useState(true);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const res = await fetch("/api/array/getWidget");
+        const data = await res.json();
+        setUserToken(data.userToken);
+      } catch (err) {
+        console.error("Failed to fetch Array userToken", err);
+      } finally {
+        setLoadingToken(false);
+      }
+    };
+    fetchToken();
+  }, []);
+
+  useEffect(() => {
+    if (!userToken || !widgetRef.current) return;
+
+    const loadScript = (src: string) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.async = true;
+      document.body.appendChild(script);
+      return script;
+    };
+
+    loadScript(
+      "https://embed.array.io/cms/array-web-component.js?appKey=3F03D20E-5311-43D8-8A76-E4B5D77793BD"
+    );
+    loadScript(
+      "https://embed.array.io/cms/array-credit-score.js?appKey=3F03D20E-5311-43D8-8A76-E4B5D77793BD"
+    );
+
+    widgetRef.current.innerHTML = `
+      <array-credit-score
+        appKey="3F03D20E-5311-43D8-8A76-E4B5D77793BD"
+        userToken="${userToken}"
+        apiUrl="https://sandbox.array.io"
+        sandbox="true"
+      ></array-credit-score>
+    `;
+  }, [userToken]);
 
   return (
     <Box
@@ -117,7 +164,7 @@ export default function CreditScoreCard() {
         Updated {updated} | Next check {next}
       </Text>
 
-      {/* 4) Segmented Progress Bar with Fill */}
+      {/* 4) Score Progress Bar */}
       <Box
         position="relative"
         w="full"
@@ -126,7 +173,6 @@ export default function CreditScoreCard() {
         borderRadius="8px"
         mb={4}
       >
-        {/* Fill track */}
         <Box
           position="absolute"
           top="0"
@@ -137,13 +183,11 @@ export default function CreditScoreCard() {
           borderRadius="8px 0 0 8px"
           transition="width 0.8s ease-in-out"
         />
-        {/* Dividers */}
         <Flex h="100%" justify="space-between">
           {[...Array(4)].map((_, i) => (
             <Box key={i} w="2px" h="100%" bg={divider} />
           ))}
         </Flex>
-        {/* Indicator circle */}
         <Box
           position="absolute"
           top="50%"
@@ -158,7 +202,7 @@ export default function CreditScoreCard() {
         />
       </Box>
 
-      {/* 5) Rating Label + VantageScore Info */}
+      {/* 5) Rating Label */}
       <Flex justify="space-between" align="center" mb={4}>
         <Text
           fontSize="xs"
@@ -187,7 +231,7 @@ export default function CreditScoreCard() {
         </Flex>
       </Flex>
 
-      {/* 6) Start Growth Button */}
+      {/* 6) Growth Button */}
       <Button
         w="full"
         size="lg"
@@ -198,6 +242,23 @@ export default function CreditScoreCard() {
       >
         Start Growth
       </Button>
+
+      {/* 7) Array Score Widget */}
+      <Box mt={6}>
+        <Heading
+          fontSize="sm"
+          mb={2}
+          color="gray.600"
+          fontFamily="Inter, sans-serif"
+        >
+          From Array (Live Score after implementation.)
+        </Heading>
+        {loadingToken ? (
+          <Spinner size="md" />
+        ) : (
+          <Box ref={widgetRef} minH="300px" />
+        )}
+      </Box>
     </Box>
   );
 }

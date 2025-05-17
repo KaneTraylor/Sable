@@ -19,21 +19,71 @@ import {
   ModalBody,
   ModalFooter,
   IconButton,
+  UnorderedList,
+  ListItem,
+  Image as ChakraImage,
 } from "@chakra-ui/react";
 import { FiX } from "react-icons/fi";
 import { useDisputeStore } from "@/stores/useDisputeStore";
 
-const MOCK_GROUP = {
-  label: "Inquiries",
-  count: 6,
-  items: [
-    { id: "1", name: "Ems Usbank" },
-    { id: "3", name: "Factual Data" },
-    { id: "5", name: "Factual Data" },
-    { id: "7", name: "Usbank" },
-    { id: "9", name: "Usbank" },
-    { id: "11", name: "Xactus" },
+// Mock groups for disputes
+const MOCK_GROUPS = [
+  {
+    label: "Inquiries",
+    type: "inquiry",
+    items: [
+      { id: "1", name: "Ems Usbank" },
+      { id: "2", name: "Factual Data" },
+      { id: "3", name: "Citibank NA" },
+    ],
+  },
+  {
+    label: "Credit Accounts",
+    type: "account",
+    items: [
+      { id: "4", name: "SALLIE MAE - Installment" },
+      { id: "5", name: "Visa Platinum - Revolving" },
+      { id: "6", name: "Capital One - Revolving" },
+    ],
+  },
+  {
+    label: "Collections",
+    type: "collection",
+    items: [
+      { id: "7", name: "Portfolio Recov Assoc" },
+      { id: "8", name: "Midland Funding" },
+    ],
+  },
+  {
+    label: "Public Records",
+    type: "public_record",
+    items: [
+      { id: "9", name: "Bankruptcy" },
+      { id: "10", name: "Tax Lien" },
+    ],
+  },
+];
+
+// Reason & instruction options per group type
+const reasonOptions: Record<string, string[]> = {
+  inquiry: ["I don't recognize this inquiry", "Incorrect date", "Wrong amount"],
+  account: [
+    "Balance incorrect",
+    "Payment history inaccuracy",
+    "Date opened incorrect",
   ],
+  collection: [
+    "Debt not mine",
+    "Balance should be $0",
+    "Account already resolved",
+  ],
+  public_record: ["Record not mine", "Record outdated", "Documentation error"],
+};
+const instructionOptions: Record<string, string[]> = {
+  inquiry: ["Remove this inquiry", "Validate with original creditor"],
+  account: ["Update to paid", "Validate balance", "Provide verification"],
+  collection: ["Remove from report", "Validate with debt collector"],
+  public_record: ["Remove record", "Provide certified documentation"],
 };
 
 export default function DisputeSelect() {
@@ -43,41 +93,108 @@ export default function DisputeSelect() {
 
   const { selected, addDispute, removeDispute, updateDispute } =
     useDisputeStore();
-
+  const [disputeStyle, setDisputeStyle] = useState("fcra");
   const [selectedModal, setSelectedModal] = useState<null | {
     id: string;
     name: string;
   }>(null);
   const onClose = () => setSelectedModal(null);
 
+  // Toggle selection
   const handleToggle = (item: { id: string; name: string }) => {
     const isSelected = selected.some((i) => i.id === item.id);
-    if (isSelected) {
-      removeDispute(item.id);
-    } else {
-      if (selected.length >= 5) return;
+    if (isSelected) removeDispute(item.id);
+    else if (selected.length < 5)
       addDispute({ ...item, reason: "", instruction: "" });
-    }
   };
 
   const handleNext = () => router.push("/dashboard/disputes/review");
 
   return (
     <Box minH="100vh" px={{ base: 4, md: 8 }} py={8}>
-      <VStack spacing={8} align="stretch" w="full" maxW="800px" mx="auto">
-        <Heading as="h3" size="lg">
-          Start dispute
-        </Heading>
-        <Text>
-          Select up to 5 items per month and send the dispute letter for free
-          with Premium.
-        </Text>
+      <VStack spacing={6} align="center" w="full" maxW="800px" mx="auto">
+        {/* Illustration */}
+        <ChakraImage
+          src="/mockups/3b.svg"
+          alt="Dispute illustration"
+          maxW={{ base: "180px", md: "280px" }}
+          objectFit="contain"
+          mb={4}
+        />
 
-        <Box w="full">
-          <VStack spacing={6} w="full">
-            <Flex justify="space-between" align="center">
+        {/* Header */}
+        <Heading as="h2" size="2xl" textAlign="center" color="teal.500">
+          Kickoff Your Dispute
+        </Heading>
+        <Text fontSize="lg" color="gray.600" textAlign="center">
+          Choose your style, select items, and craft powerful dispute letters.
+        </Text>
+      </VStack>
+
+      {/* Style Selector */}
+      <Box mt={8} mb={6} px={{ base: 4, md: 0 }}>
+        <Flex align="center" justify="space-between">
+          <Text fontSize="md" fontWeight="bold">
+            Dispute Style
+          </Text>
+          <ChakraSelect
+            width="250px"
+            value={disputeStyle}
+            onChange={(e) => setDisputeStyle(e.target.value)}
+          >
+            <option value="fcra">FCRA Standard</option>
+            <option value="metro2">Metro 2 Format</option>
+            <option value="ai">AI Enhanced (ChatGPT)</option>
+          </ChakraSelect>
+        </Flex>
+        <Box
+          bg={useColorModeValue("gray.50", "gray.600")}
+          p={4}
+          borderRadius="md"
+          mt={4}
+        >
+          {disputeStyle === "fcra" && (
+            <Text>
+              <strong>FCRA Standard</strong>: Plain FCRA-compliant letter.
+            </Text>
+          )}
+          {disputeStyle === "metro2" && (
+            <>
+              <Text mb={2}>
+                <strong>Metro 2 Format</strong>: Includes compliance codes.
+              </Text>
+              <UnorderedList spacing={1} ml={4}>
+                <ListItem>
+                  <Text as="code">BS-13</Text> - Months payment history
+                </ListItem>
+                <ListItem>
+                  <Text as="code">BS-40</Text> - Current address
+                </ListItem>
+                <ListItem>
+                  <Text as="code">BS-42</Text> - Previous address
+                </ListItem>
+                <ListItem>
+                  <Text as="code">BS-17</Text> - Account status
+                </ListItem>
+              </UnorderedList>
+            </>
+          )}
+          {disputeStyle === "ai" && (
+            <Text>
+              <strong>AI Enhanced</strong>: Auto-generated reasons &
+              instructions via ChatGPT.
+            </Text>
+          )}
+        </Box>
+      </Box>
+
+      {/* Item Selection Sections */}
+      <VStack spacing={8} align="stretch" px={{ base: 4, md: 0 }}>
+        {MOCK_GROUPS.map((group) => (
+          <Box key={group.label}>
+            <Flex justify="space-between" align="center" mb={2}>
               <Text fontSize="2xl" fontWeight="600">
-                {MOCK_GROUP.label}
+                {group.label}
               </Text>
               <Box
                 bg={useColorModeValue("gray.200", "gray.600")}
@@ -87,111 +204,103 @@ export default function DisputeSelect() {
                 fontSize="sm"
                 fontWeight="600"
               >
-                {selected.length} / 5
+                {
+                  selected.filter((i) => group.items.some((g) => g.id === i.id))
+                    .length
+                }{" "}
+                / 5
               </Box>
             </Flex>
-
-            {MOCK_GROUP.items.map((item) => {
+            {group.items.map((item) => {
               const selectedItem = selected.find((i) => i.id === item.id);
               return (
                 <Box
                   key={item.id}
-                  w="full"
                   bg={bg}
-                  p={6}
-                  borderRadius="20px"
+                  p={4}
+                  borderRadius="md"
                   border={`1px solid ${border}`}
-                  boxShadow="0 4px 12px rgba(0,0,0,0.1)"
+                  mb={4}
                 >
                   <Flex align="flex-start">
                     <Checkbox
-                      id={`appId-${item.id}`}
-                      mr={4}
                       isChecked={!!selectedItem}
+                      mr={4}
                       onChange={() => handleToggle(item)}
                     />
                     <Box flex="1">
-                      <Text fontSize="xl" fontWeight="600">
+                      <Text fontSize="lg" fontWeight="600">
                         {item.name}
                       </Text>
-
                       {selectedItem && (
-                        <>
+                        <VStack spacing={2} align="stretch" mt={2}>
+                          {/* Reason selector */}
                           <ChakraSelect
-                            mt={2}
-                            value={selectedItem.reason || ""}
-                            placeholder="Select a reason or type your own"
-                            onChange={(e) =>
-                              updateDispute(item.id, { reason: e.target.value })
+                            placeholder={
+                              disputeStyle === "ai"
+                                ? "AI generating reason..."
+                                : "Select a reason"
                             }
-                          >
-                            <option>I don't recognize this inquiry</option>
-                            <option>Incorrect date</option>
-                            <option>Wrong amount</option>
-                          </ChakraSelect>
-
-                          <Input
-                            mt={2}
-                            placeholder="Or type a custom reason"
+                            isDisabled={disputeStyle === "ai"}
                             value={selectedItem.reason}
                             onChange={(e) =>
                               updateDispute(item.id, { reason: e.target.value })
                             }
-                          />
-
-                          <ChakraSelect
-                            mt={2}
-                            value={selectedItem.instruction || ""}
-                            placeholder="Select an instruction or type your own"
-                            onChange={(e) =>
-                              updateDispute(item.id, {
-                                instruction: e.target.value,
-                              })
-                            }
                           >
-                            <option>Remove this account</option>
-                            <option>Update to paid</option>
-                            <option>Validate with original creditor</option>
+                            {reasonOptions[group.type].map((opt) => (
+                              <option key={opt} value={opt}>
+                                {opt}
+                              </option>
+                            ))}
                           </ChakraSelect>
-
-                          <Input
-                            mt={2}
-                            placeholder="Or type custom instruction"
+                          {/* Instruction selector */}
+                          <ChakraSelect
+                            placeholder={
+                              disputeStyle === "ai"
+                                ? "AI generating instruction..."
+                                : "Select an instruction"
+                            }
+                            isDisabled={disputeStyle === "ai"}
                             value={selectedItem.instruction}
                             onChange={(e) =>
                               updateDispute(item.id, {
                                 instruction: e.target.value,
                               })
                             }
-                          />
-                        </>
+                          >
+                            {instructionOptions[group.type].map((opt) => (
+                              <option key={opt} value={opt}>
+                                {opt}
+                              </option>
+                            ))}
+                          </ChakraSelect>
+                        </VStack>
                       )}
-
-                      <Text
-                        mt={2}
-                        color="blue.500"
-                        cursor="pointer"
-                        onClick={() => setSelectedModal(item)}
-                      >
-                        See details
-                      </Text>
                     </Box>
+                    {selectedItem && (
+                      <IconButton
+                        aria-label="See details"
+                        icon={<FiX />}
+                        variant="ghost"
+                        onClick={() => setSelectedModal(item)}
+                      />
+                    )}
                   </Flex>
                 </Box>
               );
             })}
-          </VStack>
-        </Box>
-
+          </Box>
+        ))}
         <Button
           colorScheme="green"
           onClick={handleNext}
           isDisabled={selected.length === 0}
         >
-          Next: Review & Send
+          Next: Review & Send
         </Button>
       </VStack>
 
+      {/* Detail Modal */}
       <Modal
         isOpen={!!selectedModal}
         onClose={onClose}
@@ -199,61 +308,25 @@ export default function DisputeSelect() {
         motionPreset="slideInBottom"
       >
         <ModalOverlay />
-        <ModalContent borderTopRadius="16px" mt="auto" pb={4}>
+        <ModalContent>
           <ModalHeader
             display="flex"
-            alignItems="center"
             justifyContent="space-between"
+            alignItems="center"
           >
-            <Text fontSize="2xl">{selectedModal?.name}</Text>
+            <Text fontSize="xl">{selectedModal?.name}</Text>
             <IconButton
               aria-label="Close"
               icon={<FiX />}
-              onClick={onClose}
               variant="ghost"
+              onClick={onClose}
             />
           </ModalHeader>
-
           <ModalBody>
             <Text fontSize="sm" color="gray.500">
-              Inquiry details
+              Item Details (coming soon)
             </Text>
-
-            <Box
-              mt={4}
-              p={4}
-              bg={useColorModeValue("gray.50", "gray.600")}
-              borderRadius="md"
-            >
-              <Heading as="h5" size="sm">
-                Account details
-              </Heading>
-              <VStack align="stretch" mt={2} spacing={3}>
-                <Flex justify="space-between">
-                  <Text>Name</Text>
-                  <Text fontWeight="bold">{selectedModal?.name}</Text>
-                </Flex>
-                <Flex justify="space-between">
-                  <Text>Date of inquiry</Text>
-                  <Text fontWeight="bold">Aug 24, 2023</Text>
-                </Flex>
-              </VStack>
-            </Box>
-
-            <Box mt={6}>
-              <Heading as="h5" size="sm">
-                Sample Reason
-              </Heading>
-              <Text mt={2} fontWeight="600">
-                I don't recognize this inquiry
-              </Text>
-              <Text mt={1} fontSize="sm" color="gray.500">
-                I don’t recognize this lender and I don’t remember authorizing
-                them to perform a hard inquiry on my credit report.
-              </Text>
-            </Box>
           </ModalBody>
-
           <ModalFooter>
             <Button variant="outline" mr={3} onClick={onClose}>
               Close

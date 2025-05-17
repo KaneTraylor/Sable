@@ -1,151 +1,134 @@
 // components/signup/SignupStep3.tsx
 
-import React from "react";
 import {
-  Container,
   Box,
+  Button,
   Heading,
+  HStack,
+  Grid,
+  Stack,
   Text,
   VStack,
-  Button,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { CheckIcon } from "@chakra-ui/icons";
 
-interface SignupStep3Props {
-  selectedPlan: string;
-  onPlanSelect: (plan: string) => void;
-  onNext: () => void;
-  onBack: () => void;
-}
-
 const plans = [
   {
-    key: "protect",
-    title: "SmartCredit Protect",
-    price: "$24.95/mo",
-    description:
-      "Monthly 3-bureau reports & scores, $1M identity theft insurance, credit monitoring & alerts, 2 single-bureau updates/mo.",
+    title: "Free Plan",
+    price: "$0/mo",
+    features: [
+      "DIY Credit Disputing",
+      "Basic Letter Templates",
+      "Access to Offers Engine",
+      "Credit Builder Loan (optional)",
+      "Credit Monitoring (optional)",
+    ],
+    cta: "Get Started Free",
+    variant: "outline",
   },
   {
-    key: "build",
-    title: "SmartCredit Build",
-    price: "$29.95/mo",
-    description:
-      "All Protect benefits, plus unlimited single-bureau report updates.",
+    title: "Sable Premium",
+    price: "$39/mo",
+    featured: true,
+    features: [
+      "Guided Dispute Preparation & Mailing",
+      "Enhanced Letter Templates with Insights",
+      "Dispute Status Tracker",
+      "Monthly Progress Reports",
+      "Priority Dispute Review Queue",
+      "In-App Support from Credit Growth Team",
+      "Credit Monitoring (included)",
+      "Access to Offers Engine",
+    ],
+    cta: "Start with Premium",
+    variant: "solid",
   },
 ];
 
-export default function SignupStep3({
-  selectedPlan,
-  onPlanSelect,
-  onNext,
-  onBack,
-}: SignupStep3Props) {
+export interface SignupStep3Props {
+  onNext: (step: number, data?: Partial<any>) => void;
+  onBack: () => void;
+}
+
+export default function SignupStep3({ onNext, onBack }: SignupStep3Props) {
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   return (
-    <Container maxW={{ base: "full", md: "lg" }} mx="auto" px={4} py={0}>
-      {/* Header */}
-      <Box textAlign="center" mb={6} pt={4}>
-        <Heading
-          as="h3"
-          fontFamily="Franklin Gothic, sans-serif"
-          fontWeight="400"
-          fontSize="2xl"
-          color="green.500"
-          mb={1}
-        >
-          Choose your plan
+    <Box w="100%" py={16} px={{ base: 4, md: 16 }} bg="white">
+      <VStack spacing={8} textAlign="center" mb={12} maxW="7xl" mx="auto">
+        <Heading size="xl" color="green.600">
+          Choose Your Plan
         </Heading>
-        <Text fontFamily="Inter, sans-serif" fontSize="md" color="gray.800">
-          Select a SmartCredit option to connect your 3-bureau credit report.
+        <Text fontSize="md" color="gray.600" maxW="2xl">
+          Get started with DIY tools or upgrade to Sable Premium to access
+          guided dispute mailing, progress tracking, and full support.
         </Text>
-      </Box>
-
-      {/* Plan cards */}
-      <VStack spacing={6}>
-        {plans.map(({ key, title, price, description }) => {
-          const selected = selectedPlan === key;
-          return (
-            <Box
-              key={key}
-              w="full"
-              rounded="2xl"
-              border="2px solid"
-              borderColor={selected ? "green.500" : "gray.200"}
-              px={6}
-              py={6}
-              position="relative"
-              cursor="pointer"
-              onClick={() => onPlanSelect(key)}
-              _hover={{
-                borderColor: "green.500",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-              }}
-              transition="all 0.2s"
-            >
-              {selected && (
-                <Box
-                  position="absolute"
-                  top={-2}
-                  right={-2}
-                  bg="green.200"
-                  rounded="full"
-                  p={1}
-                  zIndex={1}
-                >
-                  <CheckIcon color="green.600" w={4} h={4} />
-                </Box>
-              )}
-
-              <Heading
-                as="h4"
-                fontFamily="Franklin Gothic, sans-serif"
-                fontWeight="bold"
-                fontSize="xl"
-                color="gray.800"
-                mb={2}
-              >
-                {title} — {price}
-              </Heading>
-              <Text
-                fontFamily="Inter, sans-serif"
-                fontSize="sm"
-                color="gray.600"
-                lineHeight="1.5"
-              >
-                {description}
-              </Text>
-            </Box>
-          );
-        })}
       </VStack>
 
-      {/* Navigation */}
-      <VStack spacing={3} mt={8} w="full">
-        <Button
-          variant="outline"
-          colorScheme="gray"
-          w="full"
-          size="lg"
-          onClick={onBack}
-        >
+      <Grid
+        templateColumns={{
+          base: "1fr",
+          md: "repeat(2, 1fr)",
+          lg: "repeat(2, 1fr)",
+        }}
+        gap={10}
+        maxW="7xl"
+        mx="auto"
+      >
+        {plans.map((plan) => (
+          <Box
+            key={plan.title}
+            bg={plan.featured ? "white" : "gray.50"}
+            borderRadius="xl"
+            boxShadow={plan.featured ? "xl" : "base"}
+            border={plan.featured ? "2px solid #38A169" : "1px solid #E2E8F0"}
+            p={10}
+            transition="all 0.3s"
+            _hover={{ transform: "scale(1.01)", boxShadow: "xl" }}
+            w="100%"
+          >
+            <VStack spacing={5} align="start">
+              <Text fontSize="xl" fontWeight="bold" color="gray.700">
+                {plan.title}
+              </Text>
+              <Text fontSize="2xl" fontWeight="extrabold" color="green.500">
+                {plan.price}
+              </Text>
+              <VStack align="start" spacing={3} pt={2} w="full">
+                {plan.features.map((feature) => (
+                  <HStack key={feature} align="start">
+                    <CheckIcon color="green.400" boxSize={4} mt={1} />
+                    <Text fontSize="sm" color="gray.600">
+                      {feature}
+                    </Text>
+                  </HStack>
+                ))}
+              </VStack>
+              <Button
+                colorScheme="green"
+                variant={plan.variant}
+                size="lg"
+                mt={6}
+                onClick={() =>
+                  onNext(4, {
+                    plan: plan.title === "Free Plan" ? null : "premium",
+                  })
+                }
+                w="full"
+              >
+                {plan.cta}
+              </Button>
+            </VStack>
+          </Box>
+        ))}
+      </Grid>
+
+      <VStack pt={12}>
+        <Button variant="ghost" onClick={onBack}>
           Back
         </Button>
-        <Button
-          bg="green.500"
-          color="white"
-          _hover={{ bg: "green.700" }}
-          rounded="lg"
-          w="full"
-          size="lg"
-          onClick={onNext}
-          isDisabled={!selectedPlan}
-        >
-          Continue
-        </Button>
       </VStack>
-    </Container>
+    </Box>
   );
 }

@@ -1,5 +1,3 @@
-// components/signup/SignupForm.tsx
-
 import React, { useState, useEffect } from "react";
 import { Box, Flex, Center, Spinner, VStack, Image } from "@chakra-ui/react";
 import { useRouter } from "next/router";
@@ -8,9 +6,11 @@ import { signIn } from "next-auth/react";
 import SignupStep1 from "./SignupStep1";
 import SignupStep2 from "./SignupStep2";
 import SignupStep3 from "./SignupStep3";
-import SignupStep4 from "./SignupStep4";
+import SignupStep4 from "./SignupStep4"; // pricing table
+import SignupStep5 from "./SignupStep5"; // array widgets
+import SignupStep6 from "./SignupStep6"; // welcome screen
 
-interface FormData {
+export interface FormData {
   email: string;
   password: string;
   firstName: string;
@@ -50,7 +50,6 @@ export default function SignupForm() {
   const [formData, setFormData] = useState<FormData>(emptyFormData);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  // Prefill email from query param
   useEffect(() => {
     if (typeof emailQuery === "string" && emailQuery) {
       setFormData((prev) => ({ ...prev, email: emailQuery }));
@@ -67,7 +66,7 @@ export default function SignupForm() {
     }
     setStep(newStep);
   };
-  const nextStep = () => setStep((s) => Math.min(4, s + 1));
+  const nextStep = () => setStep((s) => Math.min(6, s + 1));
   const prevStep = () => setStep((s) => Math.max(1, s - 1));
 
   const handleSubmit = async () => {
@@ -80,14 +79,12 @@ export default function SignupForm() {
       });
       if (!res.ok) throw new Error(await res.text());
 
-      // Force a full-signin redirect so the session cookie is set
       await signIn("credentials", {
         redirect: true,
         callbackUrl: `${window.location.origin}/dashboard`,
         email: formData.email,
         password: formData.password,
       });
-      // no router.push here
     } catch (err) {
       console.error("Signup error:", err);
     } finally {
@@ -106,32 +103,36 @@ export default function SignupForm() {
           />
         );
       case 2:
-        return (
-          <SignupStep2
-            formData={formData}
-            onChange={handleFieldChange}
-            onNext={nextStep}
-            onBack={prevStep}
-          />
-        );
+        return <SignupStep2 onNext={nextStep} onBack={prevStep} />;
+
       case 3:
         return (
           <SignupStep3
-            selectedPlan={formData.plan}
-            onPlanSelect={(plan) => handleFieldChange("plan", plan)}
-            onNext={nextStep}
+            onNext={(step: number, data?: Partial<FormData>) =>
+              jumpToStep(step, data)
+            }
             onBack={prevStep}
           />
         );
+
       case 4:
         return (
           <SignupStep4
-            formData={formData}
-            onSubmit={handleSubmit}
+            onNext={(step: number) => setStep(step)}
             onBack={prevStep}
-            onEdit={(stepNumber) => jumpToStep(stepNumber)}
           />
         );
+      case 5:
+        return (
+          <SignupStep5
+            formData={formData}
+            onNext={() => setStep(6)}
+            onBack={prevStep}
+          />
+        );
+
+      case 6:
+        return <SignupStep6 onNext={() => router.push("/dashboard")} />;
       default:
         return null;
     }
