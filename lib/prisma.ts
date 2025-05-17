@@ -2,7 +2,7 @@
 import { PrismaClient } from "@prisma/client";
 
 declare global {
-  // allow re‑use of client during HMR in dev
+  // allow re-use of client during HMR in dev
   // (prevents “PrismaClient already exists” errors)
   // @ts-ignore
   var prisma: PrismaClient | undefined;
@@ -19,4 +19,5 @@ if (process.env.NODE_ENV !== "production") {
   global.prisma = prisma;
 }
 
-export { prisma };
+// switch this to a default-export:
+export default prisma;

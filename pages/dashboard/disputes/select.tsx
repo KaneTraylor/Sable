@@ -15,10 +15,8 @@ import {
 import DisputeCard, {
   AccountData,
   DisputeItem,
-  AccountFields,
 } from "@/components/dashboard/disputes/DisputeCard";
 import { useDisputeStore } from "@/stores/useDisputeStore";
-import IntroGraphic from "public/mockups/3b.svg";
 
 // --- mock reasons & instructions ---
 const reasonList = [
@@ -28,158 +26,146 @@ const reasonList = [
 ];
 const instructionList = ["Validate with creditor", "Remove from report"];
 
-// --- three base AccountFields objects (one per category) ---
-const baseCollection: AccountFields = {
-  accountNumber: "1234-XXXX-XXXX-5678",
-  accountType: "Collection",
-  accountTypeDetail: "Medical",
-  accountName: "Hospital Collection",
-  status: "Open",
-  highCredit: "$2,500",
-  balance: "$2,250",
-  monthlyPayment: "$0",
-  creditLimit: "$0",
-  pastDue: "$0",
-  dateOpened: "Jan 10, 2020",
-  dateClosed: "—",
-  terms: "—",
-  paymentStatus: "N/A",
-  lastReportedDate: "Mar 01, 2025",
-  comments: "Sent to collections",
-  paymentFrequency: "N/A",
-  disputeStatus: "None",
-  creditorType: "Medical",
-  description: "Unpaid hospital bill",
-  rating: "—",
-  originalCreditor: "City Hospital",
-  bureauCode: "E",
-  pastDue30Days: "$0",
-  pastDue60Days: "$0",
-  pastDue90Days: "$0",
-  lastVerified: "Feb 15, 2025",
-  responsibility: "Consumer",
-  lastActiveDate: "Mar 01, 2025",
-  lastPaymentDate: "—",
-};
-
-const baseInquiry: AccountFields = {
-  accountNumber: "Inquiry #002",
-  accountType: "Inquiry",
-  accountTypeDetail: "Credit Pull",
-  accountName: "SoftBank Inquiry",
-  status: "Closed",
-  highCredit: "$0",
-  balance: "$0",
-  monthlyPayment: "$0",
-  creditLimit: "$0",
-  pastDue: "$0",
-  dateOpened: "Feb 20, 2025",
-  dateClosed: "Feb 20, 2025",
-  terms: "—",
-  paymentStatus: "N/A",
-  lastReportedDate: "Feb 20, 2025",
-  comments: "Soft credit pull",
-  paymentFrequency: "N/A",
-  disputeStatus: "None",
-  creditorType: "Inquiry",
-  description: "Soft inquiry by lender",
-  rating: "—",
-  originalCreditor: "SoftBank",
-  bureauCode: "E",
-  pastDue30Days: "$0",
-  pastDue60Days: "$0",
-  pastDue90Days: "$0",
-  lastVerified: "Feb 20, 2025",
-  responsibility: "Consumer",
-  lastActiveDate: "Feb 20, 2025",
-  lastPaymentDate: "—",
-};
-
-const baseLate: AccountFields = {
-  accountNumber: "9876-XXXX-XXXX-5432",
-  accountType: "Credit Card",
-  accountTypeDetail: "Visa",
-  accountName: "Visa Rewards",
-  status: "Open",
-  highCredit: "$10,000",
-  balance: "$3,200",
-  monthlyPayment: "$100",
-  creditLimit: "$10,000",
-  pastDue: "$200",
-  dateOpened: "Jun 15, 2019",
-  dateClosed: "—",
-  terms: "Revolving",
-  paymentStatus: "30 days late",
-  lastReportedDate: "Mar 01, 2025",
-  comments: "30 days late once",
-  paymentFrequency: "Monthly",
-  disputeStatus: "None",
-  creditorType: "Revolving",
-  description: "Visa credit card",
-  rating: "—",
-  originalCreditor: "Big Bank",
-  bureauCode: "E",
-  pastDue30Days: "$200",
-  pastDue60Days: "$0",
-  pastDue90Days: "$0",
-  lastVerified: "Feb 28, 2025",
-  responsibility: "Consumer",
-  lastActiveDate: "Mar 01, 2025",
-  lastPaymentDate: "Jan 15, 2025",
-};
-
 export default function DisputeSelectPage() {
   const router = useRouter();
   const bg = useColorModeValue("white", "gray.800");
-  const isPremium = false; // TODO: hook into your user store
+  const isPremium = false; // TODO: replace with real user plan
   const totalLimit = 5;
+  const { addDispute, reset } = useDisputeStore();
 
-  // grab the two store methods we need
-  const { reset, addDispute } = useDisputeStore();
-
-  // shape for our mock
+  // --- 1) Mock account data ---
   type ExtendedAccount = AccountData & { category: string };
-
-  // --- 1) our three demo accounts ― one per category
   const mockAccounts: ExtendedAccount[] = [
     {
       id: "acct1",
       category: "Collections",
       bureauData: {
-        equifax: baseCollection,
-        experian: baseCollection,
-        transunion: baseCollection,
+        equifax: {
+          accountNumber: "1234-XXXX-XXXX-5678",
+          accountType: "Collection",
+          accountTypeDetail: "Medical",
+          accountName: "Hospital Collection",
+          status: "Open",
+          highCredit: "$2,500",
+          balance: "$2,250",
+          monthlyPayment: "$0",
+          creditLimit: "$0",
+          pastDue: "$0",
+          dateOpened: "Jan 10, 2020",
+          dateClosed: "—",
+          terms: "—",
+          paymentStatus: "N/A",
+          lastReportedDate: "Mar 01, 2025",
+          comments: "Sent to collections",
+          paymentFrequency: "N/A",
+          disputeStatus: "None",
+          creditorType: "Medical",
+          description: "Unpaid hospital bill",
+          rating: "—",
+          originalCreditor: "City Hospital",
+          bureauCode: "E",
+          pastDue30Days: "$0",
+          pastDue60Days: "$0",
+          pastDue90Days: "$0",
+          lastVerified: "Feb 15, 2025",
+          responsibility: "Consumer",
+          lastActiveDate: "Mar 01, 2025",
+          lastPaymentDate: "—",
+        },
+        experian: { ...({} as any) },
+        transunion: { ...({} as any) },
       },
     },
     {
       id: "acct2",
       category: "Inquiries",
       bureauData: {
-        equifax: baseInquiry,
-        experian: baseInquiry,
-        transunion: baseInquiry,
+        equifax: {
+          accountNumber: "Inquiry #002",
+          accountType: "Inquiry",
+          accountTypeDetail: "Credit Pull",
+          accountName: "SoftBank Inquiry",
+          status: "Closed",
+          highCredit: "$0",
+          balance: "$0",
+          monthlyPayment: "$0",
+          creditLimit: "$0",
+          pastDue: "$0",
+          dateOpened: "Feb 20, 2025",
+          dateClosed: "Feb 20, 2025",
+          terms: "—",
+          paymentStatus: "N/A",
+          lastReportedDate: "Feb 20, 2025",
+          comments: "Soft credit pull",
+          paymentFrequency: "N/A",
+          disputeStatus: "None",
+          creditorType: "Inquiry",
+          description: "Soft inquiry by lender",
+          rating: "—",
+          originalCreditor: "SoftBank",
+          bureauCode: "E",
+          pastDue30Days: "$0",
+          pastDue60Days: "$0",
+          pastDue90Days: "$0",
+          lastVerified: "Feb 20, 2025",
+          responsibility: "Consumer",
+          lastActiveDate: "Feb 20, 2025",
+          lastPaymentDate: "—",
+        },
+        experian: { ...({} as any) },
+        transunion: { ...({} as any) },
       },
     },
     {
       id: "acct3",
       category: "Late Payments",
       bureauData: {
-        equifax: baseLate,
-        experian: baseLate,
-        transunion: baseLate,
+        equifax: {
+          accountNumber: "9876-XXXX-XXXX-5432",
+          accountType: "Credit Card",
+          accountTypeDetail: "Visa",
+          accountName: "Visa Rewards",
+          status: "Open",
+          highCredit: "$10,000",
+          balance: "$3,200",
+          monthlyPayment: "$100",
+          creditLimit: "$10,000",
+          pastDue: "$200",
+          dateOpened: "Jun 15, 2019",
+          dateClosed: "—",
+          terms: "Revolving",
+          paymentStatus: "30 days late",
+          lastReportedDate: "Mar 01, 2025",
+          comments: "30 days late once",
+          paymentFrequency: "Monthly",
+          disputeStatus: "None",
+          creditorType: "Revolving",
+          description: "Visa credit card",
+          rating: "—",
+          originalCreditor: "Big Bank",
+          bureauCode: "E",
+          pastDue30Days: "$200",
+          pastDue60Days: "$0",
+          pastDue90Days: "$0",
+          lastVerified: "Feb 28, 2025",
+          responsibility: "Consumer",
+          lastActiveDate: "Mar 01, 2025",
+          lastPaymentDate: "Jan 15, 2025",
+        },
+        experian: { ...({} as any) },
+        transunion: { ...({} as any) },
       },
     },
   ];
 
-  // --- 2) group by category
+  // --- 2) Group by category ---
   const categories = Array.from(new Set(mockAccounts.map((a) => a.category)));
   const accountsByCategory: Record<string, ExtendedAccount[]> = {};
-  categories.forEach(
-    (cat) =>
-      (accountsByCategory[cat] = mockAccounts.filter((a) => a.category === cat))
-  );
+  categories.forEach((cat) => {
+    accountsByCategory[cat] = mockAccounts.filter((a) => a.category === cat);
+  });
 
-  // --- 3) local pick‐and‐choose state for reason/instruction
+  // --- 3) Local selection state ---
   const [selections, setSelections] = useState<
     Record<string, Omit<DisputeItem, "name"> & { name: string }>
   >({});
@@ -222,7 +208,7 @@ export default function DisputeSelectPage() {
     (s) => s.reason && s.instruction
   ).length;
 
-  // --- 4) when they click “Review”, push into the global store and navigate
+  // --- 4) Submit into store & route ---
   const handleSubmit = () => {
     reset();
     Object.values(selections).forEach((s) => {
@@ -239,16 +225,15 @@ export default function DisputeSelectPage() {
   };
 
   return (
-    <Container maxW="container.lg" py={8} bg={bg}>
+    <Container maxW="container.lg" py={8}>
       {/* Intro */}
       <Flex direction="column" align="center" mb={10}>
-        {" "}
-        <Image
+        <img
           src="/mockups/3b.svg"
           alt="Dispute intro graphic"
-          boxSize="120px"
-          mb={4}
+          style={{ width: 120, height: 120 }}
         />
+
         <Heading as="h1" size="xl" mb={2}>
           Dispute Your Accounts
         </Heading>
@@ -259,13 +244,19 @@ export default function DisputeSelectPage() {
         </Text>
       </Flex>
 
-      {/* Per‐category sections */}
+      {/* Per‐category */}
       {categories.map((cat) => (
         <Box key={cat} mb={8}>
           <Heading size="md" mb={4}>
             {cat}
           </Heading>
-          <Accordion allowMultiple>
+          <Accordion
+            allowMultiple
+            bg={bg}
+            borderRadius="md"
+            boxShadow="sm"
+            overflow="hidden"
+          >
             {accountsByCategory[cat].map((acct) => {
               const sel = selections[acct.id] ?? {
                 id: acct.id,
@@ -273,23 +264,23 @@ export default function DisputeSelectPage() {
                 reason: "",
                 instruction: "",
               };
-              const alreadySelected = Boolean(sel.reason && sel.instruction);
-              const cardDisabled =
-                !isPremium && numDisputes >= totalLimit && !alreadySelected;
+              const already = sel.reason && sel.instruction;
+              const disabled =
+                !isPremium && numDisputes >= totalLimit && !already;
 
               return (
                 <DisputeCard
                   key={acct.id}
-                  style="fcra" // satisfy the required prop
-                  onToggle={() => {}} // stub—no internal toggle logic
+                  style="metro2" /* or "fcra"/"ai" default your style */
                   item={{
                     id: acct.id,
                     name: acct.bureauData.equifax.accountName,
                   }}
                   sel={sel}
-                  disabled={cardDisabled}
+                  disabled={disabled}
                   reasonList={reasonList}
                   instructionList={instructionList}
+                  onToggle={() => {}}
                   onReasonChange={(v) => handleReasonChange(acct.id, v)}
                   onInstructionChange={(v) =>
                     handleInstructionChange(acct.id, v)

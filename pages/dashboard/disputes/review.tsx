@@ -1,12 +1,60 @@
 // pages/dashboard/disputes/review.tsx
-import { useState, useEffect } from "react";
+
+/* ─── BEGIN SSR / AUTH (commented out for array review) ───
+
+import { GetServerSideProps } from "next";
+import { getSession } from "next-auth/react";
+import prisma from "@/lib/prisma"; // your Prisma client
+
+interface ReviewProps {
+  user: {
+    name: string;
+    address: string;
+  };
+}
+
+export const getServerSideProps: GetServerSideProps<ReviewProps> = async (
+  ctx
+) => {
+  const session = await getSession(ctx);
+  if (!session?.user?.email) {
+    return {
+      redirect: { destination: "/api/auth/signin", permanent: false },
+    };
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { firstName: true, lastName: true, address: true },
+  });
+
+  if (!user) {
+    return { notFound: true };
+  }
+
+  const fullName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim();
+
+  return {
+    props: {
+      user: {
+        name: fullName,
+        address: user.address ?? "",
+      },
+    },
+  };
+};
+
+─── END SSR / AUTH ─── */
+
 import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
 import {
   Box,
   Flex,
   Heading,
   HStack,
-  Text,
+  VStack,
+  Select,
   Textarea,
   Button,
   Tabs,
@@ -15,30 +63,31 @@ import {
   Tab,
   TabPanel,
   useColorModeValue,
-  VStack,
-  RadioGroup,
-  Radio,
-  Stack,
 } from "@chakra-ui/react";
-import { useDisputeStore } from "@/stores/useDisputeStore";
+import { useDisputeStore, DisputeSelection } from "@/stores/useDisputeStore";
+import { Metro2Letter } from "@/components/dashboard/disputes/Metro2Letter";
+import { PaymentHistory } from "@/components/dashboard/disputes/PaymentHistory";
 
-type StyleKey = "fcra" | "metro2" | "ai";
+type FormatStyle = "standard" | "metro2";
 
-export default function DisputeReview() {
+export default function DisputeReview(/* { user }: ReviewProps */) {
   const router = useRouter();
   const bg = useColorModeValue("white", "gray.700");
-  const { selected } = useDisputeStore();
-
-  // 1) add local state for style
-  const [style, setStyle] = useState<StyleKey>("fcra");
-
-  // 2) letters per‐bureau
+  const { selected, reset } = useDisputeStore();
+  const [style, setStyle] = useState<FormatStyle>("standard");
   const [letters, setLetters] = useState<Record<string, string>>({
     Equifax: "",
     TransUnion: "",
     Experian: "",
   });
 
+  // ─── placeholder user until SSR is re-enabled ───
+  const user = {
+    name: "John Doe",
+    address: "123 Main St\nAnytown, ST 12345",
+  };
+
+  // Build the standard (FCRA) letters whenever selections or user change
   useEffect(() => {
     const today = new Date().toLocaleDateString("en-US", {
       year: "numeric",
@@ -46,113 +95,137 @@ export default function DisputeReview() {
       day: "2-digit",
     });
 
-    // one‐line for each account
-    const userDetails = selected.map((d) => `- ${d.name}`).join("\n");
-    // the body with reasons/instructions
-    const letterBody = selected
+    const bodyLines = selected
       .map(
-        (d) =>
-          `  • ${d.name}\n    Reason: ${d.reason || "N/A"}\n    Instruction: ${
-            d.instruction || "N/A"
-          }\n`
+        (d: DisputeSelection) =>
+          `• ${d.name}\n    Reason: ${d.reason}\n    Instruction: ${d.instruction}\n`
       )
       .join("\n");
 
-    // choose a different header based on style
-    const styleHeader = {
-      fcra: `Pursuant to the Fair Credit Reporting Act (15 U.S.C. § 1681 et seq.), I am writing to dispute the following item(s) on my credit report:`,
-      metro2: `Per Metro‐2 dispute specifications, please reinvestigate the following item(s) on my credit report:`,
-      ai: `With assistance from my AI credit advocate, I request a reinvestigation of the following item(s):`,
-    }[style];
-
-    const buildLetter = (bureau: string) => `
+    const makeStandard = (bureau: string) => `
 ${today}
 
-To: ${bureau} Credit Bureau
+${user.name}
+${user.address}
 
-${styleHeader}
+${bureau} Consumer Dispute Department
 
-${letterBody}
-Please complete your reinvestigation within the timeframes required by law.
+Subject: Credit Report Dispute
+
+Dear ${bureau},
+
+I recently obtained a copy of my credit report and would like to dispute the following item(s):
+
+${bodyLines}
+
+Please reinvestigate these items and correct or remove the inaccurate information within 30 days as required by the Fair Credit Reporting Act.
+
+Thank you for your prompt attention.
 
 Sincerely,
-[Your Name]
+
+${user.name}
 `;
 
     setLetters({
-      Equifax: buildLetter("Equifax"),
-      TransUnion: buildLetter("TransUnion"),
-      Experian: buildLetter("Experian"),
+      Equifax: makeStandard("Equifax"),
+      TransUnion: makeStandard("TransUnion"),
+      Experian: makeStandard("Experian"),
     });
-  }, [selected, style]);
+  }, [selected, user]);
 
   const handleSend = () => {
-    // TODO: POST letters + style to your API
+    reset();
     router.push("/dashboard/disputes/delivery");
   };
+
+  const bureaus = ["Equifax", "TransUnion", "Experian"] as const;
 
   return (
     <Box maxW="800px" mx="auto" py={8} px={4}>
       <VStack spacing={6} align="stretch">
         <Heading as="h3" size="lg">
-          Review your dispute letters
+          Review &amp; Send Your Dispute Letter
         </Heading>
 
-        {/* style selector */}
-        <Box>
-          <Text mb={2}>Choose dispute style:</Text>
-          <RadioGroup onChange={(v) => setStyle(v as StyleKey)} value={style}>
-            <Stack direction="row" spacing={6}>
-              <Radio value="fcra">FCRA (factual)</Radio>
-              <Radio value="metro2">Metro-2</Radio>
-              <Radio value="ai">AI-assisted</Radio>
-            </Stack>
-          </RadioGroup>
-        </Box>
+        {/* Format toggle */}
+        <Flex>
+          <Select
+            w="200px"
+            value={style}
+            onChange={(e) => setStyle(e.target.value as FormatStyle)}
+          >
+            <option value="standard">Standard (FCRA)</option>
+            <option value="metro2">Metro-2 Format</option>
+          </Select>
+        </Flex>
 
-        {/* per‐bureau tabs */}
-        <Tabs isFitted variant="enclosed">
-          <TabList mb="1em">
-            {Object.keys(letters).map((bureau) => (
-              <Tab key={bureau}>{bureau}</Tab>
-            ))}
-          </TabList>
+        {style === "metro2" ? (
+          <Tabs isFitted variant="enclosed">
+            <TabList mb="1em">
+              {bureaus.map((b) => (
+                <Tab key={b}>{b}</Tab>
+              ))}
+            </TabList>
+            <TabPanels>
+              {bureaus.map((bureau) => (
+                <TabPanel key={bureau} p={0}>
+                  <Box bg={bg} p={4} borderRadius="md" boxShadow="md">
+                    <Metro2Letter
+                      bureau={bureau}
+                      items={
+                        selected as Array<DisputeSelection & { account: any }>
+                      }
+                      user={user}
+                    />
+                    <PaymentHistory />
+                  </Box>
+                </TabPanel>
+              ))}
+            </TabPanels>
+          </Tabs>
+        ) : (
+          <Tabs isFitted variant="enclosed">
+            <TabList mb="1em">
+              {bureaus.map((b) => (
+                <Tab key={b}>{b}</Tab>
+              ))}
+            </TabList>
+            <TabPanels>
+              {bureaus.map((bureau) => (
+                <TabPanel p={0} key={bureau}>
+                  <Box
+                    bg={bg}
+                    p={4}
+                    borderRadius="md"
+                    boxShadow="md"
+                    maxH="60vh"
+                    overflowY="auto"
+                  >
+                    <Textarea
+                      fontFamily="monospace"
+                      rows={20}
+                      value={letters[bureau]}
+                      onChange={(e) =>
+                        setLetters((prev) => ({
+                          ...prev,
+                          [bureau]: e.target.value,
+                        }))
+                      }
+                    />
+                  </Box>
+                </TabPanel>
+              ))}
+            </TabPanels>
+          </Tabs>
+        )}
 
-          <TabPanels>
-            {Object.entries(letters).map(([bureau, content]) => (
-              <TabPanel p={0} key={bureau}>
-                <Box
-                  bg={bg}
-                  p={4}
-                  borderRadius="md"
-                  boxShadow="md"
-                  maxH="60vh"
-                  overflowY="auto"
-                >
-                  <Textarea
-                    value={content}
-                    onChange={(e) =>
-                      setLetters((prev) => ({
-                        ...prev,
-                        [bureau]: e.target.value,
-                      }))
-                    }
-                    fontFamily="monospace"
-                    rows={20}
-                  />
-                </Box>
-              </TabPanel>
-            ))}
-          </TabPanels>
-        </Tabs>
-
-        {/* actions */}
         <HStack justify="space-between" pt={4}>
           <Button variant="outline" onClick={() => router.back()}>
             Back
           </Button>
           <Button colorScheme="green" onClick={handleSend}>
-            Send Letters
+            Send Letter
           </Button>
         </HStack>
       </VStack>

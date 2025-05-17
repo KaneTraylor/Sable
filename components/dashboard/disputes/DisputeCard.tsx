@@ -15,7 +15,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { startCase } from "lodash";
-import { PaymentHistory } from "@components/dashboard/disputes/PaymentHistory";
+import { PaymentHistory } from "@/components/dashboard/disputes/PaymentHistory";
 
 export interface AccountFields {
   accountNumber: string;
