@@ -1,5 +1,3 @@
-// components/signup/SignupStep1.tsx
-
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -22,8 +20,6 @@ import { useRouter } from "next/router";
 
 interface SignupStep1Props {
   formData: {
-    firstName: string;
-    lastName: string;
     email: string;
     password: string;
   };
@@ -58,8 +54,8 @@ export default function SignupStep1({
       });
       return;
     }
-    setLoading(true);
 
+    setLoading(true);
     try {
       const res = await fetch("/api/signup/partial", {
         method: "POST",
@@ -70,18 +66,14 @@ export default function SignupStep1({
         }),
       });
 
-      // read raw text and guard against empty or invalid JSON
       const text = await res.text();
       let data: any = {};
       if (text) {
         try {
           data = JSON.parse(text);
-        } catch {
-          // invalid JSON; data remains {}
-        }
+        } catch {}
       }
 
-      // handle full-account exists case
       if (res.status === 409 && data.error === "FULL_ACCOUNT_EXISTS") {
         toast({
           status: "info",
@@ -94,11 +86,8 @@ export default function SignupStep1({
         return;
       }
 
-      if (!res.ok) {
+      if (!res.ok || !data.formData?.userId) {
         throw new Error(data.error || "Signup failed");
-      }
-      if (!data.formData?.userId) {
-        throw new Error("Missing userId");
       }
 
       onNext(data.currentStep, {
@@ -123,14 +112,13 @@ export default function SignupStep1({
     const dummy = {
       email: `user${Date.now()}@devmail.com`,
       password: "TestPass123!",
-      firstName: "Dev",
-      lastName: "User",
     };
+
     try {
       const res = await fetch("/api/signup/partial", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: dummy.email, password: dummy.password }),
+        body: JSON.stringify(dummy),
       });
 
       const text = await res.text();
@@ -193,8 +181,6 @@ export default function SignupStep1({
 
       <VStack spacing={4} mt={4}>
         {[
-          { label: "First Name", field: "firstName", type: "text" },
-          { label: "Last Name", field: "lastName", type: "text" },
           { label: "Email", field: "email", type: "email" },
           { label: "Password", field: "password", type: "password" },
         ].map(({ label, field, type }) => (

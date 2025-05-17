@@ -1,7 +1,9 @@
+// most of the dashboard layout is under creditscoreoverview.tsx, this index page includes the popups etc. could've made this completely wrong but here we are <3
 import { useEffect, useState } from "react";
 import ScoreOverview from "@/components/dashboard/ScoreOverview";
 import PopupWindowOne from "@/components/dashboard/PopupWindowOne";
 import PopupWindowTwo from "@/components/dashboard/PopupWindowTwo";
+import CreditOverviewWidget from "@/components/dashboard/CreditOverviewWidget";
 import {
   Box,
   Text,
@@ -9,6 +11,7 @@ import {
   useColorModeValue,
   VStack,
   Container,
+  Spinner,
 } from "@chakra-ui/react";
 import useSWR from "swr";
 import axios from "axios";
@@ -68,18 +71,35 @@ function DisputeCountdownBanner() {
 
 export default function DashboardPage() {
   const [which, setWhich] = useState<PopupType>("1");
+  const [userToken, setUserToken] = useState<string | null>(null);
+  const [loadingToken, setLoadingToken] = useState(true);
 
   useEffect(() => {
     const last = window.localStorage.getItem("lastPopup");
     const next: PopupType = last === "1" ? "2" : "1";
     window.localStorage.setItem("lastPopup", next);
     setWhich(next);
+
+    // Fetch widget token on mount
+    const fetchToken = async () => {
+      try {
+        const res = await fetch("/api/array/getWidget");
+        const data = await res.json();
+        setUserToken(data.userToken);
+      } catch (err) {
+        console.error("Failed to load widget token", err);
+      } finally {
+        setLoadingToken(false);
+      }
+    };
+    fetchToken();
   }, []);
 
   return (
     <>
       <DisputeCountdownBanner />
       <ScoreOverview />
+
       {which === "1" ? <PopupWindowOne /> : <PopupWindowTwo />}
     </>
   );

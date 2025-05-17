@@ -19,14 +19,12 @@ import {
 } from "@chakra-ui/react";
 import { TimeIcon } from "@chakra-ui/icons";
 import { FiFilter } from "react-icons/fi";
-import { useRouter } from "next/router";
 
 import DashboardNavbar from "./DashboardNavbar";
 import CreditScoreCard from "./CreditScoreCard";
 import CreditScoreChart from "./CreditScoreChart";
 import ActionItems from "./ActionItems";
 import CreditTasks from "./CreditTasks";
-import useConsumerDirect from "./useConsumerDirect";
 import { DashboardButton as Button } from "./DashboardButton";
 
 const DISPUTES = [
@@ -61,19 +59,15 @@ const METRICS = [
 ];
 
 export default function ScoreOverview() {
-  const router = useRouter();
   const isDesktop = useBreakpointValue({ base: false, md: true });
   const bg = useColorModeValue("gray.50", "gray.800");
   const cardBg = useColorModeValue("white", "gray.700");
   const border = useColorModeValue("gray.200", "gray.600");
   const [period, setPeriod] = useState<"1M" | "3M" | "6M" | "1Y">("1M");
 
-  const { score, loading, error } = useConsumerDirect();
-
   return (
     <Box bg={bg} minH="100vh" pl={{ md: "80px" }}>
       <DashboardNavbar />
-
       <Box
         maxW="7xl"
         mx="auto"
@@ -83,33 +77,14 @@ export default function ScoreOverview() {
         <Grid templateColumns={{ base: "1fr", md: "1fr 2fr" }} gap={8}>
           {/* Left Column */}
           <VStack spacing={6} align="stretch">
-            {/* 1) Credit Score Card */}
             <Box>
-              {loading ? (
-                <Flex justify="center" p={6}>
-                  <Spinner size="xl" />
-                </Flex>
-              ) : error ? (
-                <Text color="red.500" textAlign="center">
-                  Error loading score
-                </Text>
-              ) : (
-                <CreditScoreCard />
-              )}
+              <CreditScoreCard />
             </Box>
 
             <Divider />
 
-            {/* 2) Live Dispute Feed */}
-            <Box
-              bg={cardBg}
-              p={6}
-              borderRadius="lg"
-              boxShadow="xl"
-              display="flex"
-              flexDirection="column"
-              justifyContent="space-between"
-            >
+            {/* Dispute Feed */}
+            <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
               <Box>
                 <HStack justify="space-between" mb={4}>
                   <HStack spacing={2}>
@@ -133,9 +108,9 @@ export default function ScoreOverview() {
                         {d.title}
                       </Text>
                       <HStack fontSize="sm" color="gray.500" mt={1}>
-                        <Text fontFamily="Inter, sans-serif">{d.type}</Text>
+                        <Text>{d.type}</Text>
                         <Text>·</Text>
-                        <Text fontFamily="Inter, sans-serif">{d.date}</Text>
+                        <Text>{d.date}</Text>
                         <Text>·</Text>
                         <Badge
                           colorScheme={
@@ -145,7 +120,6 @@ export default function ScoreOverview() {
                               ? "orange"
                               : "gray"
                           }
-                          fontFamily="Inter, sans-serif"
                         >
                           {d.status}
                         </Badge>
@@ -164,28 +138,17 @@ export default function ScoreOverview() {
               />
             </Box>
 
-            {/* 3) Actions */}
-            <Box
-              bg={cardBg}
-              p={6}
-              borderRadius="lg"
-              boxShadow="xl"
-              minH={{ base: "auto", md: "500px" }}
-            >
+            <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
               <ActionItems />
             </Box>
           </VStack>
 
           {/* Right Column */}
           <VStack spacing={6} align="stretch">
-            {/* 1) Score Analysis */}
+            {/* Score Analysis */}
             <Box>
               <HStack justify="space-between" mb={2}>
-                <Heading
-                  size="md"
-                  fontFamily="Lato, sans-serif"
-                  color="gray.800"
-                >
+                <Heading size="md" fontFamily="Lato, sans-serif">
                   Score Analysis
                 </Heading>
                 <HStack spacing={2}>
@@ -206,77 +169,23 @@ export default function ScoreOverview() {
 
             <Divider />
 
-            {/* 2) Credit Overview */}
-            <Box
-              bg={cardBg}
-              p={6}
-              borderRadius="lg"
-              boxShadow="xl"
-              display="flex"
-              flexDirection="column"
-              justifyContent="space-between"
-            >
-              <Box>
-                <HStack mb={4} spacing={2}>
-                  <Image
-                    src="/mockups/sable-difference/Sable-credit-gauge.png"
-                    alt="Sable Credit Gauge"
-                    boxSize="6"
-                  />
-                  <Heading
-                    size="md"
-                    fontFamily="Lato, sans-serif"
-                    color="gray.800"
-                  >
-                    Credit Overview
-                  </Heading>
-                </HStack>
-                <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
-                  {METRICS.map((m) => {
-                    if (m.label === "Utilization") {
-                      const val = parseInt(m.value);
-                      return (
-                        <Box
-                          key={m.label}
-                          bg={cardBg}
-                          p={4}
-                          borderRadius="md"
-                          boxShadow="md"
-                          textAlign="center"
-                          gridColumn={{ base: "span 2", md: "span 4" }}
-                        >
-                          <Text
-                            fontSize="sm"
-                            mb={2}
-                            fontFamily="Inter, sans-serif"
-                          >
-                            {m.label}
-                          </Text>
-                          <Flex align="center">
-                            <Box flex="1" mr={2}>
-                              <Box
-                                bg="gray.200"
-                                h="6px"
-                                borderRadius="md"
-                                overflow="hidden"
-                              >
-                                <Box
-                                  bg={val > 35 ? "red.400" : "#37a169"}
-                                  w={`${val}%`}
-                                  h="6px"
-                                />
-                              </Box>
-                            </Box>
-                            <Text
-                              fontWeight="bold"
-                              fontFamily="Inter, sans-serif"
-                            >
-                              {m.value}
-                            </Text>
-                          </Flex>
-                        </Box>
-                      );
-                    }
+            {/* Account Metrics */}
+            <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
+              <HStack mb={4} spacing={2}>
+                <Image
+                  src="/mockups/sable-difference/Sable-credit-gauge.png"
+                  alt="Sable Credit Gauge"
+                  boxSize="6"
+                />
+                <Heading size="md" fontFamily="Lato, sans-serif">
+                  Credit Overview
+                </Heading>
+              </HStack>
+
+              <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+                {METRICS.map((m) => {
+                  if (m.label === "Utilization") {
+                    const val = parseInt(m.value);
                     return (
                       <Box
                         key={m.label}
@@ -285,36 +194,71 @@ export default function ScoreOverview() {
                         borderRadius="md"
                         boxShadow="md"
                         textAlign="center"
+                        gridColumn={{ base: "span 2", md: "span 4" }}
                       >
                         <Text
                           fontSize="sm"
-                          color="gray.500"
+                          mb={2}
                           fontFamily="Inter, sans-serif"
                         >
                           {m.label}
                         </Text>
-                        <Text
-                          fontSize="xl"
-                          fontWeight="bold"
-                          fontFamily="Inter, sans-serif"
-                        >
-                          {m.value}
-                        </Text>
+                        <Flex align="center">
+                          <Box flex="1" mr={2}>
+                            <Box
+                              bg="gray.200"
+                              h="6px"
+                              borderRadius="md"
+                              overflow="hidden"
+                            >
+                              <Box
+                                bg={val > 35 ? "red.400" : "#37a169"}
+                                w={`${val}%`}
+                                h="6px"
+                              />
+                            </Box>
+                          </Box>
+                          <Text
+                            fontWeight="bold"
+                            fontFamily="Inter, sans-serif"
+                          >
+                            {m.value}
+                          </Text>
+                        </Flex>
                       </Box>
                     );
-                  })}
-                </SimpleGrid>
-              </Box>
+                  }
+                  return (
+                    <Box
+                      key={m.label}
+                      bg={cardBg}
+                      p={4}
+                      borderRadius="md"
+                      boxShadow="md"
+                      textAlign="center"
+                    >
+                      <Text
+                        fontSize="sm"
+                        color="gray.500"
+                        fontFamily="Inter, sans-serif"
+                      >
+                        {m.label}
+                      </Text>
+                      <Text
+                        fontSize="xl"
+                        fontWeight="bold"
+                        fontFamily="Inter, sans-serif"
+                      >
+                        {m.value}
+                      </Text>
+                    </Box>
+                  );
+                })}
+              </SimpleGrid>
             </Box>
 
-            {/* 3) Credit-Boosting Tasks */}
-            <Box
-              bg={cardBg}
-              p={6}
-              borderRadius="lg"
-              boxShadow="xl"
-              minH={{ base: "auto", md: "500px" }}
-            >
+            {/* Credit Tasks */}
+            <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
               <CreditTasks />
             </Box>
           </VStack>
