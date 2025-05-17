@@ -11,6 +11,8 @@ import {
   Heading,
   Image,
   Input,
+  InputGroup,
+  InputRightElement,
   Link,
   Progress,
   Text,
@@ -18,6 +20,7 @@ import {
   useBreakpointValue,
   useToast,
 } from "@chakra-ui/react";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
 import { usePasswordStrength } from "@/lib/hooks/usePasswordStrength";
 
@@ -38,6 +41,7 @@ export default function SignupStep1({
   const [loading, setLoading] = useState(false);
   const [agree, setAgree] = useState(false);
   const [touched, setTouched] = useState({ email: false, password: false });
+  const [showPassword, setShowPassword] = useState(false);
   const toast = useToast();
   const router = useRouter();
   const isMobile = useBreakpointValue({ base: true, md: false });
@@ -153,13 +157,26 @@ export default function SignupStep1({
 
         <FormControl isInvalid={touched.password && !isPasswordValid}>
           <FormLabel>Password</FormLabel>
-          <Input
-            type="password"
-            placeholder="8+ characters, 1 number"
-            value={formData.password}
-            onChange={(e) => onChange("password", e.target.value)}
-            onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
-          />
+          <InputGroup>
+            <Input
+              type={showPassword ? "text" : "password"}
+              placeholder="8+ characters, 1 number"
+              value={formData.password}
+              onChange={(e) => onChange("password", e.target.value)}
+              onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
+            />
+            <InputRightElement width="3rem">
+              <Button
+                h="1.75rem"
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <ViewOffIcon /> : <ViewIcon />}
+              </Button>
+            </InputRightElement>
+          </InputGroup>
           {touched.password && !isPasswordValid && (
             <FormErrorMessage>
               Password must be at least 8 characters with a number and letter.
@@ -247,7 +264,11 @@ export default function SignupStep1({
         <VStack spacing={2} pt={4}>
           <Text fontSize="sm">
             Already have an account?{" "}
-            <Link href="/login" color="green.500" textDecoration="underline">
+            <Link
+              href="/auth/signin"
+              color="green.500"
+              textDecoration="underline"
+            >
               Log in
             </Link>
             .

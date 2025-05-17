@@ -3,7 +3,7 @@ import { Box, Text, useColorModeValue } from "@chakra-ui/react";
 
 export default function AccountNameCard() {
   // You can replace this with a prop or fetched user data
-  const userName = "Rod Doucheman";
+  const userName = "Soren Sable";
 
   return (
     <Box

@@ -1,4 +1,18 @@
-// pages/dashboard/disputes/overview.tsx
+import { GetServerSideProps } from "next";
+import { getSession } from "next-auth/react";
+
+// ─── BEGIN SSR / AUTH ───
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const session = await getSession(ctx);
+  if (!session?.user?.email) {
+    return {
+      redirect: { destination: "/api/auth/signin", permanent: false },
+    };
+  }
+  return { props: {} };
+};
+// ─── END SSR / AUTH ───
+
 import { useEffect, useState } from "react";
 import {
   Box,

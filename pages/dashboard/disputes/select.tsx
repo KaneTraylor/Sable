@@ -213,11 +213,16 @@ export default function DisputeSelectPage() {
     reset();
     Object.values(selections).forEach((s) => {
       if (s.reason && s.instruction) {
+        // find the matching account in your mock data
+        const acct = mockAccounts.find((a) => a.id === s.id)!;
+        const eqAccount = acct.bureauData.equifax;
+
         addDispute({
           id: s.id,
           name: s.name,
           reason: s.reason,
           instruction: s.instruction,
+          account: eqAccount, // ← include the account fields here
         });
       }
     });

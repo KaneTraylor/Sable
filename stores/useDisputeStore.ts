@@ -1,4 +1,5 @@
 // stores/useDisputeStore.ts
+import { AccountFields } from "@/components/dashboard/disputes/DisputeCard";
 import { create } from "zustand";
 
 export interface DisputeSelection {
@@ -6,6 +7,7 @@ export interface DisputeSelection {
   name: string;
   reason: string;
   instruction: string;
+  account: AccountFields;
 }
 
 export interface DisputeState {

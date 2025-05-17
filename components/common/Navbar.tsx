@@ -1,4 +1,4 @@
-// components/Navbar.tsx
+import React from "react";
 import {
   Box,
   Flex,
@@ -6,9 +6,10 @@ import {
   Button,
   Image,
   IconButton,
-  useDisclosure,
   Stack,
   Collapse,
+  useColorModeValue,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
 import NextLink from "next/link";
@@ -18,8 +19,13 @@ export default function Navbar() {
   const { isOpen, onToggle } = useDisclosure();
   const router = useRouter();
 
+  const bgColor = useColorModeValue("#f9f5f1", "gray.800");
+  const linkColor = useColorModeValue("gray.800", "white");
+  const hoverColor = useColorModeValue("gray.600", "gray.300");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+
   return (
-    <Box bg="rgba(248,244,240,1)" px={4}>
+    <Box bg={bgColor} borderBottom="1px solid" borderColor={borderColor} px={4}>
       <Flex
         maxW="1024px"
         mx="auto"
@@ -30,11 +36,10 @@ export default function Navbar() {
         {/* Logo */}
         <ChakraLink as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
           <Image
-            src="mockups/logo/Sablerework.png"
+            src="/mockups/logo/Sablerework.png"
             alt="Sable Logo"
-            boxSize={{ base: "80px", sm: "80px", md: "100px" }}
+            boxSize={{ base: "60px", md: "80px" }}
             objectFit="contain"
-            mb={0}
           />
         </ChakraLink>
 
@@ -43,12 +48,11 @@ export default function Navbar() {
           <ChakraLink
             as={NextLink}
             href="/products"
-            fontFamily="heading"
-            fontWeight="bold"
-            fontSize="lg"
-            color="gray.900"
+            fontWeight="semibold"
+            fontSize="md"
+            color={linkColor}
             px={4}
-            _hover={{ textDecoration: "none", color: "gray.600" }}
+            _hover={{ textDecoration: "none", color: hoverColor }}
           >
             Products
           </ChakraLink>
@@ -56,25 +60,21 @@ export default function Navbar() {
           <ChakraLink
             as={NextLink}
             href="/why-sable"
-            fontFamily="heading"
-            fontWeight="bold"
-            fontSize="lg"
-            color="gray.900"
+            fontWeight="semibold"
+            fontSize="md"
+            color={linkColor}
             px={4}
-            _hover={{ textDecoration: "none", color: "gray.600" }}
+            _hover={{ textDecoration: "none", color: hoverColor }}
           >
             Why Sable?
           </ChakraLink>
 
           <Button
             ml={4}
-            variant="outline"
-            color="gray.900"
-            borderColor="gray.300"
-            fontFamily="heading"
+            colorScheme="green"
+            variant="solid"
             fontWeight="bold"
-            _hover={{ bg: "gray.100" }}
-            onClick={() => router.push("/signin")}
+            onClick={() => router.push("/auth/signin")}
           >
             Sign In
           </Button>
@@ -86,7 +86,7 @@ export default function Navbar() {
           onClick={onToggle}
           icon={
             isOpen ? (
-              <CloseIcon w={4} h={4} />
+              <CloseIcon w={5} h={5} />
             ) : (
               <Image
                 src="/mockups/other/navbar-open-menu-icon.svg"
@@ -102,42 +102,48 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <Collapse in={isOpen} animateOpacity>
-        <Stack bg="white" p={4} spacing={4} display={{ md: "none" }}>
-          <ChakraLink
-            as={NextLink}
-            href="/products"
-            fontFamily="heading"
-            fontWeight="bold"
-            fontSize="lg"
-            color="gray.900"
-            _hover={{ color: "gray.600" }}
-          >
-            Products
-          </ChakraLink>
+        <Box
+          bg={bgColor}
+          p={4}
+          rounded="md"
+          shadow="md"
+          maxW="1024px"
+          mx="auto"
+          mt={2}
+        >
+          <Stack spacing={3}>
+            <ChakraLink
+              as={NextLink}
+              href="/products"
+              fontWeight="semibold"
+              fontSize="md"
+              color={linkColor}
+              _hover={{ color: hoverColor }}
+            >
+              Products
+            </ChakraLink>
 
-          <ChakraLink
-            as={NextLink}
-            href="/why-sable"
-            fontFamily="heading"
-            fontWeight="bold"
-            fontSize="lg"
-            color="gray.900"
-            _hover={{ color: "gray.600" }}
-          >
-            Why Sable?
-          </ChakraLink>
+            <ChakraLink
+              as={NextLink}
+              href="/why-sable"
+              fontWeight="semibold"
+              fontSize="md"
+              color={linkColor}
+              _hover={{ color: hoverColor }}
+            >
+              Why Sable?
+            </ChakraLink>
 
-          <Button
-            variant="outline"
-            color="gray.900"
-            borderColor="gray.300"
-            fontFamily="heading"
-            fontWeight="bold"
-            onClick={() => router.push("/signin")}
-          >
-            Sign In
-          </Button>
-        </Stack>
+            <Button
+              colorScheme="green"
+              variant="solid"
+              fontWeight="bold"
+              onClick={() => router.push("/auth/signin")}
+            >
+              Sign In
+            </Button>
+          </Stack>
+        </Box>
       </Collapse>
     </Box>
   );

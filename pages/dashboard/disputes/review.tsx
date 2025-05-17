@@ -1,50 +1,6 @@
-// pages/dashboard/disputes/review.tsx
-
-/* ─── BEGIN SSR / AUTH (commented out for array review) ───
-
 import { GetServerSideProps } from "next";
 import { getSession } from "next-auth/react";
-import prisma from "@/lib/prisma"; // your Prisma client
-
-interface ReviewProps {
-  user: {
-    name: string;
-    address: string;
-  };
-}
-
-export const getServerSideProps: GetServerSideProps<ReviewProps> = async (
-  ctx
-) => {
-  const session = await getSession(ctx);
-  if (!session?.user?.email) {
-    return {
-      redirect: { destination: "/api/auth/signin", permanent: false },
-    };
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    select: { firstName: true, lastName: true, address: true },
-  });
-
-  if (!user) {
-    return { notFound: true };
-  }
-
-  const fullName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim();
-
-  return {
-    props: {
-      user: {
-        name: fullName,
-        address: user.address ?? "",
-      },
-    },
-  };
-};
-
-─── END SSR / AUTH ─── */
+import prisma from "@/lib/prisma";
 
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
@@ -70,7 +26,47 @@ import { PaymentHistory } from "@/components/dashboard/disputes/PaymentHistory";
 
 type FormatStyle = "standard" | "metro2";
 
-export default function DisputeReview(/* { user }: ReviewProps */) {
+interface ReviewProps {
+  user: {
+    name: string;
+    address: string;
+  };
+}
+
+export const getServerSideProps: GetServerSideProps<ReviewProps> = async (
+  ctx
+) => {
+  const session = await getSession(ctx);
+  if (!session?.user?.email) {
+    return {
+      redirect: { destination: "/api/auth/signin", permanent: false },
+    };
+  }
+
+  const userRecord = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { firstName: true, lastName: true, address: true },
+  });
+
+  if (!userRecord) {
+    return { notFound: true };
+  }
+
+  const fullName = `${userRecord.firstName ?? ""} ${
+    userRecord.lastName ?? ""
+  }`.trim();
+
+  return {
+    props: {
+      user: {
+        name: fullName,
+        address: userRecord.address ?? "",
+      },
+    },
+  };
+};
+
+export default function DisputeReview({ user }: ReviewProps) {
   const router = useRouter();
   const bg = useColorModeValue("white", "gray.700");
   const { selected, reset } = useDisputeStore();
@@ -81,13 +77,6 @@ export default function DisputeReview(/* { user }: ReviewProps */) {
     Experian: "",
   });
 
-  // ─── placeholder user until SSR is re-enabled ───
-  const user = {
-    name: "John Doe",
-    address: "123 Main St\nAnytown, ST 12345",
-  };
-
-  // Build the standard (FCRA) letters whenever selections or user change
   useEffect(() => {
     const today = new Date().toLocaleDateString("en-US", {
       year: "numeric",
@@ -148,7 +137,6 @@ ${user.name}
           Review &amp; Send Your Dispute Letter
         </Heading>
 
-        {/* Format toggle */}
         <Flex>
           <Select
             w="200px"
@@ -193,7 +181,7 @@ ${user.name}
             </TabList>
             <TabPanels>
               {bureaus.map((bureau) => (
-                <TabPanel p={0} key={bureau}>
+                <TabPanel key={bureau} p={0}>
                   <Box
                     bg={bg}
                     p={4}
