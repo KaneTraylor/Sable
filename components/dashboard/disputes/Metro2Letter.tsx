@@ -43,12 +43,12 @@ export function Metro2Letter({ bureau, items, user }: Metro2LetterProps) {
         {user.address}
       </Text>
       <Text mb={4}>{today}</Text>
-      <Text mb={6}>To: {bureau} Dispute Department</Text>
+      <Text mb={6}>To: {bureau} Dispute Resolution Department</Text>
 
       <Text mb={4}>
-        Dear {bureau},
+        To whom it may concern at {bureau},
         <br />
-        Please investigate the following Metro 2‐formatted items:
+        Please investigate the following Items:
       </Text>
 
       {/* Metro 2 Table */}

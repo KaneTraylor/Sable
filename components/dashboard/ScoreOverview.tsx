@@ -68,12 +68,7 @@ export default function ScoreOverview() {
   return (
     <Box bg={bg} minH="100vh" pl={{ md: "80px" }}>
       <DashboardNavbar />
-      <Box
-        maxW="7xl"
-        mx="auto"
-        px={{ base: 4, md: 8 }}
-        py={{ base: 6, md: 12 }}
-      >
+      <Box maxW="7xl" mx="aut" px={{ base: 4, md: 8 }} py={{ base: 6, md: 12 }}>
         <Grid templateColumns={{ base: "1fr", md: "1fr 2fr" }} gap={8}>
           {/* Left Column */}
           <VStack spacing={6} align="stretch">
