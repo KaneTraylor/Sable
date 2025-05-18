@@ -1,15 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+// components/signup/SignupStep5.tsx
+import React, { useEffect, useState } from "react";
 import {
+  Flex,
   Box,
   Heading,
   Text,
   Spinner,
-  VStack,
   useToast,
-  Container,
+  Image,
+  useColorModeValue,
 } from "@chakra-ui/react";
-
-import type { FormData } from "./SignupForm"; // adjust path if needed
+import type { FormData } from "./SignupForm";
 
 export interface SignupStep5Props {
   formData: FormData;
@@ -17,116 +18,130 @@ export interface SignupStep5Props {
   onBack: () => void;
 }
 
-export default function SignupStep5({
-  onNext,
-  onBack,
-  formData,
-}: SignupStep5Props) {
+export default function SignupStep5({ formData, onNext }: SignupStep5Props) {
   const [userToken, setUserToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [sdkReady, setSdkReady] = useState(false);
+  const [phaseScriptReady, setPhaseScriptReady] = useState(false);
   const [phase, setPhase] = useState<"enroll" | "kba">("enroll");
-  const enrollRef = useRef<HTMLDivElement>(null);
-  const kbaRef = useRef<HTMLDivElement>(null);
   const toast = useToast();
 
+  const textColor = useColorModeValue("gray.700", "gray.300");
+
+  // 1) Load Array SDK
   useEffect(() => {
-    const fetchToken = async () => {
-      try {
-        const res = await fetch("/api/array/getWidget");
-        const data = await res.json();
-        if (!data.userToken) throw new Error("Missing Array userToken");
-        setUserToken(data.userToken);
-      } catch (err) {
-        toast({
-          title: "Widget Error",
-          description: "Could not load identity verification widget.",
-          status: "error",
-          duration: 4000,
-          isClosable: true,
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchToken();
+    const s = document.createElement("script");
+    s.src =
+      "https://embed.array.io/cms/array-web-component.js?appKey=3F03D20E-5311-43D8-8A76-E4B5D77793BD";
+    s.async = true;
+    s.onload = () => setSdkReady(true);
+    s.onerror = () =>
+      toast({
+        title: "SDK Error",
+        description: "Failed to load Array SDK.",
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+      });
+    document.body.appendChild(s);
   }, [toast]);
 
+  // 2) Load widget script for the current phase
   useEffect(() => {
-    if (!userToken) return;
+    if (!sdkReady) return;
+    setPhaseScriptReady(false);
+    const w = document.createElement("script");
+    w.async = true;
+    w.src =
+      phase === "enroll"
+        ? "https://embed.array.io/cms/array-account-enroll.js?appKey=3F03D20E-5311-43D8-8A76-E4B5D77793BD"
+        : "https://embed.array.io/cms/array-authentication-kba.js?appKey=3F03D20E-5311-43D8-8A76-E4B5D77793BD";
+    w.onload = () => setPhaseScriptReady(true);
+    w.onerror = () =>
+      toast({
+        title: "Widget Error",
+        description: `Failed to load the ${phase} widget.`,
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+      });
+    document.body.appendChild(w);
+  }, [sdkReady, phase, toast]);
 
-    const loadScript = (src: string) => {
-      const script = document.createElement("script");
-      script.src = src;
-      script.async = true;
-      document.body.appendChild(script);
-    };
+  // 3) Bypass token fetch for sandbox
+  useEffect(() => {
+    setUserToken("SANDBOX_DUMMY_TOKEN");
+  }, []);
 
-    loadScript(
-      "https://embed.array.io/cms/array-web-component.js?appKey=3F03D20E-5311-43D8-8A76-E4B5D77793BD"
+  // Spinner until everything’s ready
+  if (!sdkReady || !phaseScriptReady || !userToken) {
+    return (
+      <Flex align="center" justify="center" minH="100vh">
+        <Spinner size="xl" />
+      </Flex>
     );
-
-    if (phase === "enroll" && enrollRef.current) {
-      loadScript(
-        "https://embed.array.io/cms/array-account-enroll.js?appKey=3F03D20E-5311-43D8-8A76-E4B5D77793BD"
-      );
-      enrollRef.current.innerHTML = `
-        <array-account-enroll
-          appKey="3F03D20E-5311-43D8-8A76-E4B5D77793BD"
-          apiUrl="https://mock.array.io"
-          sandbox="true"
-          showQuickView="true"
-          onComplete="window.arrayWidgetEnrollDone()"
-        ></array-account-enroll>
-      `;
-      window.arrayWidgetEnrollDone = () => setPhase("kba");
-    }
-
-    if (phase === "kba" && kbaRef.current) {
-      loadScript(
-        "https://embed.array.io/cms/array-authentication-kba.js?appKey=3F03D20E-5311-43D8-8A76-E4B5D77793BD"
-      );
-      kbaRef.current.innerHTML = `
-        <array-authentication-kba
-          appKey="3F03D20E-5311-43D8-8A76-E4B5D77793BD"
-          apiUrl="https://mock.array.io"
-          sandbox="true"
-          userId="${formData.userId}"
-          showResultPages="true"
-          onComplete="window.arrayWidgetKbaDone()"
-        ></array-authentication-kba>
-      `;
-      window.arrayWidgetKbaDone = () => onNext();
-    }
-  }, [phase, userToken, formData.userId, onNext]);
+  }
 
   return (
-    <Container maxW="3xl" py={12}>
-      <VStack spacing={6} textAlign="center">
-        <Heading size="lg" color="green.600">
-          Secure Identity Verification
+    <Flex
+      direction="column"
+      align="center"
+      w="100%"
+      minH="100vh"
+      px={{ base: 4, md: 8 }}
+      py={{ base: 6, md: 8 }}
+      overflowX="hidden"
+    >
+      {/* Slimmed-down graphic */}
+      <Box mb={{ base: 1, md: 2 }} w={{ base: "50%", md: "30%" }}>
+        <Image
+          src="/mockups/grow/graphic-working-mom.png"
+          alt="Working Mom Graphic"
+          objectFit="contain"
+          w="100%"
+          h="auto"
+          mx="auto"
+        />
+      </Box>
+
+      {/* Smaller heading & text */}
+      <Box textAlign="center" mb={{ base: 1, md: 2 }} maxW="500px">
+        <Heading fontSize={{ base: "xl", md: "2xl" }} color="#e39d49" mb={1}>
+          Verify Your Identity
         </Heading>
-        <Text fontSize="md" color="gray.600">
-          Complete your verification to access your credit profile and unlock
-          Sable Premium.
+        <Text fontSize={{ base: "sm", md: "md" }} color={textColor}>
+          Quick & secure—unlock full access to Sable.
         </Text>
+      </Box>
 
-        {loading ? (
-          <Spinner size="lg" mt={6} />
-        ) : (
-          <Box
-            ref={phase === "enroll" ? enrollRef : kbaRef}
-            w="full"
-            minH="420px"
-          />
-        )}
-      </VStack>
-    </Container>
+      {/* Full-bleed widget on desktop, edge-to-edge */}
+      <Box
+        w="100vw"
+        maxW="100vw"
+        position="relative"
+        left={{ md: "50%" }}
+        ml={{ md: "-50vw" }}
+        flex="1"
+      >
+        {phase === "enroll"
+          ? React.createElement("array-account-enroll", {
+              appKey: "3F03D20E-5311-43D8-8A76-E4B5D77793BD",
+              apiUrl: "https://sandbox.array.io",
+              sandbox: true,
+              showQuickView: true,
+              userToken,
+              style: { width: "100%", height: "100%" },
+              onComplete: () => setPhase("kba"),
+            })
+          : React.createElement("array-authentication-kba", {
+              appKey: "3F03D20E-5311-43D8-8A76-E4B5D77793BD",
+              apiUrl: "https://sandbox.array.io",
+              sandbox: true,
+              userId: formData.userId,
+              showResultPages: true,
+              style: { width: "100%", height: "100%" },
+              onComplete: () => onNext(),
+            })}
+      </Box>
+    </Flex>
   );
-}
-
-declare global {
-  interface Window {
-    arrayWidgetEnrollDone: () => void;
-    arrayWidgetKbaDone: () => void;
-  }
 }
