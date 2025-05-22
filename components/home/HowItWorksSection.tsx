@@ -16,7 +16,7 @@ import {
 const steps = [
   {
     number: 1,
-    img: "/mockups/sable-difference/guygirlpiggy.svg",
+    img: "mockups/Sable-people/Sable-happy-gauge.png",
     title: (
       <>
         Sable adds money to your locked savings account

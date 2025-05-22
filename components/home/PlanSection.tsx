@@ -79,7 +79,7 @@ export default function PlanSection() {
             spacing={6}
           >
             <Image
-              src="/mockups/sable-difference/Sable-credit-gauge.png"
+              src="mockups/sable-difference/Sable-ticker.png"
               alt="Credit Builder"
               h={20}
             />
@@ -146,8 +146,8 @@ export default function PlanSection() {
             spacing={6}
           >
             <Image
-              src="/mockups/grow/graphic-money-bag-orange.svg"
-              alt="Borrow and Grow"
+              src="mockups/sable-difference/Sable-dispute2.png"
+              alt="Dispute and Grow"
               h={20}
             />
             <Heading
@@ -156,15 +156,15 @@ export default function PlanSection() {
               fontSize="2xl"
               color="gray.900"
             >
-              Borrow{" "}
+              Dispute{" "}
               <Text as="span" color="orange.400">
                 &amp;
               </Text>{" "}
               Grow
             </Heading>
             <Text fontSize="md" color="gray.700">
-              Borrow the funds you need now, while building a savings cushion
-              for later.
+              Sable finds errors on your report and will help you to send
+              letters to fix them.
             </Text>
 
             <Box width="100%">

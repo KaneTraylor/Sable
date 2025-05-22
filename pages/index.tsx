@@ -5,7 +5,7 @@ import { Box } from "@chakra-ui/react";
 
 import Navbar from "@/components/common/Navbar";
 import HeroSection from "@/components/home/HeroSection";
-import StickyCTA from "@/components/common/StickyCTA";
+import StickyCTA from "@/components/common/StickyCTA"; // might add in later
 import PlansSection from "@/components/home/PlanSection";
 import FactsSection from "@/components/home/FactsSection";
 import TestimonialSection from "@/components/home/TestimonialSection";
@@ -36,8 +36,6 @@ export default function HomePage() {
       <FactsSection />
 
       <TestimonialSection />
-
-      <StickyCTA />
 
       <CTASection />
 

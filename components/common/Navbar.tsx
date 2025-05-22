@@ -1,14 +1,15 @@
+// components/Navbar.tsx
 import React from "react";
 import {
   Box,
   Flex,
+  HStack,
+  VStack,
   Link as ChakraLink,
   Button,
   Image,
   IconButton,
-  Stack,
   Collapse,
-  useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
@@ -19,74 +20,82 @@ export default function Navbar() {
   const { isOpen, onToggle } = useDisclosure();
   const router = useRouter();
 
-  const bgColor = useColorModeValue("#f9f5f1", "gray.800");
-  const linkColor = useColorModeValue("gray.800", "white");
-  const hoverColor = useColorModeValue("gray.600", "gray.300");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-
   return (
-    <Box bg={bgColor} borderBottom="1px solid" borderColor={borderColor} px={4}>
+    <Box as="nav" bg="#f8f4f0" w="100%" position="sticky" top="0" zIndex="1000">
       <Flex
-        maxW="1024px"
+        maxW="1400px"
         mx="auto"
-        py={4}
+        px={{ base: 4, md: 12 }}
+        py={{ base: 4, md: 6 }}
         align="center"
         justify="space-between"
       >
         {/* Logo */}
         <ChakraLink as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
           <Image
-            src="/mockups/logo/Sablerework.png"
-            alt="Sable Logo"
-            boxSize={{ base: "60px", md: "80px" }}
-            objectFit="contain"
+            src="/mockups/logo/sable-logo.svg"
+            alt="Sable Credit Logo"
+            h={{ base: "50px", md: "60px", lg: "80px" }}
           />
         </ChakraLink>
 
-        {/* Desktop Nav */}
-        <Flex display={{ base: "none", md: "flex" }} align="center">
+        {/* Desktop links + CTAs */}
+        <HStack
+          spacing={{ base: 4, md: 6, lg: 8 }}
+          display={{ base: "none", md: "flex" }}
+        >
           <ChakraLink
             as={NextLink}
             href="/products"
-            fontWeight="semibold"
             fontSize="md"
-            color={linkColor}
-            px={4}
-            _hover={{ textDecoration: "none", color: hoverColor }}
+            fontWeight="700"
           >
             Products
           </ChakraLink>
-
           <ChakraLink
             as={NextLink}
             href="/why-sable"
-            fontWeight="semibold"
             fontSize="md"
-            color={linkColor}
-            px={4}
-            _hover={{ textDecoration: "none", color: hoverColor }}
+            fontWeight="700"
           >
             Why Sable?
           </ChakraLink>
 
           <Button
-            ml={4}
             colorScheme="green"
             variant="solid"
-            fontWeight="bold"
+            borderRadius="full"
+            px={{ base: 6, md: 10 }}
+            minH={{ base: "40px", md: "56px" }}
+            fontSize={{ base: "md", md: "lg" }}
+            fontWeight="600"
+            onClick={() => router.push("/onboarding/signup")}
+          >
+            Get Started
+          </Button>
+
+          <Button
+            variant="outline"
+            borderRadius="full"
+            px={{ base: 6, md: 10 }}
+            minH={{ base: "40px", md: "56px" }}
+            fontSize={{ base: "md", md: "lg" }}
+            fontWeight="600"
             onClick={() => router.push("/auth/signin")}
           >
-            Sign In
+            Sign in
           </Button>
-        </Flex>
+        </HStack>
 
-        {/* Hamburger (Mobile) */}
+        {/* Mobile menu toggle */}
         <IconButton
           display={{ base: "flex", md: "none" }}
           onClick={onToggle}
+          variant="ghost"
+          aria-label="Toggle menu"
           icon={
             isOpen ? (
-              <CloseIcon w={5} h={5} />
+              <CloseIcon w={6} h={6} />
             ) : (
               <Image
                 src="/mockups/other/navbar-open-menu-icon.svg"
@@ -95,54 +104,53 @@ export default function Navbar() {
               />
             )
           }
-          variant="ghost"
-          aria-label="Toggle Navigation"
         />
       </Flex>
 
-      {/* Mobile Menu */}
+      {/* Mobile Dropdown */}
       <Collapse in={isOpen} animateOpacity>
-        <Box
-          bg={bgColor}
-          p={4}
-          rounded="md"
-          shadow="md"
-          maxW="1024px"
-          mx="auto"
-          mt={2}
-        >
-          <Stack spacing={3}>
+        <Box bg="#f7f6f3" px={4} py={4}>
+          <VStack spacing={4} align="stretch">
             <ChakraLink
               as={NextLink}
               href="/products"
-              fontWeight="semibold"
-              fontSize="md"
-              color={linkColor}
-              _hover={{ color: hoverColor }}
+              fontSize="lg"
+              fontWeight="700"
             >
               Products
             </ChakraLink>
-
             <ChakraLink
               as={NextLink}
               href="/why-sable"
-              fontWeight="semibold"
-              fontSize="md"
-              color={linkColor}
-              _hover={{ color: hoverColor }}
+              fontSize="lg"
+              fontWeight="700"
             >
               Why Sable?
             </ChakraLink>
-
             <Button
               colorScheme="green"
               variant="solid"
-              fontWeight="bold"
+              borderRadius="full"
+              w="100%"
+              py={6}
+              fontSize="lg"
+              fontWeight="600"
+              onClick={() => router.push("/onboarding/signup")}
+            >
+              Get Started
+            </Button>
+            <Button
+              variant="outline"
+              borderRadius="full"
+              w="100%"
+              py={6}
+              fontSize="lg"
+              fontWeight="600"
               onClick={() => router.push("/auth/signin")}
             >
-              Sign In
+              Sign in
             </Button>
-          </Stack>
+          </VStack>
         </Box>
       </Collapse>
     </Box>
