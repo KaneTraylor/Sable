@@ -25,7 +25,7 @@ export default function CTASection() {
           {/* Illustration on left for desktop, top for mobile */}
           <Box flex="1" textAlign="center">
             <Image
-              src="mockups/Sable-people/Sable-mountain2.png"
+              src="/mockups/Sable-people/Sable-mountain2.png"
               alt="The financial gains climb"
               maxW={{ base: "70%", md: "80%", lg: "100%" }}
               mx="auto"
