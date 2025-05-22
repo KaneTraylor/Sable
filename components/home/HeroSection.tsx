@@ -1,5 +1,5 @@
 // components/HeroSection.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Flex,
@@ -17,7 +17,7 @@ import {
 import { motion, useViewportScroll, useTransform } from "framer-motion";
 import { useRouter } from "next/router";
 
-const MotionImage = motion("img");
+const MotionDiv = motion.div;
 
 export default function HeroSection() {
   const toast = useToast();
@@ -41,7 +41,7 @@ export default function HeroSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-      if (!res.ok) throw new Error("Failed to save lead");
+      if (!res.ok) throw new Error();
       router.push({ pathname: "/onboarding/signup", query: { email } });
     } catch {
       toast({ status: "error", title: "Something went wrong. Try again." });
@@ -53,7 +53,7 @@ export default function HeroSection() {
   return (
     <Box
       as="section"
-      bg="#f8f4f0"
+      bg="#f9f5f1"
       w="100%"
       minH="80vh"
       py={{ base: 12, md: 20 }}
@@ -76,6 +76,8 @@ export default function HeroSection() {
         >
           <Heading
             as="h1"
+            fontFamily="heading"
+            fontWeight="900"
             fontSize={{ base: "2.5rem", md: "5rem" }}
             lineHeight="1.1"
             color="gray.800"
@@ -87,8 +89,8 @@ export default function HeroSection() {
             </Text>
           </Heading>
 
-          {/* Subheading – now semi-bold */}
           <Text
+            fontFamily="body"
             fontSize={{ base: "md", md: "xl" }}
             fontWeight="600"
             color="gray.800"
@@ -98,7 +100,6 @@ export default function HeroSection() {
             financial future.
           </Text>
 
-          {/* Pill-shaped Get Started button */}
           <Button
             colorScheme="green"
             size="lg"
@@ -112,10 +113,10 @@ export default function HeroSection() {
             Start today!
           </Button>
 
-          {/* “Learn more…” link as semi-bold */}
           <Text
             as="a"
             href="#learn-more"
+            fontFamily="body"
             fontSize={{ base: "lg", md: "2xl" }}
             fontWeight="600"
             color="brand.500"
@@ -124,8 +125,8 @@ export default function HeroSection() {
             Learn more…
           </Text>
 
-          {/* Testimonial – bumped to semi-bold */}
           <Text
+            fontFamily="body"
             fontSize={{ base: "sm", md: "lg" }}
             fontWeight="600"
             color="#475C85"
@@ -135,7 +136,6 @@ export default function HeroSection() {
             regularly using Sable and practicing good money habits.
           </Text>
 
-          {/* Email Capture with arrow button */}
           <Box w={{ base: "100%", md: "450px" }}>
             <InputGroup size="lg">
               <Input
@@ -147,7 +147,7 @@ export default function HeroSection() {
                 pr="3rem"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                fontWeight="600" // make typed text semi-bold
+                fontWeight="600"
               />
               <InputRightElement width="3rem" height="100%">
                 <Button
@@ -177,16 +177,20 @@ export default function HeroSection() {
           display="flex"
           justifyContent={{ base: "center", md: "flex-end" }}
         >
-          <MotionImage
-            src="mockups/Sable-people/Sable-hero-team.png"
-            alt="Financial growth illustration"
+          <MotionDiv
             style={{ y }}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            width={isMobile ? "80%" : "100%"}
-            maxW={{ base: "300px", md: "700px" }}
-          />
+          >
+            <Image
+              src="mockups/Sable-people/Sable-hero-team.png"
+              alt="Financial growth illustration"
+              w={{ base: "90%", md: "100%" }}
+              maxW={{ base: "400px", md: "700px" }}
+              h="auto"
+            />
+          </MotionDiv>
         </Box>
       </Flex>
     </Box>

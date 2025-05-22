@@ -29,9 +29,9 @@ export default function HomePage() {
 
       <HeroSection />
 
-      <PlansSection />
-
       <HowItWorksSection />
+
+      <PlansSection />
 
       <FactsSection />
 
