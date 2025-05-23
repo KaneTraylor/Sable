@@ -17,8 +17,11 @@ import {
   Progress,
   Text,
   VStack,
+  HStack,
   useBreakpointValue,
   useToast,
+  IconButton,
+  Divider,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
@@ -58,6 +61,26 @@ export default function SignupStep1({
 
   const isFormValid = isEmailValid && isPasswordValid && agree;
 
+  // Dummy data function for localhost
+  const fillDummyData = () => {
+    if (
+      typeof window !== "undefined" &&
+      window.location.hostname === "localhost"
+    ) {
+      onChange("email", "demo@sable.com");
+      onChange("password", "password123");
+      setAgree(true);
+      setTouched({ email: true, password: true });
+      toast({
+        title: "Dummy data filled!",
+        description: "Ready to continue with demo account",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+  };
+
   const handleContinue = async () => {
     setLoading(true);
     try {
@@ -86,7 +109,7 @@ export default function SignupStep1({
           duration: 3000,
           isClosable: true,
         });
-        setTimeout(() => router.push("/auth/signin"), 5000);
+        setTimeout(() => router.push("/auth/signin"), 2000);
         return;
       }
 
@@ -94,7 +117,7 @@ export default function SignupStep1({
         throw new Error(data.error || "Signup failed");
       }
 
-      onNext(data.currentStep, {
+      onNext(2, {
         email: formData.email,
         password: formData.password,
         userId: data.formData.userId,
@@ -113,175 +136,289 @@ export default function SignupStep1({
   };
 
   return (
-    <Container maxW="md" mx="auto" px={4} py={0}>
-      <Progress
-        value={17}
-        size="xs"
-        colorScheme="green"
-        borderRadius="full"
-        mb={4}
-      />
-
-      <Center mb={1}>
-        <Image
-          src="/mockups/logo/Sablerework.png"
-          alt="Sable Logo"
-          width={{ base: "120px", md: "160px" }}
-          height="auto"
-        />
-      </Center>
-
-      <Box textAlign="center" mb={1}>
-        <Heading fontSize="3xl" fontWeight="400" color="green.500" mb={1}>
-          Let’s go!
-        </Heading>
-        <Heading fontSize="3xl" fontWeight="400" color="gray.800">
-          Start building credit in less than 5 minutes.
-        </Heading>
-      </Box>
-
-      <VStack spacing={4} mt={4}>
-        <FormControl isInvalid={touched.email && !isEmailValid}>
-          <FormLabel>Email</FormLabel>
-          <Input
-            type="email"
-            placeholder="you@email.com"
-            value={formData.email}
-            onChange={(e) => onChange("email", e.target.value)}
-            onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
-          />
-          {!isEmailValid && touched.email && (
-            <FormErrorMessage>Enter a valid email address.</FormErrorMessage>
-          )}
-        </FormControl>
-
-        <FormControl isInvalid={touched.password && !isPasswordValid}>
-          <FormLabel>Password</FormLabel>
-          <InputGroup>
-            <Input
-              type={showPassword ? "text" : "password"}
-              placeholder="8+ characters, 1 number"
-              value={formData.password}
-              onChange={(e) => onChange("password", e.target.value)}
-              onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
-            />
-            <InputRightElement width="3rem">
-              <Button
-                h="1.75rem"
-                size="sm"
-                variant="ghost"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <ViewOffIcon /> : <ViewIcon />}
-              </Button>
-            </InputRightElement>
-          </InputGroup>
-          {touched.password && !isPasswordValid && (
-            <FormErrorMessage>
-              Password must be at least 8 characters with a number and letter.
-            </FormErrorMessage>
-          )}
-
-          {formData.password && (
-            <Box pt={2}>
-              <Box
-                h="8px"
-                borderRadius="full"
-                bg="gray.200"
-                overflow="hidden"
-                w="full"
-                mb={1}
-              >
-                <Box
-                  h="8px"
-                  borderRadius="full"
-                  bg={strengthColor}
-                  width={`${strengthPercent * 100}%`}
-                  transition="width 0.4s ease"
-                />
-              </Box>
-              <Text
-                key={strengthEmoji}
-                fontSize="sm"
-                fontWeight="medium"
-                color={strengthColor}
-                transition="all 0.2s ease"
-              >
-                {strengthEmoji} {strengthLabel}
-              </Text>
-            </Box>
-          )}
-        </FormControl>
-
-        <Checkbox
-          isChecked={agree}
-          onChange={(e) => setAgree(e.target.checked)}
-          size="md"
+    <Box bg="sable.tan" minH="100vh" py={8}>
+      <Container maxW="lg" mx="auto" px={4}>
+        {/* Progress bar */}
+        <Progress
+          value={17}
+          size="sm"
           colorScheme="green"
-        >
-          <Text fontSize="sm" ml={2}>
-            I agree to Sable’s{" "}
-            <Link
-              href="/privacy-policy"
-              color="green.500"
-              textDecoration="underline"
-            >
-              Privacy Policy
-            </Link>
-            ,{" "}
-            <Link href="/terms" color="green.500" textDecoration="underline">
-              Terms of Use
-            </Link>
-            , and{" "}
-            <Link href="/e-sign" color="green.500" textDecoration="underline">
-              E-Sign Consent
-            </Link>
-            .
-          </Text>
-        </Checkbox>
+          borderRadius="full"
+          mb={8}
+          bg="white"
+        />
 
-        <Button
-          bg="green.500"
-          color="white"
-          _hover={{ bg: "green.600" }}
-          rounded="lg"
-          size="lg"
-          w="full"
-          maxW="xs"
-          h="14"
-          onClick={handleContinue}
-          isDisabled={!isFormValid || loading}
-          isLoading={loading}
-        >
-          Create account & continue →
-        </Button>
+        <VStack spacing={8} align="stretch">
+          {/* Header with logo */}
+          <VStack spacing={6} textAlign="center">
+            <Image
+              src="/mockups/logo/sable-logo.svg"
+              alt="Sable Logo"
+              width={{ base: "140px", md: "180px" }}
+              height="auto"
+            />
 
-        <Text fontSize="xs" color="gray.500" pt={2}>
-          Next: Choose your plan and verify your credit securely.
-        </Text>
+            <VStack spacing={3}>
+              <Heading
+                fontSize={{ base: "2xl", md: "3xl" }}
+                fontWeight="700"
+                color="sable.sage"
+                fontFamily="heading"
+              >
+                Welcome to Sable! 👋
+              </Heading>
+              <Text
+                fontSize={{ base: "lg", md: "xl" }}
+                color="gray.700"
+                maxW="md"
+                lineHeight="1.4"
+              >
+                Start building credit in less than 5 minutes. Join thousands
+                improving their financial future.
+              </Text>
+            </VStack>
+          </VStack>
 
-        <VStack spacing={2} pt={4}>
-          <Text fontSize="sm">
-            Already have an account?{" "}
-            <Link
-              href="/auth/signin"
-              color="green.500"
-              textDecoration="underline"
-            >
-              Log in
-            </Link>
-            .
-          </Text>
-          <Text fontSize="sm">
-            Need help?{" "}
-            <Link color="green.500" textDecoration="underline">
-              Get in touch
-            </Link>
-            .
-          </Text>
+          {/* Main form card */}
+          <Box
+            bg="white"
+            borderRadius="2xl"
+            boxShadow="xl"
+            p={{ base: 6, md: 8 }}
+            border="1px solid"
+            borderColor="gray.100"
+          >
+            <VStack spacing={6}>
+              {/* Localhost dummy data button */}
+              {typeof window !== "undefined" &&
+                window.location.hostname === "localhost" && (
+                  <Box w="full">
+                    <Button
+                      onClick={fillDummyData}
+                      variant="outline"
+                      colorScheme="orange"
+                      size="sm"
+                      w="full"
+                      borderStyle="dashed"
+                    >
+                      🚀 Fill with Dummy Data (Dev Only)
+                    </Button>
+                    <Divider my={4} />
+                  </Box>
+                )}
+
+              <VStack spacing={5} w="full">
+                <FormControl isInvalid={touched.email && !isEmailValid}>
+                  <FormLabel color="gray.700" fontWeight="600">
+                    Email Address
+                  </FormLabel>
+                  <Input
+                    type="email"
+                    placeholder="you@email.com"
+                    value={formData.email}
+                    onChange={(e) => onChange("email", e.target.value)}
+                    onBlur={() =>
+                      setTouched((prev) => ({ ...prev, email: true }))
+                    }
+                    size="lg"
+                    borderRadius="xl"
+                    border="2px solid"
+                    borderColor="gray.200"
+                    _hover={{ borderColor: "gray.300" }}
+                    _focus={{
+                      borderColor: "sable.sage",
+                      boxShadow: "0 0 0 1px var(--chakra-colors-green-500)",
+                    }}
+                    bg="gray.50"
+                    _focus={{ bg: "white" }}
+                  />
+                  {!isEmailValid && touched.email && (
+                    <FormErrorMessage>
+                      Enter a valid email address.
+                    </FormErrorMessage>
+                  )}
+                </FormControl>
+
+                <FormControl isInvalid={touched.password && !isPasswordValid}>
+                  <FormLabel color="gray.700" fontWeight="600">
+                    Password
+                  </FormLabel>
+                  <InputGroup size="lg">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="8+ characters, 1 number"
+                      value={formData.password}
+                      onChange={(e) => onChange("password", e.target.value)}
+                      onBlur={() =>
+                        setTouched((prev) => ({ ...prev, password: true }))
+                      }
+                      borderRadius="xl"
+                      border="2px solid"
+                      borderColor="gray.200"
+                      _hover={{ borderColor: "gray.300" }}
+                      _focus={{
+                        borderColor: "sable.sage",
+                        boxShadow: "0 0 0 1px var(--chakra-colors-green-500)",
+                      }}
+                      bg="gray.50"
+                      _focus={{ bg: "white" }}
+                      pr="3rem"
+                    />
+                    <InputRightElement width="3rem" height="100%">
+                      <IconButton
+                        h="1.75rem"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                        icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                        color="gray.500"
+                        _hover={{ color: "gray.700" }}
+                      />
+                    </InputRightElement>
+                  </InputGroup>
+
+                  {touched.password && !isPasswordValid && (
+                    <FormErrorMessage>
+                      Password must be at least 8 characters with a number and
+                      letter.
+                    </FormErrorMessage>
+                  )}
+
+                  {/* Password strength indicator */}
+                  {formData.password && (
+                    <VStack spacing={2} mt={3} align="stretch">
+                      <Box>
+                        <HStack justify="space-between" mb={1}>
+                          <Text fontSize="xs" color="gray.600">
+                            Password strength
+                          </Text>
+                          <Text
+                            fontSize="xs"
+                            color={strengthColor}
+                            fontWeight="600"
+                          >
+                            {strengthLabel}
+                          </Text>
+                        </HStack>
+                        <Box
+                          h="6px"
+                          borderRadius="full"
+                          bg="gray.200"
+                          overflow="hidden"
+                        >
+                          <Box
+                            h="6px"
+                            borderRadius="full"
+                            bg={strengthColor}
+                            width={`${strengthPercent * 100}%`}
+                            transition="all 0.3s ease"
+                          />
+                        </Box>
+                      </Box>
+                    </VStack>
+                  )}
+                </FormControl>
+
+                {/* Terms agreement */}
+                <FormControl>
+                  <Checkbox
+                    isChecked={agree}
+                    onChange={(e) => setAgree(e.target.checked)}
+                    size="md"
+                    colorScheme="green"
+                    borderRadius="md"
+                  >
+                    <Text fontSize="sm" ml={2} color="gray.700">
+                      I agree to Sable's{" "}
+                      <Link
+                        href="/privacy-policy"
+                        color="sable.sage"
+                        textDecoration="underline"
+                        fontWeight="600"
+                      >
+                        Privacy Policy
+                      </Link>
+                      ,{" "}
+                      <Link
+                        href="/terms"
+                        color="sable.sage"
+                        textDecoration="underline"
+                        fontWeight="600"
+                      >
+                        Terms of Use
+                      </Link>
+                      , and{" "}
+                      <Link
+                        href="/e-sign"
+                        color="sable.sage"
+                        textDecoration="underline"
+                        fontWeight="600"
+                      >
+                        E-Sign Consent
+                      </Link>
+                      .
+                    </Text>
+                  </Checkbox>
+                </FormControl>
+
+                {/* Submit button */}
+                <Button
+                  colorScheme="green"
+                  size="lg"
+                  w="full"
+                  h="56px"
+                  borderRadius="xl"
+                  fontSize="lg"
+                  fontWeight="700"
+                  onClick={handleContinue}
+                  isDisabled={!isFormValid || loading}
+                  isLoading={loading}
+                  loadingText="Creating account..."
+                  _hover={{
+                    transform: "translateY(-2px)",
+                    boxShadow: "lg",
+                  }}
+                  transition="all 0.2s ease"
+                >
+                  Create Account & Continue →
+                </Button>
+
+                <Text fontSize="xs" color="gray.500" textAlign="center">
+                  Next: Choose your plan and set up credit monitoring
+                </Text>
+              </VStack>
+            </VStack>
+          </Box>
+
+          {/* Footer links */}
+          <VStack spacing={4} textAlign="center">
+            <Text fontSize="sm" color="gray.600">
+              Already have an account?{" "}
+              <Link
+                href="/auth/signin"
+                color="sable.sage"
+                textDecoration="underline"
+                fontWeight="600"
+              >
+                Sign in here
+              </Link>
+            </Text>
+            <Text fontSize="sm" color="gray.600">
+              Need help?{" "}
+              <Link
+                color="sable.sage"
+                textDecoration="underline"
+                fontWeight="600"
+              >
+                Contact support
+              </Link>
+            </Text>
+          </VStack>
         </VStack>
-      </VStack>
-    </Container>
+      </Container>
+    </Box>
   );
 }

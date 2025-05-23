@@ -2,12 +2,9 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
-  "/dashboard/disputes/center": "pages/dashboard/disputes/center.js",
-  "/dashboard": "pages/dashboard.js",
-  "/api/popups/[popup]": "pages/api/popups/[popup].js",
-  "/dashboard/disputes": "pages/dashboard/disputes.js",
-  "/dashboard/creditbuilder": "pages/dashboard/creditbuilder.js",
   "/dashboard/account": "pages/dashboard/account.js",
-  "/api/array/getWidget": "pages/api/array/getWidget.js"
+  "/": "pages/index.js",
+  "/onboarding/signup": "pages/onboarding/signup.js",
+  "/api/signup/partial": "pages/api/signup/partial.js",
+  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js"
 }

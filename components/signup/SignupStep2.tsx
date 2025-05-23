@@ -4,146 +4,354 @@ import {
   Text,
   Button,
   VStack,
+  HStack,
   useColorModeValue,
   Wrap,
   WrapItem,
   Icon,
   Container,
   Image,
+  Progress,
+  SimpleGrid,
+  Flex,
+  Badge,
+  ScaleFade,
+  Fade,
+  useBreakpointValue,
 } from "@chakra-ui/react";
-import { FaCheckCircle, FaTools, FaShieldAlt } from "react-icons/fa";
-import { MdTrendingUp } from "react-icons/md";
+import {
+  FaCheckCircle,
+  FaTools,
+  FaShieldAlt,
+  FaCreditCard,
+} from "react-icons/fa";
+import { MdTrendingUp, MdSecurity, MdAccountBalance } from "react-icons/md";
 import { useState } from "react";
 
-interface SignupStep3Props {
+interface SignupStep2Props {
   onNext: (step: number, data?: any) => void;
   onBack: () => void;
 }
 
-const SERVICES = [
+const INTERESTS = [
   {
     name: "Credit Builder Loan",
     icon: MdTrendingUp,
     image: "/mockups/sable-difference/coin-piggy-bank.png",
-    description: "Build your credit profile by reporting on-time payments.",
+    description:
+      "Build credit with small, manageable monthly payments that report to all bureaus.",
+    benefit: "Average 37-point score increase",
+    color: "green",
   },
   {
-    name: "DIY Disputing",
+    name: "Credit Repair & Disputes",
     icon: FaTools,
     image: "/mockups/sable-difference/Sable-credit-gauge.png",
     description:
-      "Dispute negative items on your credit report with guided tools.",
+      "Challenge errors and inaccuracies on your credit reports with guided dispute tools.",
+    benefit: "Remove negative items faster",
+    color: "red",
   },
   {
     name: "Credit Monitoring",
     icon: FaShieldAlt,
     image: "/mockups/grow/cash-in-safe.png",
-    description: "Stay informed with real-time alerts and 3-bureau tracking.",
+    description:
+      "Real-time alerts when changes appear on your credit reports from all three bureaus.",
+    benefit: "Catch fraud early",
+    color: "blue",
+  },
+  {
+    name: "Financial Education",
+    icon: MdSecurity,
+    image: "/mockups/grow/graphic-working-mom.png",
+    description:
+      "Learn proven strategies to build wealth and improve your financial health.",
+    benefit: "Master money management",
+    color: "purple",
+  },
+  {
+    name: "Debt Management",
+    icon: MdAccountBalance,
+    image: "/mockups/grow/sable-piggy.png",
+    description:
+      "Tools and strategies to pay down debt faster and save money on interest.",
+    benefit: "Pay off debt 40% faster",
+    color: "orange",
+  },
+  {
+    name: "Premium Support",
+    icon: FaCreditCard,
+    image: "/mockups/sable-difference/savings-party.png",
+    description:
+      "Get priority access to credit experts and personalized guidance.",
+    benefit: "1-on-1 expert guidance",
+    color: "teal",
   },
 ];
 
-export default function SignupStep3({ onNext, onBack }: SignupStep3Props) {
+export default function SignupStep2({ onNext, onBack }: SignupStep2Props) {
   const [selected, setSelected] = useState<string[]>([]);
   const cardBg = useColorModeValue("white", "gray.700");
-  const cardGradient = useColorModeValue(
-    "linear(to-br, white, gray.50)",
-    "linear(to-br, gray.700, gray.800)"
-  );
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
-  const toggleService = (name: string) => {
+  const toggleInterest = (name: string) => {
     setSelected((prev) =>
       prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
     );
   };
 
+  const handleContinue = () => {
+    onNext(3, { interests: selected });
+  };
+
   return (
-    <Container maxW="5xl" px={4} py={12}>
-      <VStack spacing={10} align="stretch" textAlign="center">
-        <VStack spacing={4}>
-          <Heading
-            as="h3"
-            fontFamily="Franklin Gothic, sans-serif"
-            fontWeight="400"
-            fontSize="2xl"
-            color="green.500"
-          >
-            What Services Serve You Best?
-          </Heading>
+    <Box bg="gray.50" minH="100vh" py={8}>
+      <Container maxW="6xl" px={4}>
+        {/* Progress Bar */}
+        <Progress
+          value={33.2} // 2/6 steps
+          size="xs"
+          colorScheme="green"
+          borderRadius="full"
+          mb={8}
+          bg="gray.200"
+        />
 
-          <Text fontSize="md" color="gray.600">
-            Select anything you're interested in — this helps us personalize
-            your experience. You’ll still have access to everything.
-          </Text>
-        </VStack>
-
-        <Wrap spacing={6} justify="center">
-          {SERVICES.map((service) => {
-            const isActive = selected.includes(service.name);
-            return (
-              <WrapItem key={service.name} w={{ base: "100%", md: "auto" }}>
+        <VStack spacing={10} align="stretch" textAlign="center">
+          {/* Header */}
+          <Fade in={true}>
+            <VStack spacing={6}>
+              <ScaleFade in={true} initialScale={0.9}>
                 <Box
-                  bgGradient={cardGradient}
-                  p={6}
-                  w="100%"
-                  borderRadius="xl"
-                  boxShadow={isActive ? "xl" : "lg"}
-                  borderTopWidth={4}
-                  borderTopColor={isActive ? "green.400" : "transparent"}
-                  border="2px solid"
-                  borderColor={isActive ? "green.500" : "gray.200"}
-                  cursor="pointer"
-                  transition="all 0.25s ease"
-                  transform={isActive ? "scale(1.02)" : "scale(1)"}
-                  _hover={{
-                    borderColor: "green.400",
-                    boxShadow: "xl",
-                    transform: "scale(1.02)",
-                  }}
-                  onClick={() => toggleService(service.name)}
+                  p={4}
+                  bg="gradient-to-br from-green.400 to-green.600"
+                  borderRadius="2xl"
+                  color="white"
+                  boxShadow="0 8px 25px rgba(55, 161, 105, 0.4)"
                 >
-                  <VStack spacing={4}>
-                    <Image
-                      src={service.image}
-                      alt={service.name}
-                      boxSize={"60px"}
-                      borderRadius="md"
-                    />
-                    <Text fontWeight="bold" fontSize="md">
-                      {service.name}
-                    </Text>
-                    <Text fontSize="sm" color="gray.500" lineHeight={1.4}>
-                      {service.description}
-                    </Text>
-                    {isActive && (
-                      <Icon as={FaCheckCircle} color="green.500" boxSize={4} />
-                    )}
-                  </VStack>
+                  <Icon as={MdTrendingUp} boxSize={8} />
                 </Box>
-              </WrapItem>
-            );
-          })}
-        </Wrap>
+              </ScaleFade>
 
-        <VStack spacing={5} pt={6} w="full">
-          <Button
-            bg="green.500"
-            color="white"
-            _hover={{ bg: "green.700" }}
-            rounded="lg"
-            size="lg"
-            w="full"
-            maxW="xs"
-            h="14"
-            onClick={() => onNext(4, { services: selected })}
-            isDisabled={selected.length === 0}
-          >
-            Continue
-          </Button>
-          <Button variant="ghost" size="lg" w="full" maxW="xs" onClick={onBack}>
-            Back
-          </Button>
+              <VStack spacing={3}>
+                <Heading
+                  as="h2"
+                  fontFamily="heading"
+                  fontWeight="700"
+                  fontSize={{ base: "2xl", md: "3xl" }}
+                  color="green.600"
+                >
+                  What interests you most?
+                </Heading>
+                <Text
+                  fontSize={{ base: "md", md: "lg" }}
+                  color="gray.600"
+                  maxW="2xl"
+                  lineHeight="1.6"
+                >
+                  Select anything that catches your eye — this helps us
+                  personalize your experience. You'll have access to everything
+                  regardless of what you choose.
+                </Text>
+              </VStack>
+
+              {/* Selection Counter */}
+              {selected.length > 0 && (
+                <ScaleFade in={selected.length > 0}>
+                  <Badge
+                    colorScheme="green"
+                    variant="solid"
+                    px={4}
+                    py={2}
+                    borderRadius="full"
+                    fontSize="sm"
+                  >
+                    {selected.length} selected
+                  </Badge>
+                </ScaleFade>
+              )}
+            </VStack>
+          </Fade>
+
+          {/* Interest Cards */}
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6} w="full">
+            {INTERESTS.map((interest, index) => {
+              const isActive = selected.includes(interest.name);
+              return (
+                <ScaleFade
+                  key={interest.name}
+                  in={true}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Box
+                    bg={cardBg}
+                    p={6}
+                    borderRadius="2xl"
+                    boxShadow={isActive ? "xl" : "md"}
+                    border="3px solid"
+                    borderColor={
+                      isActive ? `${interest.color}.400` : "transparent"
+                    }
+                    cursor="pointer"
+                    transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                    transform={isActive ? "scale(1.02)" : "scale(1)"}
+                    _hover={{
+                      borderColor: `${interest.color}.300`,
+                      boxShadow: "xl",
+                      transform: "scale(1.02)",
+                    }}
+                    onClick={() => toggleInterest(interest.name)}
+                    position="relative"
+                    overflow="hidden"
+                  >
+                    {/* Background Pattern */}
+                    <Box
+                      position="absolute"
+                      top="-50%"
+                      right="-50%"
+                      w="200%"
+                      h="200%"
+                      bg={`linear-gradient(45deg, transparent 30%, ${interest.color}.50 70%)`}
+                      opacity={isActive ? 0.3 : 0}
+                      transition="opacity 0.3s ease"
+                      transform="rotate(15deg)"
+                    />
+
+                    <VStack spacing={4} position="relative">
+                      {/* Icon & Image */}
+                      <Box position="relative">
+                        <Image
+                          src={interest.image}
+                          alt={interest.name}
+                          boxSize="80px"
+                          objectFit="contain"
+                          mx="auto"
+                          filter={isActive ? "none" : "grayscale(20%)"}
+                          transition="filter 0.3s ease"
+                        />
+                        <Box
+                          position="absolute"
+                          top="-2"
+                          right="-2"
+                          p={2}
+                          bg={`${interest.color}.100`}
+                          borderRadius="full"
+                          opacity={isActive ? 1 : 0.7}
+                        >
+                          <Icon
+                            as={interest.icon}
+                            boxSize={4}
+                            color={`${interest.color}.600`}
+                          />
+                        </Box>
+                      </Box>
+
+                      {/* Content */}
+                      <VStack spacing={2}>
+                        <Text
+                          fontWeight="700"
+                          fontSize="lg"
+                          color={
+                            isActive ? `${interest.color}.700` : "gray.800"
+                          }
+                          transition="color 0.3s ease"
+                        >
+                          {interest.name}
+                        </Text>
+                        <Text
+                          fontSize="sm"
+                          color="gray.600"
+                          lineHeight="1.5"
+                          textAlign="center"
+                        >
+                          {interest.description}
+                        </Text>
+
+                        {/* Benefit Badge */}
+                        <Badge
+                          colorScheme={interest.color}
+                          variant={isActive ? "solid" : "subtle"}
+                          borderRadius="full"
+                          px={3}
+                          py={1}
+                          fontSize="xs"
+                          fontWeight="600"
+                          transition="all 0.3s ease"
+                        >
+                          {interest.benefit}
+                        </Badge>
+                      </VStack>
+
+                      {/* Selection Indicator */}
+                      {isActive && (
+                        <ScaleFade in={isActive}>
+                          <Box
+                            position="absolute"
+                            top={3}
+                            left={3}
+                            p={2}
+                            bg="green.500"
+                            borderRadius="full"
+                            color="white"
+                            boxShadow="md"
+                          >
+                            <Icon as={FaCheckCircle} boxSize={4} />
+                          </Box>
+                        </ScaleFade>
+                      )}
+                    </VStack>
+                  </Box>
+                </ScaleFade>
+              );
+            })}
+          </SimpleGrid>
+
+          {/* Action Buttons */}
+          <Fade in={true}>
+            <VStack spacing={4} pt={8}>
+              <Button
+                bg="green.500"
+                color="white"
+                _hover={{
+                  bg: "green.600",
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 8px 25px rgba(55, 161, 105, 0.4)",
+                }}
+                _active={{ transform: "translateY(0)" }}
+                rounded="xl"
+                size="lg"
+                w="full"
+                maxW="sm"
+                h="14"
+                onClick={handleContinue}
+                isDisabled={selected.length === 0}
+                transition="all 0.2s ease"
+                fontWeight="600"
+                fontSize="lg"
+              >
+                Continue to Plans →
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="lg"
+                color="gray.600"
+                onClick={onBack}
+                _hover={{ bg: "gray.100" }}
+              >
+                Back
+              </Button>
+
+              {selected.length === 0 && (
+                <Text fontSize="sm" color="gray.500" fontStyle="italic">
+                  Select at least one area of interest to continue
+                </Text>
+              )}
+            </VStack>
+          </Fade>
         </VStack>
-      </VStack>
-    </Container>
+      </Container>
+    </Box>
   );
 }
