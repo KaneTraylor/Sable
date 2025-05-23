@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Flex, Center, Spinner, VStack, Image } from "@chakra-ui/react";
+import { Box, Container, VStack, Spinner, Center } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { signIn } from "next-auth/react";
 
@@ -139,24 +139,21 @@ export default function SignupForm() {
   };
 
   return (
-    <Box bg="white" px={{ base: 4, md: 0 }} py={{ base: 6, md: 8 }}>
-      <Flex
-        direction="column"
-        align="center"
-        w="full"
-        maxW={{ base: "full", md: "3xl" }}
-        mx="auto"
-      >
-        <VStack spacing={8} w="full">
-          {isSubmitting ? (
-            <Center py={10}>
-              <Spinner size="xl" />
-            </Center>
-          ) : (
-            renderStep()
-          )}
-        </VStack>
-      </Flex>
+    <Box bg="sable.tan" minH="100vh">
+      {/* Full viewport height container */}
+      <Container maxW="full" h="100vh" p={0}>
+        {isSubmitting ? (
+          <Center h="100vh">
+            <VStack spacing={4}>
+              <Spinner size="xl" color="green.500" />
+            </VStack>
+          </Center>
+        ) : (
+          <Box h="100vh" overflowY="auto">
+            {renderStep()}
+          </Box>
+        )}
+      </Container>
     </Box>
   );
 }
