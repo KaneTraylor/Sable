@@ -22,20 +22,15 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/dashboard": [
+    "/dashboard/disputes/delivery": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/dashboard.js"
+      "static/chunks/pages/dashboard/disputes/delivery.js"
     ],
-    "/dashboard/disputes": [
+    "/dashboard/disputes/premium": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/dashboard/disputes.js"
-    ],
-    "/dashboard/disputes/select": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/dashboard/disputes/select.js"
+      "static/chunks/pages/dashboard/disputes/premium.js"
     ]
   },
   "ampFirstPages": []

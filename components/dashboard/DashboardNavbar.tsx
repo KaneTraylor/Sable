@@ -1,4 +1,4 @@
-// components/dashboard/DashboardNavbar.tsx - Collapsible version
+// components/dashboard/DashboardNavbar.tsx - Updated with better collapsed logo
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -186,20 +186,26 @@ export default function DashboardNavbar() {
                 )}
 
                 {isCollapsed && (
-                  <Box
-                    w={10}
-                    h={10}
-                    bg="sable.sage"
-                    borderRadius="lg"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    mx="auto"
-                  >
-                    <Text color="white" fontWeight="bold" fontSize="lg">
-                      S
-                    </Text>
-                  </Box>
+                  <Flex justify="center" w="full">
+                    <Box
+                      w={10}
+                      h={10}
+                      bg="sable.sage"
+                      borderRadius="lg"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      transition="all 0.2s ease"
+                      _hover={{
+                        bg: "sable.forest",
+                        transform: "scale(1.05)",
+                      }}
+                    >
+                      <Text color="white" fontWeight="bold" fontSize="md">
+                        S
+                      </Text>
+                    </Box>
+                  </Flex>
                 )}
 
                 <IconButton
