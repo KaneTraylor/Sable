@@ -1,49 +1,101 @@
+// components/dashboard/CreditScoreCard.tsx - Collapsible version
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import {
   Box,
   Flex,
   HStack,
+  VStack,
   Button,
   Heading,
   Text,
   IconButton,
+  Badge,
+  Progress,
+  SimpleGrid,
+  Skeleton,
+  Tooltip,
+  Card,
+  CardBody,
+  CardHeader,
+  Divider,
+  Collapse,
   useBreakpointValue,
-  useColorModeValue,
-  Spinner,
 } from "@chakra-ui/react";
-import { InfoIcon } from "@chakra-ui/icons";
-import { FaRegCalendarAlt } from "react-icons/fa";
+import {
+  TrendingUp,
+  TrendingDown,
+  Calendar,
+  Info,
+  RefreshCw,
+  Eye,
+  AlertCircle,
+  CheckCircle,
+  ArrowRight,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 
-// Mock data — replace with API call or DB sync
+// Mock data - replace with API call or DB sync
 const bureauData = {
-  Experian: { score: 739, delta: 54, updated: "May 3", next: "May 10" },
-  TransUnion: { score: 688, delta: -5, updated: "May 2", next: "May 9" },
-  Equifax: { score: 702, delta: 12, updated: "May 1", next: "May 8" },
+  Experian: {
+    score: 739,
+    delta: 54,
+    updated: "May 3",
+    next: "May 10",
+    trend: "up",
+    factors: ["Payment History", "Credit Mix", "Length of History"],
+  },
+  TransUnion: {
+    score: 688,
+    delta: -5,
+    updated: "May 2",
+    next: "May 9",
+    trend: "down",
+    factors: ["Credit Utilization", "Recent Inquiries"],
+  },
+  Equifax: {
+    score: 702,
+    delta: 12,
+    updated: "May 1",
+    next: "May 8",
+    trend: "up",
+    factors: ["Payment History", "Account Age"],
+  },
 } as const;
+
 type Bureau = keyof typeof bureauData;
 
 export default function CreditScoreCard() {
   const isMobile = useBreakpointValue({ base: true, md: false });
   const [selected, setSelected] = useState<Bureau>("TransUnion");
-
-  const { score, delta, updated, next } = bureauData[selected];
-  const pct = useMemo(() => Math.max(0, Math.min(1, score / 850)), [score]);
-  const rating = useMemo(() => {
-    if (score >= 740) return "Excellent";
-    if (score >= 670) return "Good";
-    if (score >= 580) return "Fair";
-    return "Poor";
-  }, [score]);
-
-  const outline = useColorModeValue("gray.200", "gray.600");
-  const divider = useColorModeValue("white", "gray.800");
-  const brandGreen = "#37a169";
-
-  // Array widget logic
-  const widgetRef = useRef<HTMLDivElement>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [userToken, setUserToken] = useState<string | null>(null);
   const [loadingToken, setLoadingToken] = useState(true);
+  const widgetRef = useRef<HTMLDivElement>(null);
 
+  const { score, delta, updated, next, trend, factors } = bureauData[selected];
+
+  // Calculate score percentage and rating
+  const { pct, rating, ratingColor } = useMemo(() => {
+    const pct = Math.max(0, Math.min(1, score / 850));
+    let rating = "Poor";
+    let ratingColor = "red.500";
+
+    if (score >= 740) {
+      rating = "Excellent";
+      ratingColor = "green.500";
+    } else if (score >= 670) {
+      rating = "Good";
+      ratingColor = "blue.500";
+    } else if (score >= 580) {
+      rating = "Fair";
+      ratingColor = "orange.500";
+    }
+
+    return { pct, rating, ratingColor };
+  }, [score]);
+
+  // Fetch Array token
   useEffect(() => {
     const fetchToken = async () => {
       try {
@@ -59,6 +111,7 @@ export default function CreditScoreCard() {
     fetchToken();
   }, []);
 
+  // Initialize Array widget
   useEffect(() => {
     if (!userToken || !widgetRef.current) return;
 
@@ -88,177 +141,276 @@ export default function CreditScoreCard() {
   }, [userToken]);
 
   return (
-    <Box
-      w="full"
-      p={4}
-      mb={5}
-      bg={useColorModeValue("white", "gray.700")}
-      borderRadius="16px"
-      boxShadow={`inset 0 0 0 1px ${outline}, 0 0 8px 0 rgba(0,0,0,0.125)`}
-    >
-      {/* 1) Bureau Toggle Buttons */}
-      <HStack spacing={2} mb={4}>
-        {(Object.keys(bureauData) as Bureau[]).map((b) => (
-          <Button
-            key={b}
-            size="sm"
-            variant={selected === b ? "solid" : "outline"}
-            bg={selected === b ? brandGreen : "transparent"}
-            color={
-              selected === b
-                ? "white"
-                : useColorModeValue("gray.700", "gray.200")
-            }
-            borderColor={brandGreen}
-            _hover={{
-              bg: selected === b ? "#2f855a" : `${brandGreen}1A`,
-            }}
-            fontFamily="Inter, sans-serif"
-            onClick={() => setSelected(b)}
-          >
-            {b}
-          </Button>
-        ))}
-      </HStack>
-
-      {/* 2) Score + Delta + History Icon */}
-      <Flex align="center" mb={1}>
-        <Heading
-          as="h2"
-          fontSize={isMobile ? "3xl" : "4xl"}
-          fontWeight="600"
-          fontFamily="Lato, sans-serif"
-        >
-          {score}
-        </Heading>
-        <Box
-          ml={2}
-          bg={brandGreen}
-          color="white"
-          px={3}
-          py={1}
-          borderRadius="full"
-          fontSize="sm"
-          fontWeight="600"
-          fontFamily="Inter, sans-serif"
-        >
-          {delta > 0 ? `+${delta}` : delta} pts
-        </Box>
-        <IconButton
-          aria-label="History"
-          icon={<FaRegCalendarAlt />}
-          variant="ghost"
-          size="sm"
-          color={brandGreen}
-          ml="auto"
-        />
-      </Flex>
-
-      {/* 3) Updated / Next Check */}
-      <Text
-        fontSize="xs"
-        color="gray.500"
-        mb={4}
-        fontFamily="Inter, sans-serif"
-      >
-        Updated {updated} | Next check {next}
-      </Text>
-
-      {/* 4) Score Progress Bar */}
-      <Box
-        position="relative"
-        w="full"
-        h="8px"
-        bg={outline}
-        borderRadius="8px"
-        mb={4}
-      >
-        <Box
-          position="absolute"
-          top="0"
-          left="0"
-          height="100%"
-          width={`${pct * 100}%`}
-          bg={brandGreen}
-          borderRadius="8px 0 0 8px"
-          transition="width 0.8s ease-in-out"
-        />
-        <Flex h="100%" justify="space-between">
-          {[...Array(4)].map((_, i) => (
-            <Box key={i} w="2px" h="100%" bg={divider} />
-          ))}
-        </Flex>
-        <Box
-          position="absolute"
-          top="50%"
-          left={`calc(${pct * 100}% - 12px)`}
-          transform="translateY(-50%)"
-          w="24px"
-          h="24px"
-          bg={brandGreen}
-          borderRadius="full"
-          boxShadow="0 0 0 4px white"
-          transition="left 0.8s ease-in-out"
-        />
-      </Box>
-
-      {/* 5) Rating Label */}
-      <Flex justify="space-between" align="center" mb={4}>
-        <Text
-          fontSize="xs"
-          fontWeight="700"
-          textTransform="uppercase"
-          fontFamily="Inter, sans-serif"
-          color={brandGreen}
-        >
-          {rating}
-        </Text>
-        <Flex
-          align="center"
-          fontFamily="Inter, sans-serif"
-          fontSize="xs"
-          color="gray.500"
-        >
-          VantageScore 3.0
-          <IconButton
-            aria-label="More info"
-            icon={<InfoIcon />}
-            variant="ghost"
-            size="sm"
-            color={brandGreen}
-            ml={1}
-          />
-        </Flex>
-      </Flex>
-
-      {/* 6) Growth Button */}
-      <Button
-        w="full"
-        size="lg"
-        bg={brandGreen}
+    <Card boxShadow="xl" borderRadius="2xl" overflow="hidden" bg="white">
+      {/* Header */}
+      <CardHeader
+        bg="gradient-to-r from-sable.sage to-sable.mint"
         color="white"
-        _hover={{ bg: "#2f855a" }}
-        fontFamily="Inter, sans-serif"
+        pb={2}
       >
-        Start Growth
-      </Button>
+        <Flex justify="space-between" align="center">
+          <VStack align="start" spacing={1}>
+            <Heading size="md" fontWeight="700">
+              Credit Score
+            </Heading>
+            <Text fontSize="sm" opacity={0.9}>
+              Updated {updated} • Next check {next}
+            </Text>
+          </VStack>
+          <HStack spacing={2}>
+            <Tooltip label="Refresh Score">
+              <IconButton
+                aria-label="Refresh"
+                icon={<RefreshCw size={16} />}
+                size="sm"
+                variant="ghost"
+                color="white"
+                _hover={{ bg: "whiteAlpha.200" }}
+              />
+            </Tooltip>
+            <Tooltip label="View Details">
+              <IconButton
+                aria-label="View Details"
+                icon={<Eye size={16} />}
+                size="sm"
+                variant="ghost"
+                color="white"
+                _hover={{ bg: "whiteAlpha.200" }}
+              />
+            </Tooltip>
+          </HStack>
+        </Flex>
+      </CardHeader>
 
-      {/* 7) Array Score Widget */}
-      <Box mt={6}>
-        <Heading
-          fontSize="sm"
-          mb={2}
-          color="gray.600"
-          fontFamily="Inter, sans-serif"
+      <CardBody p={6}>
+        {/* Bureau Toggle */}
+        <HStack spacing={1} mb={6} justify="center">
+          {(Object.keys(bureauData) as Bureau[]).map((bureau) => (
+            <Button
+              key={bureau}
+              size="sm"
+              variant={selected === bureau ? "solid" : "ghost"}
+              colorScheme={selected === bureau ? "green" : "gray"}
+              onClick={() => setSelected(bureau)}
+              borderRadius="full"
+              px={4}
+            >
+              {bureau}
+            </Button>
+          ))}
+        </HStack>
+
+        {/* Main Score Display - Always Visible */}
+        <VStack spacing={4} mb={6}>
+          {/* Score and Delta */}
+          <HStack spacing={4} align="center">
+            <Heading
+              fontSize="4xl"
+              fontWeight="800"
+              color={ratingColor}
+              fontFamily="mono"
+            >
+              {score}
+            </Heading>
+            <VStack spacing={1}>
+              <HStack spacing={1}>
+                {trend === "up" ? (
+                  <TrendingUp
+                    size={16}
+                    color="var(--chakra-colors-green-500)"
+                  />
+                ) : (
+                  <TrendingDown
+                    size={16}
+                    color="var(--chakra-colors-red-500)"
+                  />
+                )}
+                <Text
+                  fontSize="sm"
+                  fontWeight="700"
+                  color={delta > 0 ? "green.500" : "red.500"}
+                >
+                  {delta > 0 ? `+${delta}` : delta} pts
+                </Text>
+              </HStack>
+              <Text fontSize="xs" color="gray.500">
+                This month
+              </Text>
+            </VStack>
+          </HStack>
+
+          {/* Rating Badge */}
+          <Badge
+            colorScheme={ratingColor.split(".")[0]}
+            variant="subtle"
+            px={4}
+            py={1}
+            borderRadius="full"
+            fontSize="sm"
+            fontWeight="600"
+          >
+            {rating}
+          </Badge>
+        </VStack>
+
+        {/* Score Progress Bar - Always Visible */}
+        <Box mb={6}>
+          <Flex justify="space-between" mb={2}>
+            <Text fontSize="xs" color="gray.500">
+              300
+            </Text>
+            <Text fontSize="xs" color="gray.500">
+              850
+            </Text>
+          </Flex>
+          <Box position="relative">
+            <Progress
+              value={pct * 100}
+              size="lg"
+              colorScheme="green"
+              borderRadius="full"
+              bg="gray.100"
+            />
+            {/* Score indicator */}
+            <Box
+              position="absolute"
+              top="-2px"
+              left={`${pct * 100}%`}
+              transform="translateX(-50%)"
+              w="16px"
+              h="16px"
+              bg="white"
+              border="3px solid"
+              borderColor="sable.sage"
+              borderRadius="full"
+              boxShadow="md"
+            />
+          </Box>
+          <Flex justify="space-between" mt={2}>
+            <Text fontSize="xs" color="gray.500">
+              Poor
+            </Text>
+            <Text fontSize="xs" color="gray.500">
+              Fair
+            </Text>
+            <Text fontSize="xs" color="gray.500">
+              Good
+            </Text>
+            <Text fontSize="xs" color="gray.500">
+              Excellent
+            </Text>
+          </Flex>
+        </Box>
+
+        {/* Expand/Collapse Toggle Button */}
+        <Button
+          variant="ghost"
+          w="full"
+          justifyContent="center"
+          onClick={() => setIsExpanded(!isExpanded)}
+          rightIcon={
+            isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />
+          }
+          mb={4}
+          _hover={{ bg: "gray.50" }}
+          borderRadius="lg"
         >
-          From Array (Live Score after implementation.)
-        </Heading>
-        {loadingToken ? (
-          <Spinner size="md" />
-        ) : (
-          <Box ref={widgetRef} minH="300px" />
-        )}
-      </Box>
-    </Box>
+          {isExpanded ? "Show Less Details" : "Show More Details"}
+        </Button>
+
+        {/* Collapsible Content */}
+        <Collapse in={isExpanded} animateOpacity>
+          <VStack spacing={6} align="stretch">
+            <Divider />
+
+            {/* Key Factors */}
+            <VStack align="stretch" spacing={3}>
+              <HStack>
+                <Info size={16} color="var(--chakra-colors-blue-500)" />
+                <Text fontSize="sm" fontWeight="600" color="gray.700">
+                  Key Factors for {selected}
+                </Text>
+              </HStack>
+              {factors.map((factor, index) => (
+                <HStack key={index} spacing={3}>
+                  <Box w={2} h={2} bg="sable.sage" borderRadius="full" />
+                  <Text fontSize="sm" color="gray.600">
+                    {factor}
+                  </Text>
+                </HStack>
+              ))}
+            </VStack>
+
+            {/* Quick Stats Grid */}
+            <SimpleGrid columns={2} spacing={4}>
+              <Box p={3} bg="gray.50" borderRadius="lg" textAlign="center">
+                <Text fontSize="xl" fontWeight="bold" color="gray.800">
+                  {(Object.values(bureauData).reduce(
+                    (acc, b) => acc + b.score,
+                    0
+                  ) /
+                    3) |
+                    0}
+                </Text>
+                <Text fontSize="xs" color="gray.500">
+                  Average Score
+                </Text>
+              </Box>
+              <Box p={3} bg="green.50" borderRadius="lg" textAlign="center">
+                <Text fontSize="xl" fontWeight="bold" color="green.600">
+                  {Object.values(bureauData).filter((b) => b.delta > 0).length}
+                </Text>
+                <Text fontSize="xs" color="gray.500">
+                  Improving Bureaus
+                </Text>
+              </Box>
+            </SimpleGrid>
+
+            {/* Action Button */}
+            <Button
+              w="full"
+              colorScheme="green"
+              size="lg"
+              borderRadius="xl"
+              rightIcon={<ArrowRight size={16} />}
+              _hover={{ transform: "translateY(-1px)", boxShadow: "lg" }}
+              transition="all 0.2s"
+            >
+              Improve My Score
+            </Button>
+
+            {/* Array Widget Section */}
+            <Box p={4} bg="gray.50" borderRadius="xl">
+              <HStack justify="space-between" mb={4}>
+                <VStack align="start" spacing={0}>
+                  <Text fontSize="sm" fontWeight="600" color="gray.700">
+                    Live Credit Data
+                  </Text>
+                  <Text fontSize="xs" color="gray.500">
+                    Powered by Array
+                  </Text>
+                </VStack>
+                <Badge colorScheme="blue" variant="subtle" size="sm">
+                  Real-time
+                </Badge>
+              </HStack>
+
+              {loadingToken ? (
+                <VStack spacing={3}>
+                  <Skeleton height="40px" borderRadius="lg" />
+                  <SimpleGrid columns={3} spacing={2} w="full">
+                    <Skeleton height="60px" borderRadius="lg" />
+                    <Skeleton height="60px" borderRadius="lg" />
+                    <Skeleton height="60px" borderRadius="lg" />
+                  </SimpleGrid>
+                </VStack>
+              ) : (
+                <Box ref={widgetRef} minH="200px" />
+              )}
+            </Box>
+          </VStack>
+        </Collapse>
+      </CardBody>
+    </Card>
   );
 }

@@ -10,7 +10,6 @@ import {
   IconButton,
   Image,
   SimpleGrid,
-  Spinner,
   Text,
   useBreakpointValue,
   useColorModeValue,
@@ -20,7 +19,6 @@ import {
 import { TimeIcon } from "@chakra-ui/icons";
 import { FiFilter } from "react-icons/fi";
 
-import DashboardNavbar from "./DashboardNavbar";
 import CreditScoreCard from "./CreditScoreCard";
 import CreditScoreChart from "./CreditScoreChart";
 import ActionItems from "./ActionItems";
@@ -66,163 +64,117 @@ export default function ScoreOverview() {
   const [period, setPeriod] = useState<"1M" | "3M" | "6M" | "1Y">("1M");
 
   return (
-    <Box bg={bg} minH="100vh" pl={{ md: "80px" }}>
-      <DashboardNavbar />
-      <Box maxW="7xl" mx="aut" px={{ base: 4, md: 8 }} py={{ base: 6, md: 12 }}>
-        <Grid templateColumns={{ base: "1fr", md: "1fr 2fr" }} gap={8}>
-          {/* Left Column */}
-          <VStack spacing={6} align="stretch">
-            <Box>
-              <CreditScoreCard />
-            </Box>
+    <Box bg={bg} minH="100vh">
+      <Grid templateColumns={{ base: "1fr", md: "1fr 2fr" }} gap={8}>
+        {/* Left Column */}
+        <VStack spacing={6} align="stretch">
+          <CreditScoreCard />
 
-            <Divider />
+          <Divider />
 
-            {/* Dispute Feed */}
-            <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
-              <Box>
-                <HStack justify="space-between" mb={4}>
-                  <HStack spacing={2}>
-                    <TimeIcon />
-                    <Text fontWeight="bold" fontFamily="Lato, sans-serif">
-                      Live Dispute Feed
-                    </Text>
-                  </HStack>
-                  <IconButton
-                    aria-label="Filter disputes"
-                    icon={<FiFilter />}
-                    size="sm"
-                    variant="ghost"
-                    colorScheme="green"
-                  />
-                </HStack>
-                <VStack spacing={4} align="stretch" mb={6}>
-                  {DISPUTES.map((d, i) => (
-                    <Box key={i} pt={2} borderTop={`1px solid ${border}`}>
-                      <Text fontWeight="medium" fontFamily="Inter, sans-serif">
-                        {d.title}
-                      </Text>
-                      <HStack fontSize="sm" color="gray.500" mt={1}>
-                        <Text>{d.type}</Text>
-                        <Text>·</Text>
-                        <Text>{d.date}</Text>
-                        <Text>·</Text>
-                        <Badge
-                          colorScheme={
-                            d.status === "New"
-                              ? "green"
-                              : d.status === "In Review"
-                              ? "orange"
-                              : "gray"
-                          }
-                        >
-                          {d.status}
-                        </Badge>
-                      </HStack>
-                    </Box>
-                  ))}
-                </VStack>
-              </Box>
-              <Image
-                src="/mockups/sable-difference/graphic-ladder-girl.svg"
-                alt="Dispute Character"
-                mt="auto"
-                mx="auto"
-                maxH={isDesktop ? "190px" : "270px"}
-                objectFit="contain"
+          {/* Dispute Feed */}
+          <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
+            <HStack justify="space-between" mb={4}>
+              <HStack spacing={2}>
+                <TimeIcon />
+                <Text fontWeight="bold" fontFamily="Lato, sans-serif">
+                  Live Dispute Feed
+                </Text>
+              </HStack>
+              <IconButton
+                aria-label="Filter disputes"
+                icon={<FiFilter />}
+                size="sm"
+                variant="ghost"
+                colorScheme="green"
               />
-            </Box>
+            </HStack>
 
-            <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
-              <ActionItems />
-            </Box>
-          </VStack>
-
-          {/* Right Column */}
-          <VStack spacing={6} align="stretch">
-            {/* Score Analysis */}
-            <Box>
-              <HStack justify="space-between" mb={2}>
-                <Heading size="md" fontFamily="Lato, sans-serif">
-                  Score Analysis
-                </Heading>
-                <HStack spacing={2}>
-                  {(["1M", "3M", "6M", "1Y"] as const).map((p) => (
-                    <Button
-                      key={p}
-                      size="sm"
-                      variant={period === p ? "solid" : "outline"}
-                      onClick={() => setPeriod(p)}
+            <VStack spacing={4} align="stretch" mb={6}>
+              {DISPUTES.map((d, i) => (
+                <Box key={i} pt={2} borderTop={`1px solid ${border}`}>
+                  <Text fontWeight="medium" fontFamily="Inter, sans-serif">
+                    {d.title}
+                  </Text>
+                  <HStack fontSize="sm" color="gray.500" mt={1}>
+                    <Text>{d.type}</Text>
+                    <Text>·</Text>
+                    <Text>{d.date}</Text>
+                    <Text>·</Text>
+                    <Badge
+                      colorScheme={
+                        d.status === "New"
+                          ? "green"
+                          : d.status === "In Review"
+                          ? "orange"
+                          : "gray"
+                      }
                     >
-                      {p}
-                    </Button>
-                  ))}
-                </HStack>
+                      {d.status}
+                    </Badge>
+                  </HStack>
+                </Box>
+              ))}
+            </VStack>
+
+            <Image
+              src="/mockups/sable-difference/graphic-ladder-girl.svg"
+              alt="Dispute Character"
+              mt="auto"
+              mx="auto"
+              maxH={isDesktop ? "190px" : "270px"}
+              objectFit="contain"
+            />
+          </Box>
+
+          <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
+            <ActionItems />
+          </Box>
+        </VStack>
+
+        {/* Right Column */}
+        <VStack spacing={6} align="stretch">
+          {/* Score Analysis */}
+          <Box>
+            <HStack justify="space-between" mb={2}>
+              <Heading size="md" fontFamily="Lato, sans-serif">
+                Score Analysis
+              </Heading>
+              <HStack spacing={2}>
+                {(["1M", "3M", "6M", "1Y"] as const).map((p) => (
+                  <Button
+                    key={p}
+                    size="sm"
+                    variant={period === p ? "solid" : "outline"}
+                    onClick={() => setPeriod(p)}
+                  >
+                    {p}
+                  </Button>
+                ))}
               </HStack>
-              <CreditScoreChart period={period} />
-            </Box>
+            </HStack>
+            <CreditScoreChart period={period} />
+          </Box>
 
-            <Divider />
+          <Divider />
 
-            {/* Account Metrics */}
-            <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
-              <HStack mb={4} spacing={2}>
-                <Image
-                  src="/mockups/sable-difference/Sable-credit-gauge.png"
-                  alt="Sable Credit Gauge"
-                  boxSize="6"
-                />
-                <Heading size="md" fontFamily="Lato, sans-serif">
-                  Credit Overview
-                </Heading>
-              </HStack>
+          {/* Account Metrics */}
+          <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
+            <HStack mb={4} spacing={2}>
+              <Image
+                src="/mockups/sable-difference/Sable-credit-gauge.png"
+                alt="Sable Credit Gauge"
+                boxSize={6}
+              />
+              <Heading size="md" fontFamily="Lato, sans-serif">
+                Credit Overview
+              </Heading>
+            </HStack>
 
-              <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
-                {METRICS.map((m) => {
-                  if (m.label === "Utilization") {
-                    const val = parseInt(m.value);
-                    return (
-                      <Box
-                        key={m.label}
-                        bg={cardBg}
-                        p={4}
-                        borderRadius="md"
-                        boxShadow="md"
-                        textAlign="center"
-                        gridColumn={{ base: "span 2", md: "span 4" }}
-                      >
-                        <Text
-                          fontSize="sm"
-                          mb={2}
-                          fontFamily="Inter, sans-serif"
-                        >
-                          {m.label}
-                        </Text>
-                        <Flex align="center">
-                          <Box flex="1" mr={2}>
-                            <Box
-                              bg="gray.200"
-                              h="6px"
-                              borderRadius="md"
-                              overflow="hidden"
-                            >
-                              <Box
-                                bg={val > 35 ? "red.400" : "#37a169"}
-                                w={`${val}%`}
-                                h="6px"
-                              />
-                            </Box>
-                          </Box>
-                          <Text
-                            fontWeight="bold"
-                            fontFamily="Inter, sans-serif"
-                          >
-                            {m.value}
-                          </Text>
-                        </Flex>
-                      </Box>
-                    );
-                  }
+            <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+              {METRICS.map((m) => {
+                if (m.label === "Utilization") {
+                  const val = parseInt(m.value);
                   return (
                     <Box
                       key={m.label}
@@ -231,34 +183,68 @@ export default function ScoreOverview() {
                       borderRadius="md"
                       boxShadow="md"
                       textAlign="center"
+                      gridColumn={{ base: "span 2", md: "span 4" }}
                     >
-                      <Text
-                        fontSize="sm"
-                        color="gray.500"
-                        fontFamily="Inter, sans-serif"
-                      >
+                      <Text fontSize="sm" mb={2} fontFamily="Inter, sans-serif">
                         {m.label}
                       </Text>
-                      <Text
-                        fontSize="xl"
-                        fontWeight="bold"
-                        fontFamily="Inter, sans-serif"
-                      >
-                        {m.value}
-                      </Text>
+                      <Flex align="center">
+                        <Box flex="1" mr={2}>
+                          <Box
+                            bg="gray.200"
+                            h="6px"
+                            borderRadius="md"
+                            overflow="hidden"
+                          >
+                            <Box
+                              bg={val > 35 ? "red.400" : "green.500"}
+                              w={`${val}%`}
+                              h="6px"
+                            />
+                          </Box>
+                        </Box>
+                        <Text fontWeight="bold" fontFamily="Inter, sans-serif">
+                          {m.value}
+                        </Text>
+                      </Flex>
                     </Box>
                   );
-                })}
-              </SimpleGrid>
-            </Box>
+                }
+                return (
+                  <Box
+                    key={m.label}
+                    bg={cardBg}
+                    p={4}
+                    borderRadius="md"
+                    boxShadow="md"
+                    textAlign="center"
+                  >
+                    <Text
+                      fontSize="sm"
+                      color="gray.500"
+                      fontFamily="Inter, sans-serif"
+                    >
+                      {m.label}
+                    </Text>
+                    <Text
+                      fontSize="xl"
+                      fontWeight="bold"
+                      fontFamily="Inter, sans-serif"
+                    >
+                      {m.value}
+                    </Text>
+                  </Box>
+                );
+              })}
+            </SimpleGrid>
+          </Box>
 
-            {/* Credit Tasks */}
-            <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
-              <CreditTasks />
-            </Box>
-          </VStack>
-        </Grid>
-      </Box>
+          {/* Credit Tasks */}
+          <Box bg={cardBg} p={6} borderRadius="lg" boxShadow="xl">
+            <CreditTasks />
+          </Box>
+        </VStack>
+      </Grid>
     </Box>
   );
 }

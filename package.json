@@ -15,7 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "@chakra-ui/icons": "^2.2.4",
-    "@chakra-ui/react": "^2.10.7",
+    "@chakra-ui/react": "^2.10.9",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@fontsource/inter": "^5.2.5",
@@ -32,7 +32,7 @@
     "framer-motion": "^10.18.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
-    "lucide-react": "^0.501.0",
+    "lucide-react": "^0.263.1",
     "next": "^14.0.0",
     "next-auth": "^4.24.11",
     "nodemailer": "^6.10.1",
