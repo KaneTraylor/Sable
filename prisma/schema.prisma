@@ -30,7 +30,7 @@ model User {
   // Array integration
   arrayUserId       String?   @unique
 
-  // dispute cadence tracking
+  // dispute cadence tracking (legacy - keep for compatibility)
   lastDisputeSentAt DateTime?
   nextDisputeAt     DateTime?
   sentWithSable     Boolean?  @default(false)
@@ -39,8 +39,9 @@ model User {
   popupOneLastSeen  DateTime?
   popupTwoLastSeen  DateTime?
 
-  loans    CreditBuilderLoan[] @relation("UserLoans")
-  disputes Dispute[]
+  loans         CreditBuilderLoan[] @relation("UserLoans")
+  disputes      Dispute[]           // legacy disputes
+  disputeRounds DisputeRound[]      // new dispute tracking
 }
 
 model CreditBuilderLoan {
@@ -53,7 +54,7 @@ model CreditBuilderLoan {
   user User @relation("UserLoans", fields: [userId], references: [id])
 }
 
-
+// Legacy dispute model - keep for backward compatibility
 model Dispute {
   id          Int      @id @default(autoincrement())
   userId      Int
@@ -66,6 +67,48 @@ model Dispute {
   user User @relation(fields: [userId], references: [id])
 
   @@index([userId])
+}
+
+// New dispute tracking models
+model DisputeRound {
+  id                    Int       @id @default(autoincrement())
+  userId                Int
+  createdAt             DateTime  @default(now())
+  sentAt                DateTime?
+  status                String    @default("draft") // draft, sent, investigating, completed
+  deliveryMethod        String?   // premium, self
+  trackingNumbers       String[]  @default([])
+  estimatedResponseDate DateTime?
+  
+  user  User          @relation(fields: [userId], references: [id])
+  items DisputeItem[]
+  
+  @@index([userId])
+  @@index([status])
+}
+
+model DisputeItem {
+  id              Int      @id @default(autoincrement())
+  disputeRoundId  Int
+  accountId       String   // unique identifier for the account
+  accountName     String
+  creditorName    String
+  bureau          String   // Equifax, TransUnion, Experian
+  reason          String
+  instruction     String
+  status          String   @default("pending") // pending, investigating, resolved, rejected
+  createdAt       DateTime @default(now())
+  lastUpdatedAt   DateTime @default(now())
+  canDisputeAgain DateTime? // when this item can be disputed again (35 days from sent)
+  responseReceived Boolean @default(false)
+  outcome         String?  // removed, updated, verified, etc.
+  
+  disputeRound DisputeRound @relation(fields: [disputeRoundId], references: [id])
+  
+  @@index([disputeRoundId])
+  @@index([accountId])
+  @@index([canDisputeAgain])
+  @@index([status])
 }
 
 model Lead {
