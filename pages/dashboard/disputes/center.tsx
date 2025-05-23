@@ -1,9 +1,9 @@
-// pages/dashboard/disputes/center.tsx - Modernized dispute center
+// pages/dashboard/disputes/center.tsx - Fixed Timeline imports
+import React, { useState } from "react";
 import { GetServerSideProps } from "next";
 import { getSession } from "next-auth/react";
 import prisma from "@/lib/prisma";
 import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -27,12 +27,6 @@ import {
   Divider,
   Avatar,
   AvatarGroup,
-  Timeline,
-  TimelineItem,
-  TimelineConnector,
-  TimelineIcon,
-  TimelineContent,
-  TimelineSeparator,
   Tabs,
   TabList,
   TabPanels,
@@ -221,7 +215,6 @@ function DisputeCenterContent({ disputeRounds, user }: DisputeCenterProps) {
   };
 
   const getBureauLogo = (bureau: string) => {
-    // In a real app, these would be actual bureau logos
     const colors = {
       Equifax: "red.500",
       TransUnion: "blue.500",
@@ -341,7 +334,8 @@ function DisputeCenterContent({ disputeRounds, user }: DisputeCenterProps) {
                   <VStack>
                     <Text fontSize="3xl" fontWeight="bold" color="orange.500">
                       {disputeRounds.reduce(
-                        (acc, r) => acc + r.items.length,
+                        (acc: number, r: DisputeRoundData) =>
+                          acc + r.items.length,
                         0
                       )}
                     </Text>
@@ -448,7 +442,7 @@ function DisputeCenterContent({ disputeRounds, user }: DisputeCenterProps) {
             <Box gridColumn={{ base: "1", xl: "2 / 4" }}>
               {activeRound && (
                 <VStack spacing={6} align="stretch">
-                  {/* Status Timeline */}
+                  {/* Status Progress - Custom Timeline */}
                   <Card bg={cardBg} borderRadius="xl" boxShadow="md">
                     <CardHeader>
                       <HStack justify="space-between">
@@ -465,7 +459,7 @@ function DisputeCenterContent({ disputeRounds, user }: DisputeCenterProps) {
                     </CardHeader>
                     <CardBody pt={0}>
                       <VStack spacing={6} align="stretch">
-                        {/* Timeline Steps */}
+                        {/* Custom Timeline Steps */}
                         <VStack spacing={4} align="stretch">
                           {[
                             {

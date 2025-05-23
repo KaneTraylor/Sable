@@ -1,4 +1,4 @@
-// pages/dashboard/disputes/premium.tsx - Updated with database integration
+// pages/dashboard/disputes/premium.tsx - Fixed router redirect issue
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import {
@@ -50,6 +50,19 @@ export default function DisputePremium() {
   const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [sendingProgress, setSendingProgress] = useState(0);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  // Handle redirect when no items are selected
+  useEffect(() => {
+    if (selected.length === 0) {
+      setIsRedirecting(true);
+      const timer = setTimeout(() => {
+        router.push("/dashboard/disputes/select");
+      }, 100); // Small delay to avoid render issues
+
+      return () => clearTimeout(timer);
+    }
+  }, [selected.length, router]);
 
   // Check for saved draft on mount
   useEffect(() => {
@@ -254,10 +267,22 @@ Sincerely,
     });
   }, [selected]);
 
-  // Redirect if no items selected
-  if (selected.length === 0) {
-    router.push("/dashboard/disputes/select");
-    return null;
+  // Show loading state while redirecting
+  if (isRedirecting || selected.length === 0) {
+    return (
+      <Box
+        minH="100vh"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        bg="gray.50"
+      >
+        <VStack spacing={4}>
+          <Spinner size="xl" color="green.500" />
+          <Text>Redirecting to dispute selection...</Text>
+        </VStack>
+      </Box>
+    );
   }
 
   return (

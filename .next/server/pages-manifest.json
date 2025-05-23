@@ -2,10 +2,11 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/dashboard/disputes/premium": "pages/dashboard/disputes/premium.js",
+  "/dashboard/disputes/delivery": "pages/dashboard/disputes/delivery.js",
+  "/dashboard/disputes/review": "pages/dashboard/disputes/review.js",
+  "/dashboard/disputes/manual": "pages/dashboard/disputes/manual.js",
   "/dashboard/disputes/select": "pages/dashboard/disputes/select.js",
-  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
-  "/dashboard": "pages/dashboard.js",
   "/dashboard/disputes": "pages/dashboard/disputes.js",
-  "/api/array/getWidget": "pages/api/array/getWidget.js",
-  "/api/popups/[popup]": "pages/api/popups/[popup].js"
+  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js"
 }

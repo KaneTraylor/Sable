@@ -1,4 +1,4 @@
-// pages/dashboard/disputes/confirmation.tsx - Modernized confirmation page
+// pages/dashboard/disputes/confirmation.tsx - Fixed without Timeline components
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
@@ -19,13 +19,6 @@ import {
   useColorModeValue,
   Icon,
   Divider,
-  Timeline,
-  TimelineItem,
-  TimelineIcon,
-  TimelineTrack,
-  TimelineContent,
-  TimelineConnector,
-  TimelineSeparator,
 } from "@chakra-ui/react";
 import {
   CheckCircle,
@@ -207,7 +200,7 @@ function ConfirmationContent() {
         </Card>
 
         <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8}>
-          {/* Timeline */}
+          {/* Custom Timeline */}
           <Card bg={cardBg} borderRadius="xl" boxShadow="md">
             <CardBody p={6}>
               <VStack spacing={6} align="stretch">
