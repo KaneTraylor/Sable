@@ -162,7 +162,6 @@ ${user.name}
   }, [selected, user]);
 
   const handleSend = () => {
-    reset();
     router.push("/dashboard/disputes/delivery");
   };
 
