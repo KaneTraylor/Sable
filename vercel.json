@@ -1,0 +1,6 @@
+{
+  "buildCommand": "prisma generate && prisma migrate deploy && next build",
+  "env": {
+    "DATABASE_URL": "postgresql://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiZDViNWIwN2ItZWU0Ny00Yzk4LWE4NmItYmQwNTcxMWNiZTdlIiwidGVuYW50X2lkIjoiNWJiOTI2MTc1YjA0MGViMjgzMmFhOTBiOGU3MWM5NmIyMjEzNmQ3MTdkNjg2ZWYxYWZiMTk4NzY4MzFlNzAxOSIsImludGVybmFsX3NlY3JldCI6IjRmZmZhMWRhLWI5YTYtNDIxNi05MTEwLTEzOGU5ZDRhMDNiYSJ9.jwBpaI6C4u8odVfZoNWD0OwHme1SniyIxHl0McRrqfA"
+  }
+}
