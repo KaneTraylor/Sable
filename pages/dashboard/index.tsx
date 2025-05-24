@@ -27,6 +27,7 @@ import CreditScoreCard from "@/components/dashboard/CreditScoreCard";
 import PopupWindowOne from "@/components/dashboard/PopupWindowOne";
 import PopupWindowTwo from "@/components/dashboard/PopupWindowTwo";
 import { SectionErrorBoundary } from "@/components/ErrorBoundary";
+import DebugDatabase from "@/components/dashboard/DebugDatabase";
 
 // Main Dashboard Content Component
 function DashboardContent() {
@@ -368,6 +369,7 @@ export default function ModernDashboard() {
     <SidebarProvider>
       <DashboardNavbar />
       <DashboardContent />
+      <DebugDatabase />
     </SidebarProvider>
   );
 }
