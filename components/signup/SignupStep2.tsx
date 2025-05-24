@@ -1,4 +1,4 @@
-// components/signup/SignupStep2.tsx - Fixed transition delay error
+// components/signup/SignupStep2.tsx - Fixed imports and duplicate attributes
 import {
   Box,
   Heading,
@@ -142,7 +142,7 @@ export default function SignupStep2({ onNext, onBack }: SignupStep2Props) {
               <ScaleFade in={true} initialScale={0.9}>
                 <Box
                   p={4}
-                  bg="gradient-to-br from-green.400 to-green.600"
+                  bg="linear-gradient(135deg, #48BB78, #38A169)"
                   borderRadius="2xl"
                   color="white"
                   boxShadow="0 8px 25px rgba(55, 161, 105, 0.4)"
@@ -231,7 +231,7 @@ export default function SignupStep2({ onNext, onBack }: SignupStep2Props) {
                       right="-50%"
                       w="200%"
                       h="200%"
-                      bg={`linear-gradient(45deg, transparent 30%, ${interest.color}.50 70%)`}
+                      bg={`linear-gradient(45deg, transparent 30%, var(--chakra-colors-${interest.color}-50) 70%)`}
                       opacity={isActive ? 0.3 : 0}
                       transition="opacity 0.3s ease"
                       transform="rotate(15deg)"
@@ -371,6 +371,39 @@ export default function SignupStep2({ onNext, onBack }: SignupStep2Props) {
           </Fade>
         </VStack>
       </Container>
+
+      {/* Custom CSS for animations */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .fade-in {
+          animation: fadeIn 0.6s ease-out;
+        }
+
+        .scale-in {
+          animation: scaleIn 0.4s ease-out;
+        }
+      `}</style>
     </Box>
   );
 }

@@ -1,4 +1,4 @@
-// components/signup/SignupForm.tsx - Improved Layout
+// components/signup/SignupForm.tsx
 import React, { useState, useEffect } from "react";
 import { Box, Container, VStack, Spinner, Center } from "@chakra-ui/react";
 import { useRouter } from "next/router";
@@ -137,29 +137,140 @@ export default function SignupForm() {
   };
 
   return (
-    <Box bg="sable.tan" minH="100vh">
-      {/* Improved container with proper constraints */}
-      <Container
-        maxW={{ base: "full", md: "4xl", lg: "6xl" }}
-        px={{ base: 4, md: 8 }}
-        py={{ base: 6, md: 8 }}
+    <>
+      {/* Full-Screen Background */}
+      <Box
         minH="100vh"
-        display="flex"
-        flexDirection="column"
-        justifyContent="center"
+        w="100vw"
+        bg="linear-gradient(135deg, #f8f4f0 0%, #faf7f3 50%, #f7f6f3 100%)"
+        // Subtle animated background pattern
+        position="relative"
+        overflow="hidden"
+        _before={{
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          opacity: 0.05,
+          backgroundImage: `
+            radial-gradient(circle at 20% 50%, #37a169 0%, transparent 70%),
+            radial-gradient(circle at 80% 20%, #e39d49 0%, transparent 70%),
+            radial-gradient(circle at 40% 80%, #37a169 0%, transparent 70%)
+          `,
+          backgroundSize: "100% 100%",
+          animation: "float 20s ease-in-out infinite",
+        }}
       >
-        {isSubmitting ? (
-          <Center flex="1">
-            <VStack spacing={4}>
-              <Spinner size="xl" color="green.500" />
-            </VStack>
-          </Center>
-        ) : (
-          <Box w="full" maxW="5xl" mx="auto">
-            {renderStep()}
-          </Box>
-        )}
-      </Container>
-    </Box>
+        {/* Floating Elements for Visual Interest */}
+        <Box
+          position="absolute"
+          top="10%"
+          right="15%"
+          w="100px"
+          h="100px"
+          bg="rgba(55, 161, 105, 0.1)"
+          borderRadius="full"
+          animation="float 15s ease-in-out infinite"
+          display={{ base: "none", md: "block" }}
+        />
+        <Box
+          position="absolute"
+          bottom="20%"
+          left="10%"
+          w="80px"
+          h="80px"
+          bg="rgba(227, 157, 73, 0.1)"
+          borderRadius="full"
+          animation="float 18s ease-in-out infinite reverse"
+          display={{ base: "none", md: "block" }}
+        />
+
+        {/* Main Content Container */}
+        <Box
+          position="relative"
+          zIndex={1}
+          minH="100vh"
+          display="flex"
+          flexDirection="column"
+        >
+          {isSubmitting ? (
+            <Center flex="1" minH="100vh">
+              <VStack spacing={6}>
+                <Spinner
+                  size="xl"
+                  color="sable.sage"
+                  thickness="4px"
+                  speed="0.65s"
+                />
+                <VStack spacing={2} textAlign="center">
+                  <Box fontSize="lg" fontWeight="600" color="sable.sage">
+                    Creating your account...
+                  </Box>
+                  <Box fontSize="sm" color="gray.600" maxW="sm">
+                    Setting up your personalized credit journey
+                  </Box>
+                </VStack>
+              </VStack>
+            </Center>
+          ) : (
+            // Full-width step content
+            <Box w="full" flex="1">
+              {renderStep()}
+            </Box>
+          )}
+        </Box>
+      </Box>
+
+      {/* CSS Keyframes for animations */}
+      <style jsx global>{`
+        @keyframes float {
+          0%,
+          100% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          33% {
+            transform: translateY(-20px) rotate(5deg);
+          }
+          66% {
+            transform: translateY(10px) rotate(-3deg);
+          }
+        }
+
+        @keyframes gradientShift {
+          0%,
+          100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+        }
+
+        /* Smooth scroll for better UX */
+        html {
+          scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: rgba(248, 244, 240, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: rgba(55, 161, 105, 0.3);
+          border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: rgba(55, 161, 105, 0.5);
+        }
+      `}</style>
+    </>
   );
 }
