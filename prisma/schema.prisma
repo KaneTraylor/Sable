@@ -27,9 +27,6 @@ model User {
   verificationToken String?
   currentStep       Int       @default(1)
 
-  // Array integration
-  arrayUserId       String?   @unique
-
   // dispute cadence tracking (legacy - keep for compatibility)
   lastDisputeSentAt DateTime?
   nextDisputeAt     DateTime?
