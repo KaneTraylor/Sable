@@ -1,7 +1,7 @@
-// pages/auth/signin.tsx - Modern Full-Width Design
+// pages/auth/signin.tsx - Modern Full-Width Design with Happy Messages
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Input,
@@ -30,6 +30,66 @@ import {
   Spacer,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { keyframes } from "@emotion/react";
+
+// Welcome messages that rotate
+const WELCOME_MESSAGES = [
+  {
+    greeting: "Welcome back,",
+    highlight: "Credit Builder! 🏗️",
+    subtitle: "Your financial fortress awaits",
+  },
+  {
+    greeting: "Hey there,",
+    highlight: "Dreamer! ✨",
+    subtitle: "Ready to make those dreams a reality?",
+  },
+  {
+    greeting: "Good to see you,",
+    highlight: "Money Maker! 💰",
+    subtitle: "Let's grow that credit score together",
+  },
+  {
+    greeting: "Welcome back,",
+    highlight: "Go-Getter! 🚀",
+    subtitle: "Your credit journey continues here",
+  },
+  {
+    greeting: "Hello again,",
+    highlight: "Achiever! 🌟",
+    subtitle: "Another step closer to financial freedom",
+  },
+  {
+    greeting: "Welcome back,",
+    highlight: "Champion! 🏆",
+    subtitle: "Ready to win at credit building?",
+  },
+  {
+    greeting: "Great to see you,",
+    highlight: "Striver! 💪",
+    subtitle: "Let's push those scores higher",
+  },
+  {
+    greeting: "Welcome back,",
+    highlight: "Visionary! 👁️",
+    subtitle: "See your credit future clearly",
+  },
+];
+
+// Motivational badges that rotate
+const MOTIVATIONAL_BADGES = [
+  { text: "37+ points average increase", icon: "📈" },
+  { text: "You're in good company", icon: "🤝" },
+  { text: "Credit building on autopilot", icon: "✈️" },
+  { text: "Your future self thanks you", icon: "🙏" },
+  { text: "Small steps, big changes", icon: "👣" },
+];
+
+// Animation for text fade-in
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
 
 export default function SignIn() {
   const router = useRouter();
@@ -40,6 +100,14 @@ export default function SignIn() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState({ email: false, password: false });
+
+  // Random message state - selected once on mount
+  const [currentMessage] = useState(() =>
+    Math.floor(Math.random() * WELCOME_MESSAGES.length)
+  );
+  const [currentBadge] = useState(() =>
+    Math.floor(Math.random() * MOTIVATIONAL_BADGES.length)
+  );
 
   const isEmailValid = email.includes("@") && email.includes(".");
   const isPasswordValid = password.length >= 1; // Just check if not empty for signin
@@ -59,11 +127,21 @@ export default function SignIn() {
       });
 
       if (res?.ok) {
+        // Show personalized success message
+        const greetings = [
+          "Welcome back!",
+          "Great to have you back!",
+          "Hello again!",
+        ];
+        const randomGreeting =
+          greetings[Math.floor(Math.random() * greetings.length)];
+
         toast({
-          title: "Welcome back!",
-          description: "Successfully signed in to your account",
+          title: randomGreeting,
+          description: "Let's continue building your credit! 🚀",
           status: "success",
           duration: 3000,
+          position: "top",
         });
         router.push("/dashboard");
       } else {
@@ -186,17 +264,28 @@ export default function SignIn() {
             maxW="lg"
           >
             <VStack align="start" spacing={6}>
-              <Heading
-                fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
-                fontWeight="900"
-                lineHeight={1.1}
-                letterSpacing="-0.02em"
-              >
-                Welcome back to{" "}
-                <Text as="span" color="yellow.300">
-                  Sable
+              {/* Welcome Message - Selected once per page load */}
+              <Box animation={`${fadeIn} 0.5s ease-out`}>
+                <Heading
+                  fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
+                  fontWeight="900"
+                  lineHeight={1.1}
+                  letterSpacing="-0.02em"
+                  mb={2}
+                >
+                  {WELCOME_MESSAGES[currentMessage].greeting}{" "}
+                  <Text as="span" color="yellow.300">
+                    {WELCOME_MESSAGES[currentMessage].highlight}
+                  </Text>
+                </Heading>
+                <Text
+                  fontSize={{ base: "lg", md: "xl" }}
+                  opacity={0.9}
+                  lineHeight={1.6}
+                >
+                  {WELCOME_MESSAGES[currentMessage].subtitle}
                 </Text>
-              </Heading>
+              </Box>
 
               {/* Welcome Back Image */}
               <Box
@@ -218,17 +307,19 @@ export default function SignIn() {
                 />
               </Box>
 
+              {/* Motivational Quote */}
               <Text
-                fontSize={{ base: "lg", md: "xl" }}
-                opacity={0.9}
-                lineHeight={1.6}
+                fontSize={{ base: "md", md: "lg" }}
+                opacity={0.8}
+                fontStyle="italic"
+                maxW="md"
               >
-                Continue your credit journey and check your latest score
-                improvements.
+                "Every login is a step closer to your financial dreams. Keep
+                going!"
               </Text>
             </VStack>
 
-            {/* Quick Stats */}
+            {/* Quick Stats with Animation */}
             <VStack align="start" spacing={4} pt={4}>
               <HStack spacing={4}>
                 <VStack align="start" spacing={1}>
@@ -236,7 +327,7 @@ export default function SignIn() {
                     50K+
                   </Text>
                   <Text fontSize="sm" opacity={0.8}>
-                    Active Members
+                    Happy Members
                   </Text>
                 </VStack>
                 <VStack align="start" spacing={1}>
@@ -257,26 +348,21 @@ export default function SignIn() {
                 </VStack>
               </HStack>
 
-              <HStack spacing={2}>
+              {/* Motivational Badge - Selected once per page load */}
+              <Box animation={`${fadeIn} 0.5s ease-out`}>
                 <Badge
                   bg="whiteAlpha.200"
                   color="white"
-                  px={3}
-                  py={1}
+                  px={4}
+                  py={2}
                   borderRadius="full"
+                  fontSize="sm"
+                  fontWeight="600"
                 >
-                  🔒 Secure Login
+                  {MOTIVATIONAL_BADGES[currentBadge].icon}{" "}
+                  {MOTIVATIONAL_BADGES[currentBadge].text}
                 </Badge>
-                <Badge
-                  bg="whiteAlpha.200"
-                  color="white"
-                  px={3}
-                  py={1}
-                  borderRadius="full"
-                >
-                  ⚡ Instant Access
-                </Badge>
-              </HStack>
+              </Box>
             </VStack>
           </VStack>
         </Box>
@@ -299,16 +385,37 @@ export default function SignIn() {
                 fontWeight="800"
                 color="gray.900"
               >
-                Sign In
+                Continue Your Journey
               </Heading>
               <Text
                 fontSize={{ base: "md", md: "lg" }}
                 color="gray.600"
                 maxW="sm"
               >
-                Access your credit dashboard and continue building your score
+                Your credit score is waiting to grow. Let's make it happen
+                together! 🌱
               </Text>
             </VStack>
+
+            {/* Motivational Alert */}
+            <Alert
+              status="success"
+              borderRadius="12px"
+              bg="green.50"
+              border="1px solid"
+              borderColor="green.200"
+            >
+              <AlertIcon />
+              <VStack align="start" spacing={0}>
+                <Text fontSize="sm" fontWeight="600" color="green.800">
+                  Did you know?
+                </Text>
+                <Text fontSize="xs" color="green.700">
+                  Members who log in regularly see 2x faster credit
+                  improvements!
+                </Text>
+              </VStack>
+            </Alert>
 
             {/* Error Alert */}
             {error && (
@@ -458,7 +565,7 @@ export default function SignIn() {
               }}
               transition="all 0.2s cubic-bezier(0.08, 0.52, 0.52, 1)"
             >
-              Sign In to Dashboard →
+              Welcome Back to Your Journey →
             </Button>
 
             {/* Help Text */}
@@ -466,19 +573,19 @@ export default function SignIn() {
               <Divider />
 
               <Text fontSize="sm" color="gray.600">
-                Don't have an account?{" "}
+                New to the Sable family?{" "}
                 <Link
                   href="/onboarding/signup"
                   color="sable.sage"
                   fontWeight="600"
                   _hover={{ textDecoration: "underline" }}
                 >
-                  Create one here
+                  Join 50,000+ credit builders
                 </Link>
               </Text>
 
               <Text fontSize="xs" color="gray.500">
-                Need help? Contact our{" "}
+                Need help? Our{" "}
                 <Link
                   href="/support"
                   color="sable.sage"
@@ -486,7 +593,8 @@ export default function SignIn() {
                   _hover={{ textDecoration: "underline" }}
                 >
                   support team
-                </Link>
+                </Link>{" "}
+                is here for you 24/7
               </Text>
             </VStack>
           </VStack>
