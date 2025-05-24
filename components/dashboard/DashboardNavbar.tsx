@@ -63,7 +63,7 @@ const NAV_ITEMS = [
   {
     key: "disputes",
     label: "Disputes",
-    href: "/dashboard/disputes",
+    href: "/dashboard/disputes/select",
     icon: FileText,
     shortLabel: "Disputes",
     badge: 3,
