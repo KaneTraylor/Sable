@@ -1,3 +1,4 @@
+// components/signup/SignupForm.tsx - Improved Layout
 import React, { useState, useEffect } from "react";
 import { Box, Container, VStack, Spinner, Center } from "@chakra-ui/react";
 import { useRouter } from "next/router";
@@ -6,9 +7,9 @@ import { signIn } from "next-auth/react";
 import SignupStep1 from "./SignupStep1";
 import SignupStep2 from "./SignupStep2";
 import SignupStep3 from "./SignupStep3";
-import SignupStep4 from "./SignupStep4"; // pricing table
-import SignupStep5 from "./SignupStep5"; // array widgets
-import SignupStep6 from "./SignupStep6"; // welcome screen
+import SignupStep4 from "./SignupStep4";
+import SignupStep5 from "./SignupStep5";
+import SignupStep6 from "./SignupStep6";
 
 export interface FormData {
   email: string;
@@ -104,7 +105,6 @@ export default function SignupForm() {
         );
       case 2:
         return <SignupStep2 onNext={nextStep} onBack={prevStep} />;
-
       case 3:
         return (
           <SignupStep3
@@ -114,7 +114,6 @@ export default function SignupForm() {
             onBack={prevStep}
           />
         );
-
       case 4:
         return (
           <SignupStep4
@@ -130,7 +129,6 @@ export default function SignupForm() {
             onBack={prevStep}
           />
         );
-
       case 6:
         return <SignupStep6 onNext={() => router.push("/dashboard")} />;
       default:
@@ -140,16 +138,24 @@ export default function SignupForm() {
 
   return (
     <Box bg="sable.tan" minH="100vh">
-      {/* Full viewport height container */}
-      <Container maxW="full" h="100vh" p={0}>
+      {/* Improved container with proper constraints */}
+      <Container
+        maxW={{ base: "full", md: "4xl", lg: "6xl" }}
+        px={{ base: 4, md: 8 }}
+        py={{ base: 6, md: 8 }}
+        minH="100vh"
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+      >
         {isSubmitting ? (
-          <Center h="100vh">
+          <Center flex="1">
             <VStack spacing={4}>
               <Spinner size="xl" color="green.500" />
             </VStack>
           </Center>
         ) : (
-          <Box h="100vh" overflowY="auto">
+          <Box w="full" maxW="5xl" mx="auto">
             {renderStep()}
           </Box>
         )}

@@ -1,3 +1,4 @@
+// components/signup/SignupStep2.tsx - Fixed transition delay error
 import {
   Box,
   Heading,
@@ -26,7 +27,7 @@ import {
   FaCreditCard,
 } from "react-icons/fa";
 import { MdTrendingUp, MdSecurity, MdAccountBalance } from "react-icons/md";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface SignupStep2Props {
   onNext: (step: number, data?: any) => void;
@@ -92,8 +93,24 @@ const INTERESTS = [
 
 export default function SignupStep2({ onNext, onBack }: SignupStep2Props) {
   const [selected, setSelected] = useState<string[]>([]);
+  const [visibleItems, setVisibleItems] = useState<number>(0);
   const cardBg = useColorModeValue("white", "gray.700");
   const isMobile = useBreakpointValue({ base: true, md: false });
+
+  // Staggered animation effect
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setVisibleItems((prev) => {
+        if (prev < INTERESTS.length) {
+          return prev + 1;
+        }
+        clearInterval(timer);
+        return prev;
+      });
+    }, 100); // Show each item 100ms after the previous
+
+    return () => clearInterval(timer);
+  }, []);
 
   const toggleInterest = (name: string) => {
     setSelected((prev) =>
@@ -178,11 +195,13 @@ export default function SignupStep2({ onNext, onBack }: SignupStep2Props) {
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6} w="full">
             {INTERESTS.map((interest, index) => {
               const isActive = selected.includes(interest.name);
+              const isVisible = index < visibleItems;
+
               return (
                 <ScaleFade
                   key={interest.name}
-                  in={true}
-                  transition={{ delay: index * 0.1 }}
+                  in={isVisible}
+                  initialScale={0.9}
                 >
                   <Box
                     bg={cardBg}

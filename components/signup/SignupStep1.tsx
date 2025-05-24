@@ -230,7 +230,6 @@ export default function SignupStep1({
                       boxShadow: "0 0 0 1px var(--chakra-colors-green-500)",
                     }}
                     bg="gray.50"
-                    _focus={{ bg: "white" }}
                   />
                   {!isEmailValid && touched.email && (
                     <FormErrorMessage>
@@ -261,7 +260,6 @@ export default function SignupStep1({
                         boxShadow: "0 0 0 1px var(--chakra-colors-green-500)",
                       }}
                       bg="gray.50"
-                      _focus={{ bg: "white" }}
                       pr="3rem"
                     />
                     <InputRightElement width="3rem" height="100%">
