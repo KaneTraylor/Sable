@@ -28,17 +28,22 @@ export default async function handler(
   }
 
   try {
+    // Get session with proper error handling
     const session = await getServerSession(req, res, authOptions);
+
     if (!session?.user?.email) {
-      return res.status(401).json({ error: "Unauthorized" });
+      console.error("No session found");
+      return res.status(401).json({ error: "Unauthorized - no session" });
     }
 
+    // Find user with proper error handling
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       select: { id: true, plan: true },
     });
 
     if (!user) {
+      console.error("User not found for email:", session.user.email);
       return res.status(404).json({ error: "User not found" });
     }
 
@@ -48,8 +53,15 @@ export default async function handler(
       trackingNumbers = [],
     }: SaveDisputeRequest = req.body;
 
+    // Validate request data
     if (!items || !Array.isArray(items) || items.length === 0) {
+      console.error("Invalid items data:", items);
       return res.status(400).json({ error: "Invalid items data" });
+    }
+
+    if (!deliveryMethod || !["premium", "self"].includes(deliveryMethod)) {
+      console.error("Invalid delivery method:", deliveryMethod);
+      return res.status(400).json({ error: "Invalid delivery method" });
     }
 
     // Check if user can dispute (not in cooldown)
@@ -69,6 +81,7 @@ export default async function handler(
         const daysLeft = Math.ceil(
           (cooldownEnd.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
         );
+        console.log("User in cooldown period. Days left:", daysLeft);
         return res.status(400).json({
           error: "Still in cooldown period",
           daysLeft,
@@ -76,68 +89,102 @@ export default async function handler(
       }
     }
 
-    // Create dispute round
-    const disputeRound = await prisma.disputeRound.create({
-      data: {
-        userId: user.id,
-        status: deliveryMethod === "premium" ? "sent" : "draft",
-        deliveryMethod,
-        sentAt: deliveryMethod === "premium" ? new Date() : null,
-        trackingNumbers,
-        estimatedResponseDate:
-          deliveryMethod === "premium"
-            ? new Date(Date.now() + 45 * 24 * 60 * 60 * 1000) // 45 days from now
-            : null,
-      },
-    });
+    console.log("Creating dispute round for user:", user.id);
 
-    // Create dispute items
-    const disputeItems = await Promise.all(
-      items.map((item) =>
-        prisma.disputeItem.create({
-          data: {
-            disputeRoundId: disputeRound.id,
-            accountId: item.accountId,
-            accountName: item.accountName,
-            creditorName: item.creditorName,
-            bureau: item.bureau,
-            reason: item.reason,
-            instruction: item.instruction,
-            status: deliveryMethod === "premium" ? "investigating" : "pending",
-            canDisputeAgain:
-              deliveryMethod === "premium"
-                ? new Date(Date.now() + 35 * 24 * 60 * 60 * 1000) // 35 days from now
-                : null,
-          },
-        })
-      )
-    );
-
-    // Update user's next dispute date
-    if (deliveryMethod === "premium") {
-      await prisma.user.update({
-        where: { id: user.id },
+    // Create dispute round with transaction
+    const result = await prisma.$transaction(async (tx) => {
+      // Create the dispute round
+      const disputeRound = await tx.disputeRound.create({
         data: {
-          nextDisputeAt: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000),
-          lastDisputeSentAt: new Date(),
-          sentWithSable: true,
+          userId: user.id,
+          status: deliveryMethod === "premium" ? "sent" : "draft",
+          deliveryMethod,
+          sentAt: deliveryMethod === "premium" ? new Date() : null,
+          trackingNumbers,
+          estimatedResponseDate:
+            deliveryMethod === "premium"
+              ? new Date(Date.now() + 45 * 24 * 60 * 60 * 1000) // 45 days from now
+              : null,
         },
       });
-    }
+
+      console.log("Created dispute round:", disputeRound.id);
+
+      // Create dispute items
+      const disputeItems = await Promise.all(
+        items.map((item) =>
+          tx.disputeItem.create({
+            data: {
+              disputeRoundId: disputeRound.id,
+              accountId: item.accountId,
+              accountName: item.accountName,
+              creditorName: item.creditorName,
+              bureau: item.bureau,
+              reason: item.reason,
+              instruction: item.instruction,
+              status:
+                deliveryMethod === "premium" ? "investigating" : "pending",
+              canDisputeAgain:
+                deliveryMethod === "premium"
+                  ? new Date(Date.now() + 35 * 24 * 60 * 60 * 1000) // 35 days from now
+                  : null,
+            },
+          })
+        )
+      );
+
+      console.log("Created dispute items:", disputeItems.length);
+
+      // Update user's next dispute date
+      if (deliveryMethod === "premium") {
+        await tx.user.update({
+          where: { id: user.id },
+          data: {
+            nextDisputeAt: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000),
+            lastDisputeSentAt: new Date(),
+            sentWithSable: true,
+          },
+        });
+      }
+
+      return { disputeRound, disputeItems };
+    });
+
+    console.log("Transaction completed successfully");
 
     return res.status(200).json({
       success: true,
       disputeRound: {
-        id: disputeRound.id,
-        status: disputeRound.status,
-        itemCount: disputeItems.length,
+        id: result.disputeRound.id,
+        status: result.disputeRound.status,
+        itemCount: result.disputeItems.length,
       },
     });
   } catch (error: any) {
     console.error("Error saving dispute round:", error);
+    console.error("Error stack:", error.stack);
+
+    // Check for Prisma-specific errors
+    if (error.code === "P2002") {
+      return res.status(400).json({
+        error: "Duplicate dispute entry",
+        details: "A dispute with these details already exists",
+      });
+    }
+
+    if (error.code === "P2025") {
+      return res.status(404).json({
+        error: "Record not found",
+        details: "The requested record was not found",
+      });
+    }
+
     return res.status(500).json({
       error: "Failed to save dispute round",
-      details: error.message,
+      details:
+        process.env.NODE_ENV === "development"
+          ? error.message
+          : "Internal server error",
     });
   }
 }
